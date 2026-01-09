@@ -117,42 +117,42 @@ export default function Home() {
     <div className="min-h-screen bg-gray-950">
       {/* Header */}
       <header className="bg-gray-900 border-b border-gray-800">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-orange-500">HYROX Trainer</h1>
-              <p className="text-sm text-gray-400">Train Anywhere, Race Ready</p>
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl font-bold text-orange-500">HYROX Trainer</h1>
+              <p className="text-xs sm:text-sm text-gray-400 hidden sm:block">Train Anywhere, Race Ready</p>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="text-right hidden md:block">
                 <div className="text-sm text-gray-400">Equipment configured</div>
                 <div className="text-orange-400 font-semibold">
                   {equipment.filter(e => e.available).length} items
                 </div>
               </div>
               {status === 'loading' ? (
-                <div className="w-20 h-10 bg-gray-800 rounded-lg animate-pulse" />
+                <div className="w-16 sm:w-20 h-9 sm:h-10 bg-gray-800 rounded-lg animate-pulse" />
               ) : session ? (
-                <div className="flex items-center gap-3">
-                  <span className="text-sm text-gray-300">{session.user.name || session.user.email}</span>
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <span className="text-xs sm:text-sm text-gray-300 hidden sm:inline max-w-[120px] truncate">{session.user.name || session.user.email}</span>
                   <button
                     onClick={() => signOut()}
-                    className="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-sm text-gray-300"
+                    className="px-3 sm:px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-xs sm:text-sm text-gray-300 whitespace-nowrap"
                   >
                     Sign Out
                   </button>
                 </div>
               ) : (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 sm:gap-2">
                   <Link
                     href="/auth/signin"
-                    className="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-sm text-gray-300"
+                    className="px-3 sm:px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-xs sm:text-sm text-gray-300"
                   >
                     Sign In
                   </Link>
                   <Link
                     href="/auth/signup"
-                    className="px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded-lg text-sm text-white font-medium"
+                    className="px-3 sm:px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded-lg text-xs sm:text-sm text-white font-medium"
                   >
                     Sign Up
                   </Link>
@@ -165,20 +165,20 @@ export default function Home() {
 
       {/* Navigation */}
       <nav className="bg-gray-900/50 border-b border-gray-800 sticky top-0 z-50 backdrop-blur">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="flex overflow-x-auto">
+        <div className="max-w-6xl mx-auto px-2 sm:px-4">
+          <div className="flex justify-between sm:justify-start overflow-x-auto scrollbar-hide">
             {tabs.map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-3 font-medium whitespace-nowrap border-b-2 transition-colors ${
+                className={`flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-4 py-3 font-medium whitespace-nowrap border-b-2 transition-colors min-w-0 flex-1 sm:flex-none ${
                   activeTab === tab.id
                     ? 'text-orange-400 border-orange-400'
                     : 'text-gray-400 border-transparent hover:text-gray-200'
                 }`}
               >
-                <span>{tab.icon}</span>
-                <span>{tab.label}</span>
+                <span className="text-lg sm:text-base">{tab.icon}</span>
+                <span className="hidden sm:inline text-sm">{tab.label}</span>
               </button>
             ))}
           </div>
@@ -186,32 +186,33 @@ export default function Home() {
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-4 py-6">
+      <main className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         {activeTab === 'workout' && (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Workout Generator Controls */}
-            <div className="bg-gray-900 rounded-xl p-6">
-              <h2 className="text-xl font-bold text-white mb-4">Generate Workout</h2>
+            <div className="bg-gray-900 rounded-xl p-4 sm:p-6">
+              <h2 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Generate Workout</h2>
 
               {/* Workout Type */}
               <div className="mb-4">
                 <label className="block text-sm text-gray-400 mb-2">Workout Type</label>
-                <div className="flex flex-wrap gap-2">
+                <div className="grid grid-cols-3 gap-2">
                   {[
-                    { id: 'full', label: 'Full Simulation', desc: '8 stations + 8km' },
-                    { id: 'quick', label: 'Quick Workout', desc: 'Time-based' },
-                    { id: 'station', label: 'Station Practice', desc: 'Focus areas' },
+                    { id: 'full', label: 'Full Sim', fullLabel: 'Full Simulation' },
+                    { id: 'quick', label: 'Quick', fullLabel: 'Quick Workout' },
+                    { id: 'station', label: 'Practice', fullLabel: 'Station Practice' },
                   ].map(type => (
                     <button
                       key={type.id}
                       onClick={() => setWorkoutType(type.id as typeof workoutType)}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      className={`px-2 sm:px-4 py-3 rounded-lg text-xs sm:text-sm font-medium transition-all ${
                         workoutType === type.id
                           ? 'bg-orange-500 text-white'
                           : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
                       }`}
                     >
-                      {type.label}
+                      <span className="sm:hidden">{type.label}</span>
+                      <span className="hidden sm:inline">{type.fullLabel}</span>
                     </button>
                   ))}
                 </div>
@@ -219,24 +220,24 @@ export default function Home() {
 
               {/* Quick Workout Options */}
               {workoutType === 'quick' && (
-                <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4">
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">Duration (minutes)</label>
+                    <label className="block text-xs sm:text-sm text-gray-400 mb-1">Duration (min)</label>
                     <input
                       type="number"
                       value={quickDuration}
                       onChange={e => setQuickDuration(parseInt(e.target.value) || 30)}
-                      className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                      className="w-full px-3 sm:px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white text-base"
                       min={15}
                       max={90}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">Focus</label>
+                    <label className="block text-xs sm:text-sm text-gray-400 mb-1">Focus</label>
                     <select
                       value={quickFocus}
                       onChange={e => setQuickFocus(e.target.value as typeof quickFocus)}
-                      className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                      className="w-full px-3 sm:px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white text-base"
                     >
                       <option value="mixed">Mixed</option>
                       <option value="cardio">Cardio</option>
@@ -250,12 +251,12 @@ export default function Home() {
               {workoutType === 'station' && (
                 <div className="mb-4">
                   <label className="block text-sm text-gray-400 mb-2">Select Stations to Practice</label>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
                     {HYROX_STATIONS.map(station => (
                       <button
                         key={station.id}
                         onClick={() => toggleStation(station.id)}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                        className={`px-3 py-3 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${
                           selectedStations.includes(station.id)
                             ? 'bg-orange-500 text-white'
                             : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
@@ -270,13 +271,13 @@ export default function Home() {
 
               <button
                 onClick={handleGenerateWorkout}
-                className="w-full py-3 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 rounded-lg font-bold text-white text-lg"
+                className="w-full py-3 sm:py-4 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 rounded-lg font-bold text-white text-base sm:text-lg"
               >
                 Generate Workout
               </button>
 
               {equipment.filter(e => e.available).length === 0 && (
-                <p className="text-yellow-500 text-sm mt-3 text-center">
+                <p className="text-yellow-500 text-xs sm:text-sm mt-3 text-center">
                   No equipment configured. Go to Equipment tab to set up your available gear.
                 </p>
               )}

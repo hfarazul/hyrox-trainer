@@ -60,50 +60,50 @@ export default function PacingCalculator() {
   const divisionInfo = DIVISION_INFO[goal.division];
 
   return (
-    <div className="bg-gray-900 rounded-xl p-6">
-      <h2 className="text-2xl font-bold text-white mb-6">Pacing Calculator</h2>
+    <div className="bg-gray-900 rounded-xl p-4 sm:p-6">
+      <h2 className="text-lg sm:text-2xl font-bold text-white mb-4 sm:mb-6">Pacing Calculator</h2>
 
       {/* Inputs */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
         <div>
-          <label htmlFor="targetTime" className="block text-sm text-gray-400 mb-1">
-            Target Race Time (minutes)
+          <label htmlFor="targetTime" className="block text-xs sm:text-sm text-gray-400 mb-1">
+            Target Race Time (min)
           </label>
           <input
             id="targetTime"
             type="number"
             value={goal.targetTime}
             onChange={e => handleTargetTimeChange(e.target.value)}
-            className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+            className="w-full px-3 sm:px-4 py-3 sm:py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-base focus:outline-none focus:ring-2 focus:ring-orange-400"
             min={45}
             max={180}
           />
         </div>
 
         <div>
-          <label htmlFor="fiveKTime" className="block text-sm text-gray-400 mb-1">
-            5K Run Time (minutes)
+          <label htmlFor="fiveKTime" className="block text-xs sm:text-sm text-gray-400 mb-1">
+            5K Run Time (min)
           </label>
           <input
             id="fiveKTime"
             type="number"
             value={goal.fiveKTime}
             onChange={e => handleFiveKTimeChange(e.target.value)}
-            className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+            className="w-full px-3 sm:px-4 py-3 sm:py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-base focus:outline-none focus:ring-2 focus:ring-orange-400"
             min={15}
             max={45}
           />
         </div>
 
         <div>
-          <label htmlFor="division" className="block text-sm text-gray-400 mb-1">
+          <label htmlFor="division" className="block text-xs sm:text-sm text-gray-400 mb-1">
             Division
           </label>
           <select
             id="division"
             value={goal.division}
             onChange={e => setGoal(prev => ({ ...prev, division: e.target.value as RaceGoal['division'] }))}
-            className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+            className="w-full px-3 sm:px-4 py-3 sm:py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-base focus:outline-none focus:ring-2 focus:ring-orange-400"
           >
             <option value="men_open">Men Open</option>
             <option value="men_pro">Men Pro</option>
@@ -113,14 +113,14 @@ export default function PacingCalculator() {
         </div>
 
         <div>
-          <label htmlFor="experience" className="block text-sm text-gray-400 mb-1">
+          <label htmlFor="experience" className="block text-xs sm:text-sm text-gray-400 mb-1">
             Experience Level
           </label>
           <select
             id="experience"
             value={goal.experience}
             onChange={e => setGoal(prev => ({ ...prev, experience: e.target.value as RaceGoal['experience'] }))}
-            className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+            className="w-full px-3 sm:px-4 py-3 sm:py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-base focus:outline-none focus:ring-2 focus:ring-orange-400"
           >
             <option value="beginner">Beginner</option>
             <option value="intermediate">Intermediate</option>
@@ -130,9 +130,9 @@ export default function PacingCalculator() {
       </div>
 
       {/* Division Weights */}
-      <div className="p-4 bg-gray-800 rounded-lg mb-6">
-        <h3 className="text-sm font-semibold text-gray-400 mb-2">{divisionInfo.label} Division Weights</h3>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-sm">
+      <div className="p-3 sm:p-4 bg-gray-800 rounded-lg mb-4 sm:mb-6">
+        <h3 className="text-xs sm:text-sm font-semibold text-gray-400 mb-2">{divisionInfo.label} Division Weights</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 text-xs sm:text-sm">
           <div><span className="text-gray-500">Sled Push:</span> <span className="text-white">{divisionInfo.sledPush}</span></div>
           <div><span className="text-gray-500">Sled Pull:</span> <span className="text-white">{divisionInfo.sledPull}</span></div>
           <div><span className="text-gray-500">Farmers:</span> <span className="text-white">{divisionInfo.farmers}</span></div>
@@ -142,59 +142,59 @@ export default function PacingCalculator() {
       </div>
 
       {/* Summary */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="p-4 bg-orange-900/30 border border-orange-700 rounded-lg text-center">
-          <div className="text-3xl font-bold text-orange-400">{goal.targetTime}:00</div>
-          <div className="text-sm text-gray-400">Target Time</div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <div className="p-3 sm:p-4 bg-orange-900/30 border border-orange-700 rounded-lg text-center">
+          <div className="text-2xl sm:text-3xl font-bold text-orange-400">{goal.targetTime}:00</div>
+          <div className="text-xs sm:text-sm text-gray-400">Target Time</div>
         </div>
-        <div className="p-4 bg-blue-900/30 border border-blue-700 rounded-lg text-center">
-          <div className="text-3xl font-bold text-blue-400">{formatTime(runPacePerKm)}</div>
-          <div className="text-sm text-gray-400">Run Pace /km</div>
+        <div className="p-3 sm:p-4 bg-blue-900/30 border border-blue-700 rounded-lg text-center">
+          <div className="text-2xl sm:text-3xl font-bold text-blue-400">{formatTime(runPacePerKm)}</div>
+          <div className="text-xs sm:text-sm text-gray-400">Run Pace /km</div>
         </div>
-        <div className="p-4 bg-gray-800 rounded-lg text-center">
-          <div className="text-3xl font-bold text-gray-300">{formatTime(ROX_ZONE_TRANSITION_TIME_SECONDS)}</div>
-          <div className="text-sm text-gray-400">ROX Zone Time</div>
+        <div className="p-3 sm:p-4 bg-gray-800 rounded-lg text-center">
+          <div className="text-2xl sm:text-3xl font-bold text-gray-300">{formatTime(ROX_ZONE_TRANSITION_TIME_SECONDS)}</div>
+          <div className="text-xs sm:text-sm text-gray-400">ROX Zone Time</div>
         </div>
       </div>
 
       {/* Station Breakdown */}
-      <h3 className="text-lg font-semibold text-white mb-3">Station Target Times</h3>
+      <h3 className="text-base sm:text-lg font-semibold text-white mb-2 sm:mb-3">Station Target Times</h3>
       <div className="space-y-2">
         {pacingPlan.map((station, idx) => {
           const stationInfo = HYROX_STATIONS.find(s => s.id === station.stationId);
           return (
-            <div key={station.stationId} className="flex items-center gap-4 p-3 bg-gray-800 rounded-lg">
-              <span className="w-8 h-8 flex items-center justify-center bg-orange-500 rounded-full text-white font-bold text-sm">
+            <div key={station.stationId} className="flex items-center gap-2 sm:gap-4 p-2 sm:p-3 bg-gray-800 rounded-lg">
+              <span className="w-7 h-7 sm:w-8 sm:h-8 flex-shrink-0 flex items-center justify-center bg-orange-500 rounded-full text-white font-bold text-xs sm:text-sm">
                 {idx + 1}
               </span>
-              <div className="flex-1">
-                <div className="text-white font-medium">{station.stationName}</div>
-                <div className="text-sm text-gray-500">{stationInfo?.officialRequirement}</div>
+              <div className="flex-1 min-w-0">
+                <div className="text-white font-medium text-sm sm:text-base truncate">{station.stationName}</div>
+                <div className="text-xs sm:text-sm text-gray-500 truncate">{stationInfo?.officialRequirement}</div>
               </div>
-              <div className="text-right">
-                <div className="text-xl font-bold text-orange-400">{formatTime(station.targetTime)}</div>
+              <div className="text-right flex-shrink-0">
+                <div className="text-lg sm:text-xl font-bold text-orange-400">{formatTime(station.targetTime)}</div>
               </div>
             </div>
           );
         })}
 
         {/* Add run times */}
-        <div className="mt-4 p-3 bg-blue-900/30 border border-blue-700 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-white font-medium">8x 1km Runs</div>
-              <div className="text-sm text-gray-400">Target pace: {formatTime(runPacePerKm)}/km</div>
+        <div className="mt-3 sm:mt-4 p-2 sm:p-3 bg-blue-900/30 border border-blue-700 rounded-lg">
+          <div className="flex items-center justify-between gap-2">
+            <div className="min-w-0">
+              <div className="text-white font-medium text-sm sm:text-base">8x 1km Runs</div>
+              <div className="text-xs sm:text-sm text-gray-400">Target pace: {formatTime(runPacePerKm)}/km</div>
             </div>
-            <div className="text-xl font-bold text-blue-400">{formatTime(totalRunTime)}</div>
+            <div className="text-lg sm:text-xl font-bold text-blue-400 flex-shrink-0">{formatTime(totalRunTime)}</div>
           </div>
         </div>
       </div>
 
       {/* Total */}
-      <div className="mt-6 p-4 bg-gradient-to-r from-orange-600 to-red-600 rounded-lg">
-        <div className="flex items-center justify-between text-white">
-          <span className="text-lg font-semibold">Total Estimated Time</span>
-          <span className="text-3xl font-bold">
+      <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gradient-to-r from-orange-600 to-red-600 rounded-lg">
+        <div className="flex items-center justify-between text-white gap-2">
+          <span className="text-sm sm:text-lg font-semibold">Total Estimated Time</span>
+          <span className="text-2xl sm:text-3xl font-bold">
             {formatTime(totalStationTime + totalRunTime + ROX_ZONE_TRANSITION_TIME_SECONDS)}
           </span>
         </div>

@@ -91,32 +91,32 @@ export default function EquipmentSelector({ onEquipmentChange, isAuthenticated =
   const categories = ['cardio', 'weights', 'bodyweight', 'resistance', 'other'] as const;
 
   return (
-    <div className="bg-gray-900 rounded-xl p-6">
-      <div className="flex justify-between items-center mb-4">
+    <div className="bg-gray-900 rounded-xl p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
         <div className="flex items-center gap-2">
-          <h2 className="text-xl font-bold text-white">Your Equipment</h2>
+          <h2 className="text-lg sm:text-xl font-bold text-white">Your Equipment</h2>
           {saving && (
             <span className="text-xs text-gray-400">Saving...</span>
           )}
         </div>
-        <div className="space-x-2">
+        <div className="flex gap-2">
           <button
             onClick={selectAll}
             disabled={saving}
-            className="px-3 py-1 text-sm bg-green-600 hover:bg-green-700 disabled:opacity-50 rounded text-white"
+            className="flex-1 sm:flex-none px-3 py-2 sm:py-1.5 text-sm bg-green-600 hover:bg-green-700 disabled:opacity-50 rounded text-white"
           >
             Select All
           </button>
           <button
             onClick={selectNone}
             disabled={saving}
-            className="px-3 py-1 text-sm bg-gray-600 hover:bg-gray-700 disabled:opacity-50 rounded text-white"
+            className="flex-1 sm:flex-none px-3 py-2 sm:py-1.5 text-sm bg-gray-600 hover:bg-gray-700 disabled:opacity-50 rounded text-white"
           >
             Clear
           </button>
         </div>
       </div>
-      <p className="text-gray-400 text-sm mb-4">
+      <p className="text-gray-400 text-xs sm:text-sm mb-4">
         Select the equipment you have access to. We&apos;ll generate workouts with suitable alternatives.
         {!isAuthenticated && (
           <span className="text-yellow-500 block mt-1">
@@ -127,10 +127,10 @@ export default function EquipmentSelector({ onEquipmentChange, isAuthenticated =
 
       {categories.map(category => (
         <div key={category} className="mb-4">
-          <h3 className="text-sm font-semibold text-gray-400 uppercase mb-2">
+          <h3 className="text-xs sm:text-sm font-semibold text-gray-400 uppercase mb-2">
             {category}
           </h3>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
             {AVAILABLE_EQUIPMENT.filter(eq => eq.category === category).map(eq => {
               const userEq = equipment.find(e => e.equipmentId === eq.id);
               const isSelected = userEq?.available || false;
@@ -139,7 +139,7 @@ export default function EquipmentSelector({ onEquipmentChange, isAuthenticated =
                   key={eq.id}
                   onClick={() => toggleEquipment(eq.id)}
                   disabled={saving}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  className={`px-3 py-3 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${
                     isSelected
                       ? 'bg-orange-500 text-white'
                       : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
@@ -154,7 +154,7 @@ export default function EquipmentSelector({ onEquipmentChange, isAuthenticated =
       ))}
 
       <div className="mt-4 p-3 bg-gray-800 rounded-lg">
-        <p className="text-sm text-gray-300">
+        <p className="text-xs sm:text-sm text-gray-300">
           <span className="text-orange-400 font-semibold">
             {equipment.filter(e => e.available).length}
           </span>{' '}

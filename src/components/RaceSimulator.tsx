@@ -220,28 +220,28 @@ export default function RaceSimulator({ config, onComplete }: Props) {
   const progressPercent = (completedBlocks / workoutBlocks.length) * 100;
 
   return (
-    <div className="bg-gray-900 rounded-xl p-6 relative">
+    <div className="bg-gray-900 rounded-xl p-4 sm:p-6 relative">
       {/* Toast Notification */}
       {notification && (
-        <div className="absolute top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg animate-pulse z-50">
+        <div className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-green-500 text-white px-3 sm:px-4 py-2 rounded-lg shadow-lg animate-pulse z-50 text-sm">
           {notification}
         </div>
       )}
 
-      <h2 className="text-2xl font-bold text-white mb-6">{workoutName}</h2>
+      <h2 className="text-lg sm:text-2xl font-bold text-white mb-4 sm:mb-6 pr-8">{workoutName}</h2>
 
       {phase === 'not_started' && (
-        <div className="text-center py-12">
-          <div className="text-6xl mb-4">🏁</div>
-          <h3 className="text-2xl font-bold text-white mb-4">Ready to Start?</h3>
-          <p className="text-gray-400 mb-6 max-w-md mx-auto">
+        <div className="text-center py-8 sm:py-12">
+          <div className="text-5xl sm:text-6xl mb-3 sm:mb-4">🏁</div>
+          <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4">Ready to Start?</h3>
+          <p className="text-gray-400 mb-5 sm:mb-6 max-w-md mx-auto text-sm sm:text-base px-4">
             {stationBlocks.length} station{stationBlocks.length !== 1 ? 's' : ''}
             {runBlocks.length > 0 && ` and ${runBlocks.length} run${runBlocks.length !== 1 ? 's' : ''}`}.
             We&apos;ll track your time for each segment.
           </p>
           <button
             onClick={startSimulation}
-            className="px-8 py-4 bg-orange-500 hover:bg-orange-600 rounded-xl text-xl font-bold text-white focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-gray-900"
+            className="px-6 sm:px-8 py-3 sm:py-4 bg-orange-500 hover:bg-orange-600 rounded-xl text-lg sm:text-xl font-bold text-white focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-gray-900"
           >
             Start Workout
           </button>
@@ -251,15 +251,15 @@ export default function RaceSimulator({ config, onComplete }: Props) {
       {(phase === 'running' || phase === 'station' || phase === 'rest') && (
         <div>
           {/* Main Timer */}
-          <div className="text-center mb-8">
-            <div className="text-6xl font-mono font-bold text-white mb-2">
+          <div className="text-center mb-4 sm:mb-8">
+            <div className="text-4xl sm:text-6xl font-mono font-bold text-white mb-1 sm:mb-2">
               {formatTime(Math.round(elapsedTime / 1000))}
             </div>
-            <div className="text-gray-400">Total Time</div>
+            <div className="text-gray-400 text-sm sm:text-base">Total Time</div>
           </div>
 
           {/* Current Activity */}
-          <div className={`p-6 rounded-xl mb-6 ${
+          <div className={`p-4 sm:p-6 rounded-xl mb-4 sm:mb-6 ${
             phase === 'running'
               ? 'bg-blue-900/50 border-2 border-blue-500'
               : phase === 'rest'
@@ -267,13 +267,13 @@ export default function RaceSimulator({ config, onComplete }: Props) {
               : 'bg-orange-900/50 border-2 border-orange-500'
           }`}>
             <div className="text-center">
-              <div className="text-5xl mb-3">
+              <div className="text-4xl sm:text-5xl mb-2 sm:mb-3">
                 {phase === 'running' ? '🏃' : phase === 'rest' ? '😮‍💨' : '💪'}
               </div>
-              <div className="text-sm text-gray-400 mb-1">
+              <div className="text-xs sm:text-sm text-gray-400 mb-1">
                 Block {(currentActivity?.blockIndex ?? 0) + 1}/{workoutBlocks.length}
               </div>
-              <div className="text-3xl font-bold text-white mb-2">
+              <div className="text-xl sm:text-3xl font-bold text-white mb-2">
                 {phase === 'running'
                   ? `${getRunDistance()} Run`
                   : phase === 'rest'
@@ -281,44 +281,44 @@ export default function RaceSimulator({ config, onComplete }: Props) {
                   : getCurrentBlock()?.alternativeName || getCurrentAlternative()?.name || getCurrentStation()?.name}
               </div>
               {phase === 'station' && (getCurrentAlternative() || getCurrentBlock()?.notes) && (
-                <p className="text-gray-300 mb-2">
+                <p className="text-gray-300 mb-2 text-sm sm:text-base">
                   {getCurrentBlock()?.notes || getCurrentAlternative()?.description}
                 </p>
               )}
               {phase === 'rest' && getCurrentBlock()?.notes && (
-                <p className="text-gray-300 mb-2">{getCurrentBlock()?.notes}</p>
+                <p className="text-gray-300 mb-2 text-sm sm:text-base">{getCurrentBlock()?.notes}</p>
               )}
-              <div className="text-4xl font-mono text-orange-400">
+              <div className="text-3xl sm:text-4xl font-mono text-orange-400">
                 {formatTime(Math.round(getActivityTime() / 1000))}
               </div>
             </div>
           </div>
 
           {/* Controls */}
-          <div className="flex justify-center gap-4">
+          <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4">
             <button
               onClick={() => setIsPaused(!isPaused)}
-              className="px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold text-white focus:outline-none focus:ring-2 focus:ring-gray-400"
+              className="px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold text-white focus:outline-none focus:ring-2 focus:ring-gray-400 text-sm sm:text-base"
             >
               {isPaused ? 'Resume' : 'Pause'}
             </button>
             <button
               onClick={completeCurrentActivity}
               disabled={isPaused}
-              className="px-8 py-3 bg-green-500 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-semibold text-white focus:outline-none focus:ring-2 focus:ring-green-400"
+              className="px-6 sm:px-8 py-3 bg-green-500 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-semibold text-white focus:outline-none focus:ring-2 focus:ring-green-400 text-sm sm:text-base"
             >
               Complete {phase === 'running' ? 'Run' : phase === 'rest' ? 'Rest' : 'Station'}
             </button>
             <button
               onClick={resetSimulation}
-              className="px-6 py-3 bg-red-600 hover:bg-red-700 rounded-lg font-semibold text-white focus:outline-none focus:ring-2 focus:ring-red-400"
+              className="px-6 py-3 bg-red-600 hover:bg-red-700 rounded-lg font-semibold text-white focus:outline-none focus:ring-2 focus:ring-red-400 text-sm sm:text-base"
             >
               Reset
             </button>
           </div>
 
           {/* Progress */}
-          <div className="mt-8">
+          <div className="mt-6 sm:mt-8">
             <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-orange-500 to-green-500 transition-all duration-300"
@@ -336,30 +336,30 @@ export default function RaceSimulator({ config, onComplete }: Props) {
 
       {phase === 'completed' && (
         <div>
-          <div className="text-center py-8">
-            <div className="text-6xl mb-4">🎉</div>
-            <h3 className="text-3xl font-bold text-white mb-2">Workout Complete!</h3>
-            <div className="text-5xl font-mono font-bold text-orange-400 mb-4">
+          <div className="text-center py-6 sm:py-8">
+            <div className="text-5xl sm:text-6xl mb-3 sm:mb-4">🎉</div>
+            <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2">Workout Complete!</h3>
+            <div className="text-4xl sm:text-5xl font-mono font-bold text-orange-400 mb-4">
               {formatTime(Math.round(elapsedTime / 1000))}
             </div>
           </div>
 
           {/* Results Breakdown */}
-          <div className="space-y-4 mb-6">
-            <h4 className="text-lg font-semibold text-white">Breakdown</h4>
+          <div className="space-y-3 sm:space-y-4 mb-6">
+            <h4 className="text-base sm:text-lg font-semibold text-white">Breakdown</h4>
 
             {/* Runs */}
             {runTimes.length > 0 && (
-              <div className="p-4 bg-blue-900/30 border border-blue-700 rounded-lg">
+              <div className="p-3 sm:p-4 bg-blue-900/30 border border-blue-700 rounded-lg">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-white font-medium">{runTimes.length}x Runs</span>
-                  <span className="text-blue-400 font-bold">
+                  <span className="text-white font-medium text-sm sm:text-base">{runTimes.length}x Runs</span>
+                  <span className="text-blue-400 font-bold text-sm sm:text-base">
                     {formatTime(Math.round(runTimes.reduce((a, b) => a + b, 0) / 1000))}
                   </span>
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
                   {runTimes.map((time, idx) => (
-                    <span key={idx} className="text-sm px-2 py-1 bg-blue-900 rounded text-blue-300">
+                    <span key={idx} className="text-xs sm:text-sm px-2 py-1 bg-blue-900 rounded text-blue-300">
                       Run {idx + 1}: {formatTime(Math.round(time / 1000))}
                     </span>
                   ))}
@@ -371,21 +371,21 @@ export default function RaceSimulator({ config, onComplete }: Props) {
             {stationResults.map((result, idx) => {
               const station = HYROX_STATIONS.find(s => s.id === result.stationId);
               return (
-                <div key={`${result.stationId}-${idx}`} className="p-4 bg-gray-800 rounded-lg flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="w-8 h-8 flex items-center justify-center bg-orange-500 rounded-full text-white font-bold text-sm">
+                <div key={`${result.stationId}-${idx}`} className="p-3 sm:p-4 bg-gray-800 rounded-lg flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                    <span className="w-7 h-7 sm:w-8 sm:h-8 flex-shrink-0 flex items-center justify-center bg-orange-500 rounded-full text-white font-bold text-xs sm:text-sm">
                       {idx + 1}
                     </span>
-                    <div>
-                      <div className="text-white font-medium">
+                    <div className="min-w-0">
+                      <div className="text-white font-medium text-sm sm:text-base truncate">
                         {result.alternativeUsed ?? station?.name}
                       </div>
                       {result.alternativeUsed && result.alternativeUsed !== station?.name && (
-                        <div className="text-xs text-gray-500">({station?.name})</div>
+                        <div className="text-xs text-gray-500 truncate">({station?.name})</div>
                       )}
                     </div>
                   </div>
-                  <span className="text-orange-400 font-bold text-xl">
+                  <span className="text-orange-400 font-bold text-lg sm:text-xl flex-shrink-0">
                     {formatTime(result.timeSeconds)}
                   </span>
                 </div>
@@ -394,10 +394,10 @@ export default function RaceSimulator({ config, onComplete }: Props) {
 
             {/* Rest Times */}
             {restTimes.length > 0 && (
-              <div className="p-4 bg-gray-700/30 border border-gray-600 rounded-lg">
+              <div className="p-3 sm:p-4 bg-gray-700/30 border border-gray-600 rounded-lg">
                 <div className="flex justify-between items-center">
-                  <span className="text-white font-medium">Rest Time</span>
-                  <span className="text-gray-400 font-bold">
+                  <span className="text-white font-medium text-sm sm:text-base">Rest Time</span>
+                  <span className="text-gray-400 font-bold text-sm sm:text-base">
                     {formatTime(Math.round(restTimes.reduce((a, b) => a + b, 0) / 1000))}
                   </span>
                 </div>
@@ -406,16 +406,16 @@ export default function RaceSimulator({ config, onComplete }: Props) {
           </div>
 
           {/* Actions */}
-          <div className="flex justify-center gap-4">
+          <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4">
             <button
               onClick={saveSession}
-              className="px-6 py-3 bg-green-500 hover:bg-green-600 rounded-lg font-semibold text-white focus:outline-none focus:ring-2 focus:ring-green-400"
+              className="px-6 py-3 bg-green-500 hover:bg-green-600 rounded-lg font-semibold text-white focus:outline-none focus:ring-2 focus:ring-green-400 text-sm sm:text-base"
             >
               Save Results
             </button>
             <button
               onClick={resetSimulation}
-              className="px-6 py-3 bg-orange-500 hover:bg-orange-600 rounded-lg font-semibold text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+              className="px-6 py-3 bg-orange-500 hover:bg-orange-600 rounded-lg font-semibold text-white focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm sm:text-base"
             >
               New Workout
             </button>

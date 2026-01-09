@@ -32,12 +32,12 @@ export default function WorkoutDisplay({ workout, onStartSimulation }: Props) {
   };
 
   return (
-    <div className="bg-gray-900 rounded-xl p-6">
-      <div className="flex justify-between items-start mb-4">
+    <div className="bg-gray-900 rounded-xl p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-4 mb-4">
         <div>
-          <h2 className="text-2xl font-bold text-white">{workout.name}</h2>
-          <div className="flex items-center gap-3 mt-2">
-            <span className="text-gray-400">~{workout.duration} min</span>
+          <h2 className="text-lg sm:text-2xl font-bold text-white">{workout.name}</h2>
+          <div className="flex items-center gap-2 sm:gap-3 mt-1 sm:mt-2">
+            <span className="text-gray-400 text-sm sm:text-base">~{workout.duration} min</span>
             <span className={`px-2 py-1 rounded text-xs font-semibold text-white ${getDifficultyColor(workout.difficulty)}`}>
               {workout.difficulty.toUpperCase()}
             </span>
@@ -46,7 +46,7 @@ export default function WorkoutDisplay({ workout, onStartSimulation }: Props) {
         {onStartSimulation && (
           <button
             onClick={onStartSimulation}
-            className="px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded-lg font-semibold text-white"
+            className="w-full sm:w-auto px-4 py-3 sm:py-2 bg-orange-500 hover:bg-orange-600 rounded-lg font-semibold text-white text-sm sm:text-base"
           >
             Start Timer
           </button>
@@ -54,14 +54,14 @@ export default function WorkoutDisplay({ workout, onStartSimulation }: Props) {
       </div>
 
       {/* Warmup */}
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold text-orange-400 mb-3">Warm-up</h3>
+      <div className="mb-4 sm:mb-6">
+        <h3 className="text-base sm:text-lg font-semibold text-orange-400 mb-2 sm:mb-3">Warm-up</h3>
         <div className="space-y-2">
           {workout.warmup.map((exercise, idx) => (
-            <div key={idx} className="flex items-center gap-3 text-gray-300">
-              <span className="text-gray-500 w-6">{idx + 1}.</span>
-              <span className="flex-1">{exercise.name}</span>
-              <span className="text-gray-500 text-sm">
+            <div key={idx} className="flex items-center gap-2 sm:gap-3 text-gray-300 text-sm sm:text-base">
+              <span className="text-gray-500 w-5 sm:w-6 flex-shrink-0">{idx + 1}.</span>
+              <span className="flex-1 min-w-0">{exercise.name}</span>
+              <span className="text-gray-500 text-xs sm:text-sm flex-shrink-0">
                 {exercise.duration ? formatTime(exercise.duration) : ''}
                 {exercise.reps ? `${exercise.reps} reps` : ''}
               </span>
@@ -71,15 +71,15 @@ export default function WorkoutDisplay({ workout, onStartSimulation }: Props) {
       </div>
 
       {/* Main Workout */}
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold text-orange-400 mb-3">Main Workout</h3>
-        <div className="space-y-3">
+      <div className="mb-4 sm:mb-6">
+        <h3 className="text-base sm:text-lg font-semibold text-orange-400 mb-2 sm:mb-3">Main Workout</h3>
+        <div className="space-y-2 sm:space-y-3">
           {workout.mainWorkout.map((block, idx) => {
             const station = block.stationId ? getStationInfo(block.stationId) : null;
             return (
               <div
                 key={idx}
-                className={`p-4 rounded-lg ${
+                className={`p-3 sm:p-4 rounded-lg ${
                   block.type === 'run'
                     ? 'bg-blue-900/30 border border-blue-700'
                     : block.type === 'station'
@@ -87,11 +87,11 @@ export default function WorkoutDisplay({ workout, onStartSimulation }: Props) {
                     : 'bg-gray-800 border border-gray-700'
                 }`}
               >
-                <div className="flex items-start gap-3">
-                  <span className="text-2xl">{getBlockIcon(block)}</span>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-white">
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <span className="text-xl sm:text-2xl flex-shrink-0">{getBlockIcon(block)}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+                      <span className="font-semibold text-white text-sm sm:text-base">
                         {block.type === 'run'
                           ? `Run ${block.distance}m`
                           : block.type === 'station'
@@ -99,20 +99,20 @@ export default function WorkoutDisplay({ workout, onStartSimulation }: Props) {
                           : `Rest ${block.duration ? formatTime(block.duration) : ''}`}
                       </span>
                       {station && block.alternativeName !== station.name && (
-                        <span className="text-xs px-2 py-0.5 bg-gray-700 rounded text-gray-400">
+                        <span className="text-xs px-1.5 sm:px-2 py-0.5 bg-gray-700 rounded text-gray-400">
                           replaces {station.name}
                         </span>
                       )}
                     </div>
                     {block.notes && (
-                      <p className="text-gray-400 text-sm mt-1">{block.notes}</p>
+                      <p className="text-gray-400 text-xs sm:text-sm mt-1">{block.notes}</p>
                     )}
                     {station && (
                       <div className="flex flex-wrap gap-1 mt-2">
                         {station.muscleGroups.map(muscle => (
                           <span
                             key={muscle}
-                            className="text-xs px-2 py-0.5 bg-gray-800 rounded text-gray-500"
+                            className="text-xs px-1.5 sm:px-2 py-0.5 bg-gray-800 rounded text-gray-500"
                           >
                             {muscle}
                           </span>
@@ -129,13 +129,13 @@ export default function WorkoutDisplay({ workout, onStartSimulation }: Props) {
 
       {/* Cooldown */}
       <div>
-        <h3 className="text-lg font-semibold text-orange-400 mb-3">Cool-down</h3>
+        <h3 className="text-base sm:text-lg font-semibold text-orange-400 mb-2 sm:mb-3">Cool-down</h3>
         <div className="space-y-2">
           {workout.cooldown.map((exercise, idx) => (
-            <div key={idx} className="flex items-center gap-3 text-gray-300">
-              <span className="text-gray-500 w-6">{idx + 1}.</span>
-              <span className="flex-1">{exercise.name}</span>
-              <span className="text-gray-500 text-sm">
+            <div key={idx} className="flex items-center gap-2 sm:gap-3 text-gray-300 text-sm sm:text-base">
+              <span className="text-gray-500 w-5 sm:w-6 flex-shrink-0">{idx + 1}.</span>
+              <span className="flex-1 min-w-0">{exercise.name}</span>
+              <span className="text-gray-500 text-xs sm:text-sm flex-shrink-0">
                 {exercise.duration ? formatTime(exercise.duration) : ''}
                 {exercise.reps ? `${exercise.reps} reps` : ''}
               </span>
