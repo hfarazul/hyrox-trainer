@@ -1,5 +1,8 @@
 import { HyroxStation, Equipment } from './types';
 
+// ROX Zone transition time (~7 minutes for all 8 transitions)
+export const ROX_ZONE_TRANSITION_TIME_SECONDS = 420;
+
 export const HYROX_STATIONS: HyroxStation[] = [
   {
     id: 'skierg',

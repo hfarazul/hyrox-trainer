@@ -1,6 +1,16 @@
-import { HYROX_STATIONS, AVERAGE_TIMES } from './hyrox-data';
+import { HYROX_STATIONS, AVERAGE_TIMES, ROX_ZONE_TRANSITION_TIME_SECONDS } from './hyrox-data';
 import { GeneratedWorkout, WorkoutBlock, Exercise, UserEquipment, Alternative } from './types';
 import { generateId } from './storage';
+
+// Fisher-Yates shuffle for unbiased randomization
+function shuffleArray<T>(array: T[]): T[] {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
 
 export function getBestAlternative(
   stationId: string,
@@ -130,9 +140,9 @@ export function generateQuickWorkout(
     stations = stations.filter(s => ['sled_push', 'sled_pull', 'farmers_carry', 'sandbag_lunges', 'wall_balls'].includes(s.id));
   }
 
-  // Pick random stations based on duration
+  // Pick random stations based on duration using unbiased shuffle
   const numStations = Math.min(Math.floor(durationMinutes / 8), stations.length);
-  const selectedStations = stations.sort(() => Math.random() - 0.5).slice(0, numStations);
+  const selectedStations = shuffleArray(stations).slice(0, numStations);
 
   for (const station of selectedStations) {
     mainWorkout.push({
@@ -212,8 +222,7 @@ export function calculatePacingPlan(
     .reduce((sum, [, val]) => sum + val, 0);
 
   const totalRunTime = avgTimes.runPer1k * 8;
-  const roxZoneTime = 420; // ~7 min for transitions
-  const avgTotalTime = totalStationTime + totalRunTime + roxZoneTime;
+  const avgTotalTime = totalStationTime + totalRunTime + ROX_ZONE_TRANSITION_TIME_SECONDS;
 
   const scaleFactor = (targetTimeMinutes * 60) / avgTotalTime;
 

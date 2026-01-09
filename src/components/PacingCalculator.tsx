@@ -1,36 +1,61 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { RaceGoal } from '@/lib/types';
-import { HYROX_STATIONS, DIVISION_INFO, AVERAGE_TIMES } from '@/lib/hyrox-data';
+import { HYROX_STATIONS, DIVISION_INFO, ROX_ZONE_TRANSITION_TIME_SECONDS } from '@/lib/hyrox-data';
 import { saveRaceGoal, loadRaceGoal, formatTime } from '@/lib/storage';
 import { calculatePacingPlan } from '@/lib/workout-generator';
 
+const DEFAULT_GOAL: RaceGoal = {
+  targetTime: 75,
+  division: 'men_open',
+  fiveKTime: 25,
+  experience: 'intermediate'
+};
+
 export default function PacingCalculator() {
-  const [goal, setGoal] = useState<RaceGoal>({
-    targetTime: 75,
-    division: 'men_open',
-    fiveKTime: 25,
-    experience: 'intermediate'
-  });
-
+  const [goal, setGoal] = useState<RaceGoal>(DEFAULT_GOAL);
   const [pacingPlan, setPacingPlan] = useState<ReturnType<typeof calculatePacingPlan>>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
 
+  // Load saved goal on mount
   useEffect(() => {
     const saved = loadRaceGoal();
-    if (saved) setGoal(saved);
+    if (saved) {
+      setGoal(saved);
+    }
+    setIsLoaded(true);
   }, []);
 
+  // Calculate pacing plan and save goal (only after initial load)
   useEffect(() => {
     const plan = calculatePacingPlan(goal.targetTime, goal.fiveKTime, goal.experience);
     setPacingPlan(plan);
-    saveRaceGoal(goal);
-  }, [goal]);
+
+    // Only save after initial load to prevent race condition
+    if (isLoaded) {
+      saveRaceGoal(goal);
+    }
+  }, [goal, isLoaded]);
+
+  // Safe input handlers with validation
+  const handleTargetTimeChange = useCallback((value: string) => {
+    const parsed = parseInt(value, 10);
+    if (!isNaN(parsed) && parsed >= 45 && parsed <= 180) {
+      setGoal(prev => ({ ...prev, targetTime: parsed }));
+    }
+  }, []);
+
+  const handleFiveKTimeChange = useCallback((value: string) => {
+    const parsed = parseInt(value, 10);
+    if (!isNaN(parsed) && parsed >= 15 && parsed <= 45) {
+      setGoal(prev => ({ ...prev, fiveKTime: parsed }));
+    }
+  }, []);
 
   const totalStationTime = pacingPlan.reduce((sum, s) => sum + s.targetTime, 0);
-  const runPacePerKm = Math.round((goal.targetTime * 60 - totalStationTime - 420) / 8);
+  const runPacePerKm = Math.max(0, Math.round((goal.targetTime * 60 - totalStationTime - ROX_ZONE_TRANSITION_TIME_SECONDS) / 8));
   const totalRunTime = runPacePerKm * 8;
-  const roxZoneTime = 420;
 
   const divisionInfo = DIVISION_INFO[goal.division];
 
@@ -41,35 +66,44 @@ export default function PacingCalculator() {
       {/* Inputs */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Target Race Time (minutes)</label>
+          <label htmlFor="targetTime" className="block text-sm text-gray-400 mb-1">
+            Target Race Time (minutes)
+          </label>
           <input
+            id="targetTime"
             type="number"
             value={goal.targetTime}
-            onChange={e => setGoal({ ...goal, targetTime: parseInt(e.target.value) || 60 })}
-            className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+            onChange={e => handleTargetTimeChange(e.target.value)}
+            className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
             min={45}
             max={180}
           />
         </div>
 
         <div>
-          <label className="block text-sm text-gray-400 mb-1">5K Run Time (minutes)</label>
+          <label htmlFor="fiveKTime" className="block text-sm text-gray-400 mb-1">
+            5K Run Time (minutes)
+          </label>
           <input
+            id="fiveKTime"
             type="number"
             value={goal.fiveKTime}
-            onChange={e => setGoal({ ...goal, fiveKTime: parseInt(e.target.value) || 25 })}
-            className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+            onChange={e => handleFiveKTimeChange(e.target.value)}
+            className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
             min={15}
             max={45}
           />
         </div>
 
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Division</label>
+          <label htmlFor="division" className="block text-sm text-gray-400 mb-1">
+            Division
+          </label>
           <select
+            id="division"
             value={goal.division}
-            onChange={e => setGoal({ ...goal, division: e.target.value as RaceGoal['division'] })}
-            className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+            onChange={e => setGoal(prev => ({ ...prev, division: e.target.value as RaceGoal['division'] }))}
+            className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
           >
             <option value="men_open">Men Open</option>
             <option value="men_pro">Men Pro</option>
@@ -79,11 +113,14 @@ export default function PacingCalculator() {
         </div>
 
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Experience Level</label>
+          <label htmlFor="experience" className="block text-sm text-gray-400 mb-1">
+            Experience Level
+          </label>
           <select
+            id="experience"
             value={goal.experience}
-            onChange={e => setGoal({ ...goal, experience: e.target.value as RaceGoal['experience'] })}
-            className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+            onChange={e => setGoal(prev => ({ ...prev, experience: e.target.value as RaceGoal['experience'] }))}
+            className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
           >
             <option value="beginner">Beginner</option>
             <option value="intermediate">Intermediate</option>
@@ -115,7 +152,7 @@ export default function PacingCalculator() {
           <div className="text-sm text-gray-400">Run Pace /km</div>
         </div>
         <div className="p-4 bg-gray-800 rounded-lg text-center">
-          <div className="text-3xl font-bold text-gray-300">{formatTime(roxZoneTime)}</div>
+          <div className="text-3xl font-bold text-gray-300">{formatTime(ROX_ZONE_TRANSITION_TIME_SECONDS)}</div>
           <div className="text-sm text-gray-400">ROX Zone Time</div>
         </div>
       </div>
@@ -158,7 +195,7 @@ export default function PacingCalculator() {
         <div className="flex items-center justify-between text-white">
           <span className="text-lg font-semibold">Total Estimated Time</span>
           <span className="text-3xl font-bold">
-            {formatTime(totalStationTime + totalRunTime + roxZoneTime)}
+            {formatTime(totalStationTime + totalRunTime + ROX_ZONE_TRANSITION_TIME_SECONDS)}
           </span>
         </div>
       </div>

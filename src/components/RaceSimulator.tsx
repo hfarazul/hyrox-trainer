@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { HYROX_STATIONS } from '@/lib/hyrox-data';
 import { WorkoutSession, StationResult, UserEquipment } from '@/lib/types';
 import { getBestAlternative } from '@/lib/workout-generator';
@@ -22,32 +22,66 @@ export default function RaceSimulator() {
   const [runTimes, setRunTimes] = useState<number[]>([]);
   const [equipment, setEquipment] = useState<UserEquipment[]>([]);
   const [isPaused, setIsPaused] = useState(false);
-  const [sessionStartTime, setSessionStartTime] = useState<number>(0);
+  const [notification, setNotification] = useState<string | null>(null);
+
+  // Use refs to avoid stale closures in timer
+  const sessionStartTimeRef = useRef<number>(0);
+  const isPausedRef = useRef<boolean>(false);
 
   useEffect(() => {
     setEquipment(loadEquipment());
   }, []);
 
+  // Keep refs in sync with state
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (phase !== 'not_started' && phase !== 'completed' && !isPaused) {
-      interval = setInterval(() => {
-        setElapsedTime(Date.now() - sessionStartTime);
-      }, 100);
-    }
-    return () => clearInterval(interval);
-  }, [phase, isPaused, sessionStartTime]);
+    isPausedRef.current = isPaused;
+  }, [isPaused]);
 
-  const availableEquipmentIds = equipment.filter(e => e.available).map(e => e.equipmentId);
+  // Timer effect with stable refs
+  useEffect(() => {
+    let animationFrameId: number;
+    let lastUpdate = 0;
+
+    const updateTimer = (timestamp: number) => {
+      if (phase === 'not_started' || phase === 'completed' || isPausedRef.current) {
+        return;
+      }
+
+      // Throttle updates to ~10fps for performance
+      if (timestamp - lastUpdate >= 100) {
+        setElapsedTime(Date.now() - sessionStartTimeRef.current);
+        lastUpdate = timestamp;
+      }
+
+      animationFrameId = requestAnimationFrame(updateTimer);
+    };
+
+    if (phase !== 'not_started' && phase !== 'completed' && !isPaused) {
+      animationFrameId = requestAnimationFrame(updateTimer);
+    }
+
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, [phase, isPaused]);
+
+  // Memoize to prevent unnecessary recalculations and stale closures
+  const availableEquipmentIds = useMemo(
+    () => equipment.filter(e => e.available).map(e => e.equipmentId),
+    [equipment]
+  );
 
   const startSimulation = () => {
     const now = Date.now();
-    setSessionStartTime(now);
+    sessionStartTimeRef.current = now;
     setElapsedTime(0);
     setPhase('running');
     setCurrentActivity({ type: 'run', stationIndex: 0, startTime: now });
     setStationResults([]);
     setRunTimes([]);
+    setIsPaused(false);
   };
 
   const completeCurrentActivity = useCallback(() => {
@@ -89,6 +123,11 @@ export default function RaceSimulator() {
     }
   }, [currentActivity, availableEquipmentIds]);
 
+  const showNotification = (message: string) => {
+    setNotification(message);
+    setTimeout(() => setNotification(null), 3000);
+  };
+
   const saveSession = () => {
     const session: WorkoutSession = {
       id: generateId(),
@@ -98,7 +137,7 @@ export default function RaceSimulator() {
       totalTime: Math.round(elapsedTime / 1000)
     };
     addSession(session);
-    alert('Session saved!');
+    showNotification('Session saved successfully!');
   };
 
   const resetSimulation = () => {
@@ -108,7 +147,7 @@ export default function RaceSimulator() {
     setStationResults([]);
     setRunTimes([]);
     setIsPaused(false);
-    setSessionStartTime(0);
+    sessionStartTimeRef.current = 0;
   };
 
   const getCurrentStation = () => {
@@ -128,7 +167,14 @@ export default function RaceSimulator() {
   };
 
   return (
-    <div className="bg-gray-900 rounded-xl p-6">
+    <div className="bg-gray-900 rounded-xl p-6 relative">
+      {/* Toast Notification */}
+      {notification && (
+        <div className="absolute top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg animate-pulse z-50">
+          {notification}
+        </div>
+      )}
+
       <h2 className="text-2xl font-bold text-white mb-6">Race Simulator</h2>
 
       {phase === 'not_started' && (
@@ -141,7 +187,7 @@ export default function RaceSimulator() {
           </p>
           <button
             onClick={startSimulation}
-            className="px-8 py-4 bg-orange-500 hover:bg-orange-600 rounded-xl text-xl font-bold text-white"
+            className="px-8 py-4 bg-orange-500 hover:bg-orange-600 rounded-xl text-xl font-bold text-white focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-gray-900"
           >
             Start Simulation
           </button>
@@ -167,12 +213,12 @@ export default function RaceSimulator() {
             <div className="text-center">
               <div className="text-5xl mb-3">{phase === 'running' ? '🏃' : '💪'}</div>
               <div className="text-sm text-gray-400 mb-1">
-                {phase === 'running' ? `Run ${(currentActivity?.stationIndex || 0) + 1}/8` : `Station ${(currentActivity?.stationIndex || 0) + 1}/8`}
+                {phase === 'running' ? `Run ${(currentActivity?.stationIndex ?? 0) + 1}/8` : `Station ${(currentActivity?.stationIndex ?? 0) + 1}/8`}
               </div>
               <div className="text-3xl font-bold text-white mb-2">
                 {phase === 'running'
                   ? '1km Run'
-                  : getCurrentAlternative()?.name || getCurrentStation()?.name}
+                  : getCurrentAlternative()?.name ?? getCurrentStation()?.name}
               </div>
               {phase === 'station' && getCurrentAlternative() && (
                 <p className="text-gray-300 mb-2">{getCurrentAlternative()?.description}</p>
@@ -187,20 +233,20 @@ export default function RaceSimulator() {
           <div className="flex justify-center gap-4">
             <button
               onClick={() => setIsPaused(!isPaused)}
-              className="px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold text-white"
+              className="px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold text-white focus:outline-none focus:ring-2 focus:ring-gray-400"
             >
               {isPaused ? 'Resume' : 'Pause'}
             </button>
             <button
               onClick={completeCurrentActivity}
               disabled={isPaused}
-              className="px-8 py-3 bg-green-500 hover:bg-green-600 disabled:opacity-50 rounded-lg font-semibold text-white"
+              className="px-8 py-3 bg-green-500 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-semibold text-white focus:outline-none focus:ring-2 focus:ring-green-400"
             >
               Complete {phase === 'running' ? 'Run' : 'Station'}
             </button>
             <button
               onClick={resetSimulation}
-              className="px-6 py-3 bg-red-600 hover:bg-red-700 rounded-lg font-semibold text-white"
+              className="px-6 py-3 bg-red-600 hover:bg-red-700 rounded-lg font-semibold text-white focus:outline-none focus:ring-2 focus:ring-red-400"
             >
               Reset
             </button>
@@ -272,7 +318,7 @@ export default function RaceSimulator() {
                     </span>
                     <div>
                       <div className="text-white font-medium">
-                        {result.alternativeUsed || station?.name}
+                        {result.alternativeUsed ?? station?.name}
                       </div>
                       {result.alternativeUsed && result.alternativeUsed !== station?.name && (
                         <div className="text-xs text-gray-500">({station?.name})</div>
@@ -291,13 +337,13 @@ export default function RaceSimulator() {
           <div className="flex justify-center gap-4">
             <button
               onClick={saveSession}
-              className="px-6 py-3 bg-green-500 hover:bg-green-600 rounded-lg font-semibold text-white"
+              className="px-6 py-3 bg-green-500 hover:bg-green-600 rounded-lg font-semibold text-white focus:outline-none focus:ring-2 focus:ring-green-400"
             >
               Save Results
             </button>
             <button
               onClick={resetSimulation}
-              className="px-6 py-3 bg-orange-500 hover:bg-orange-600 rounded-lg font-semibold text-white"
+              className="px-6 py-3 bg-orange-500 hover:bg-orange-600 rounded-lg font-semibold text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
             >
               New Simulation
             </button>

@@ -8,6 +8,59 @@ const STORAGE_KEYS = {
   RACE_GOAL: 'hyrox_race_goal',
 };
 
+const MAX_SESSIONS = 100;
+
+// Safe JSON parse with validation
+function safeJsonParse<T>(data: string | null, validator: (parsed: unknown) => T | null): T | null {
+  if (!data) return null;
+  try {
+    const parsed = JSON.parse(data);
+    return validator(parsed);
+  } catch {
+    console.error('Failed to parse stored data');
+    return null;
+  }
+}
+
+// Validators
+function validateEquipmentArray(parsed: unknown): UserEquipment[] | null {
+  if (!Array.isArray(parsed)) return null;
+  return parsed.filter(
+    (item): item is UserEquipment =>
+      typeof item === 'object' &&
+      item !== null &&
+      typeof item.equipmentId === 'string' &&
+      typeof item.available === 'boolean'
+  );
+}
+
+function validateSessionsArray(parsed: unknown): WorkoutSession[] | null {
+  if (!Array.isArray(parsed)) return null;
+  return parsed.filter(
+    (item): item is WorkoutSession =>
+      typeof item === 'object' &&
+      item !== null &&
+      typeof item.id === 'string' &&
+      typeof item.date === 'string' &&
+      typeof item.totalTime === 'number' &&
+      Array.isArray(item.stations)
+  );
+}
+
+function validateRaceGoal(parsed: unknown): RaceGoal | null {
+  if (
+    typeof parsed === 'object' &&
+    parsed !== null &&
+    'targetTime' in parsed &&
+    'division' in parsed &&
+    'fiveKTime' in parsed &&
+    'experience' in parsed
+  ) {
+    return parsed as RaceGoal;
+  }
+  return null;
+}
+
 export function saveEquipment(equipment: UserEquipment[]): void {
   if (typeof window !== 'undefined') {
     localStorage.setItem(STORAGE_KEYS.EQUIPMENT, JSON.stringify(equipment));
@@ -17,7 +70,7 @@ export function saveEquipment(equipment: UserEquipment[]): void {
 export function loadEquipment(): UserEquipment[] {
   if (typeof window === 'undefined') return [];
   const data = localStorage.getItem(STORAGE_KEYS.EQUIPMENT);
-  return data ? JSON.parse(data) : [];
+  return safeJsonParse(data, validateEquipmentArray) ?? [];
 }
 
 export function saveSessions(sessions: WorkoutSession[]): void {
@@ -29,12 +82,16 @@ export function saveSessions(sessions: WorkoutSession[]): void {
 export function loadSessions(): WorkoutSession[] {
   if (typeof window === 'undefined') return [];
   const data = localStorage.getItem(STORAGE_KEYS.SESSIONS);
-  return data ? JSON.parse(data) : [];
+  return safeJsonParse(data, validateSessionsArray) ?? [];
 }
 
 export function addSession(session: WorkoutSession): void {
   const sessions = loadSessions();
   sessions.unshift(session);
+  // Limit sessions to prevent unbounded growth
+  if (sessions.length > MAX_SESSIONS) {
+    sessions.length = MAX_SESSIONS;
+  }
   saveSessions(sessions);
 }
 
@@ -47,23 +104,42 @@ export function saveRaceGoal(goal: RaceGoal): void {
 export function loadRaceGoal(): RaceGoal | null {
   if (typeof window === 'undefined') return null;
   const data = localStorage.getItem(STORAGE_KEYS.RACE_GOAL);
-  return data ? JSON.parse(data) : null;
+  return safeJsonParse(data, validateRaceGoal);
 }
 
 export function generateId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  // Use crypto.randomUUID for secure ID generation
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  // Fallback with better entropy
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    const array = new Uint32Array(4);
+    crypto.getRandomValues(array);
+    return Array.from(array, n => n.toString(16).padStart(8, '0')).join('-');
+  }
+  // Last resort fallback
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 }
 
 export function formatTime(seconds: number): string {
+  if (!Number.isFinite(seconds) || seconds < 0) {
+    return '0:00';
+  }
   const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
+  const secs = Math.floor(seconds % 60);
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
 export function parseTimeToSeconds(timeStr: string): number {
   const parts = timeStr.split(':');
   if (parts.length === 2) {
-    return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+    const mins = parseInt(parts[0], 10);
+    const secs = parseInt(parts[1], 10);
+    if (!isNaN(mins) && !isNaN(secs)) {
+      return mins * 60 + secs;
+    }
   }
-  return parseInt(timeStr) * 60;
+  const mins = parseInt(timeStr, 10);
+  return isNaN(mins) ? 0 : mins * 60;
 }
