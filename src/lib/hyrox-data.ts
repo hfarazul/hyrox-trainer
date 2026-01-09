@@ -1,0 +1,188 @@
+import { HyroxStation, Equipment } from './types';
+
+export const HYROX_STATIONS: HyroxStation[] = [
+  {
+    id: 'skierg',
+    name: 'SkiErg',
+    order: 1,
+    description: 'Vertical pulling movement simulating cross-country skiing',
+    officialRequirement: '1000m',
+    weights: { menOpen: 'N/A', menPro: 'N/A', womenOpen: 'N/A', womenPro: 'N/A' },
+    muscleGroups: ['lats', 'shoulders', 'triceps', 'core'],
+    tips: ['Use your whole body', 'Hinge at hips', 'Pull through with core'],
+    alternatives: [
+      { name: 'Medicine Ball Slams', description: '100 reps of explosive ball slams', equipmentNeeded: ['medicine_ball'], intensity: 'high', conversionFactor: 1.0 },
+      { name: 'Battle Rope Slams', description: '3 min of alternating slams', equipmentNeeded: ['battle_ropes'], intensity: 'high', conversionFactor: 1.0 },
+      { name: 'Dumbbell Pullovers', description: '50 reps lying pullovers', equipmentNeeded: ['dumbbells'], intensity: 'medium', conversionFactor: 0.8 },
+      { name: 'Burpee Pull-ups', description: '30 burpee to pull-up', equipmentNeeded: ['pull_up_bar'], intensity: 'high', conversionFactor: 1.2 },
+      { name: 'Jumping Jacks + Arm Circles', description: '200 jumping jacks with arm circles', equipmentNeeded: [], intensity: 'low', conversionFactor: 0.6 }
+    ]
+  },
+  {
+    id: 'sled_push',
+    name: 'Sled Push',
+    order: 2,
+    description: 'Push a weighted sled across the floor',
+    officialRequirement: '50m',
+    weights: { menOpen: '152kg', menPro: '202kg', womenOpen: '102kg', womenPro: '152kg' },
+    muscleGroups: ['quads', 'glutes', 'calves', 'core'],
+    tips: ['Stay low', 'Drive through legs', 'Keep arms extended'],
+    alternatives: [
+      { name: 'Weighted Hill Sprints', description: '4x50m uphill with vest', equipmentNeeded: ['weighted_vest'], intensity: 'high', conversionFactor: 1.0 },
+      { name: 'Wall Drives', description: '60 seconds wall push drives', equipmentNeeded: [], intensity: 'medium', conversionFactor: 0.7 },
+      { name: 'Resistance Band Pushes', description: 'Push against band anchored behind', equipmentNeeded: ['resistance_bands'], intensity: 'medium', conversionFactor: 0.8 },
+      { name: 'Bear Crawls', description: '100m forward bear crawl', equipmentNeeded: [], intensity: 'high', conversionFactor: 0.9 },
+      { name: 'Stair Climbs with Weight', description: '5 floors with heavy backpack', equipmentNeeded: ['backpack'], intensity: 'high', conversionFactor: 1.0 }
+    ]
+  },
+  {
+    id: 'sled_pull',
+    name: 'Sled Pull',
+    order: 3,
+    description: 'Pull a weighted sled using a rope',
+    officialRequirement: '50m',
+    weights: { menOpen: '103kg', menPro: '153kg', womenOpen: '78kg', womenPro: '103kg' },
+    muscleGroups: ['back', 'biceps', 'grip', 'core'],
+    tips: ['Sit back into it', 'Hand over hand technique', 'Stay low'],
+    alternatives: [
+      { name: 'Rope Pulls with Weight', description: 'Pull weighted bag 50m with rope', equipmentNeeded: ['rope', 'backpack'], intensity: 'high', conversionFactor: 1.0 },
+      { name: 'Resistance Band Rows', description: '100 seated band rows', equipmentNeeded: ['resistance_bands'], intensity: 'medium', conversionFactor: 0.8 },
+      { name: 'Towel Rows', description: '60 inverted rows using towel over bar', equipmentNeeded: ['towel', 'pull_up_bar'], intensity: 'medium', conversionFactor: 0.9 },
+      { name: 'Heavy Bent Over Rows', description: '5x12 heavy dumbbell rows', equipmentNeeded: ['dumbbells'], intensity: 'high', conversionFactor: 0.9 },
+      { name: 'Backwards Drags', description: 'Drag heavy bag backwards 100m', equipmentNeeded: ['backpack'], intensity: 'high', conversionFactor: 1.0 }
+    ]
+  },
+  {
+    id: 'burpee_broad_jump',
+    name: 'Burpee Broad Jumps',
+    order: 4,
+    description: 'Burpee followed by a forward broad jump',
+    officialRequirement: '80m',
+    weights: { menOpen: 'N/A', menPro: 'N/A', womenOpen: 'N/A', womenPro: 'N/A' },
+    muscleGroups: ['full_body', 'legs', 'core', 'cardio'],
+    tips: ['Pace yourself', 'Controlled jumps', 'Breathe on the way up'],
+    alternatives: [
+      { name: 'Burpee Broad Jumps', description: 'Same as official - no equipment needed!', equipmentNeeded: [], intensity: 'high', conversionFactor: 1.0 },
+      { name: 'Burpee Box Jumps', description: '40 burpee to box jump', equipmentNeeded: ['plyo_box'], intensity: 'high', conversionFactor: 1.1 },
+      { name: 'Burpee Tuck Jumps', description: '50 burpee to tuck jump', equipmentNeeded: [], intensity: 'high', conversionFactor: 0.9 },
+      { name: 'Squat Jump Burpees', description: '60 burpee to squat jump', equipmentNeeded: [], intensity: 'medium', conversionFactor: 0.8 }
+    ]
+  },
+  {
+    id: 'rowing',
+    name: 'Rowing',
+    order: 5,
+    description: 'Row 1000m on a Concept2 rowing machine',
+    officialRequirement: '1000m',
+    weights: { menOpen: 'N/A', menPro: 'N/A', womenOpen: 'N/A', womenPro: 'N/A' },
+    muscleGroups: ['back', 'legs', 'core', 'arms'],
+    tips: ['Legs first', 'Keep back straight', 'Drive through heels'],
+    alternatives: [
+      { name: 'Assault Bike', description: '50 calories on assault bike', equipmentNeeded: ['assault_bike'], intensity: 'high', conversionFactor: 1.0 },
+      { name: 'Kettlebell Swings + Deadlifts', description: '50 swings + 30 deadlifts', equipmentNeeded: ['kettlebell'], intensity: 'high', conversionFactor: 0.9 },
+      { name: 'Resistance Band Rows + Squats', description: '60 rows + 40 squats superset', equipmentNeeded: ['resistance_bands'], intensity: 'medium', conversionFactor: 0.8 },
+      { name: 'Bent Over Rows + Jump Squats', description: '40 rows + 40 jump squats', equipmentNeeded: ['dumbbells'], intensity: 'high', conversionFactor: 0.9 },
+      { name: 'Mountain Climbers + Superman', description: '100 climbers + 30 supermans', equipmentNeeded: [], intensity: 'medium', conversionFactor: 0.7 }
+    ]
+  },
+  {
+    id: 'farmers_carry',
+    name: 'Farmers Carry',
+    order: 6,
+    description: 'Carry heavy kettlebells for distance',
+    officialRequirement: '200m',
+    weights: { menOpen: '2x24kg', menPro: '2x32kg', womenOpen: '2x16kg', womenPro: '2x24kg' },
+    muscleGroups: ['grip', 'traps', 'core', 'forearms'],
+    tips: ['Tall posture', 'Engage core', 'Take quick steps'],
+    alternatives: [
+      { name: 'Dumbbell Farmers Carry', description: '200m with heavy dumbbells', equipmentNeeded: ['dumbbells'], intensity: 'high', conversionFactor: 1.0 },
+      { name: 'Bucket/Jug Carry', description: '200m carrying water jugs', equipmentNeeded: ['water_jugs'], intensity: 'medium', conversionFactor: 0.9 },
+      { name: 'Heavy Backpack Carry', description: '200m with loaded backpack + weights in hands', equipmentNeeded: ['backpack', 'dumbbells'], intensity: 'high', conversionFactor: 1.0 },
+      { name: 'Suitcase Carry', description: '200m each side with heavy bag', equipmentNeeded: ['backpack'], intensity: 'medium', conversionFactor: 0.8 },
+      { name: 'Grocery Bag Carry', description: '200m with heavy bags', equipmentNeeded: [], intensity: 'low', conversionFactor: 0.6 }
+    ]
+  },
+  {
+    id: 'sandbag_lunges',
+    name: 'Sandbag Lunges',
+    order: 7,
+    description: 'Walking lunges while holding a sandbag',
+    officialRequirement: '100m',
+    weights: { menOpen: '20kg', menPro: '30kg', womenOpen: '10kg', womenPro: '20kg' },
+    muscleGroups: ['quads', 'glutes', 'core', 'shoulders'],
+    tips: ['Knee touches ground', 'Keep torso upright', 'Alternate legs'],
+    alternatives: [
+      { name: 'Dumbbell Lunges', description: '100m with dumbbells at sides', equipmentNeeded: ['dumbbells'], intensity: 'high', conversionFactor: 0.9 },
+      { name: 'Backpack Lunges', description: '100m with weighted backpack', equipmentNeeded: ['backpack'], intensity: 'high', conversionFactor: 1.0 },
+      { name: 'Goblet Lunges', description: '100m holding kettlebell at chest', equipmentNeeded: ['kettlebell'], intensity: 'high', conversionFactor: 0.95 },
+      { name: 'Bodyweight Lunges', description: '150m bodyweight walking lunges', equipmentNeeded: [], intensity: 'medium', conversionFactor: 0.7 },
+      { name: 'Bulgarian Split Squats', description: '30 each leg with weight', equipmentNeeded: ['dumbbells'], intensity: 'high', conversionFactor: 0.9 }
+    ]
+  },
+  {
+    id: 'wall_balls',
+    name: 'Wall Balls',
+    order: 8,
+    description: 'Throw medicine ball to target on wall',
+    officialRequirement: '100 reps (75 women)',
+    weights: { menOpen: '6kg/3m target', menPro: '9kg/3m target', womenOpen: '4kg/2.7m target', womenPro: '6kg/3m target' },
+    muscleGroups: ['quads', 'glutes', 'shoulders', 'core'],
+    tips: ['Full squat depth', 'Use leg drive', 'Catch and descend smoothly'],
+    alternatives: [
+      { name: 'Wall Balls', description: 'Same as official with medicine ball', equipmentNeeded: ['medicine_ball', 'wall'], intensity: 'high', conversionFactor: 1.0 },
+      { name: 'Thrusters', description: '75 dumbbell thrusters', equipmentNeeded: ['dumbbells'], intensity: 'high', conversionFactor: 1.0 },
+      { name: 'Goblet Squat to Press', description: '75 goblet squat + press', equipmentNeeded: ['kettlebell'], intensity: 'high', conversionFactor: 0.95 },
+      { name: 'Jump Squats + Push Press', description: '50 jump squats + 50 push press', equipmentNeeded: ['dumbbells'], intensity: 'high', conversionFactor: 0.9 },
+      { name: 'Squat + Overhead Reach', description: '100 bodyweight squat with jump reach', equipmentNeeded: [], intensity: 'medium', conversionFactor: 0.7 }
+    ]
+  }
+];
+
+export const AVAILABLE_EQUIPMENT: Equipment[] = [
+  { id: 'skierg', name: 'SkiErg', category: 'cardio' },
+  { id: 'rowing_machine', name: 'Rowing Machine', category: 'cardio' },
+  { id: 'assault_bike', name: 'Assault/Air Bike', category: 'cardio' },
+  { id: 'treadmill', name: 'Treadmill', category: 'cardio' },
+  { id: 'sled', name: 'Sled', category: 'weights' },
+  { id: 'dumbbells', name: 'Dumbbells', category: 'weights' },
+  { id: 'kettlebell', name: 'Kettlebell', category: 'weights' },
+  { id: 'barbell', name: 'Barbell', category: 'weights' },
+  { id: 'medicine_ball', name: 'Medicine Ball', category: 'weights' },
+  { id: 'sandbag', name: 'Sandbag', category: 'weights' },
+  { id: 'weighted_vest', name: 'Weighted Vest', category: 'weights' },
+  { id: 'pull_up_bar', name: 'Pull-up Bar', category: 'bodyweight' },
+  { id: 'plyo_box', name: 'Plyo Box', category: 'bodyweight' },
+  { id: 'resistance_bands', name: 'Resistance Bands', category: 'resistance' },
+  { id: 'battle_ropes', name: 'Battle Ropes', category: 'resistance' },
+  { id: 'rope', name: 'Rope/Climbing Rope', category: 'other' },
+  { id: 'backpack', name: 'Backpack (loadable)', category: 'other' },
+  { id: 'towel', name: 'Towel', category: 'other' },
+  { id: 'water_jugs', name: 'Water Jugs/Buckets', category: 'other' },
+  { id: 'wall', name: 'Wall (for wall balls)', category: 'other' },
+];
+
+export const DIVISION_INFO = {
+  men_open: { label: 'Men Open', sledPush: '152kg', sledPull: '103kg', farmers: '2x24kg', sandbag: '20kg', wallBall: '6kg/100 reps' },
+  men_pro: { label: 'Men Pro', sledPush: '202kg', sledPull: '153kg', farmers: '2x32kg', sandbag: '30kg', wallBall: '9kg/100 reps' },
+  women_open: { label: 'Women Open', sledPush: '102kg', sledPull: '78kg', farmers: '2x16kg', sandbag: '10kg', wallBall: '4kg/75 reps' },
+  women_pro: { label: 'Women Pro', sledPush: '152kg', sledPull: '103kg', farmers: '2x24kg', sandbag: '20kg', wallBall: '6kg/75 reps' },
+};
+
+// Average station times by skill level (in seconds)
+export const AVERAGE_TIMES = {
+  beginner: {
+    skierg: 300, sled_push: 180, sled_pull: 150, burpee_broad_jump: 300,
+    rowing: 270, farmers_carry: 120, sandbag_lunges: 180, wall_balls: 300,
+    runPer1k: 360 // 6 min/km
+  },
+  intermediate: {
+    skierg: 240, sled_push: 120, sled_pull: 100, burpee_broad_jump: 240,
+    rowing: 220, farmers_carry: 90, sandbag_lunges: 140, wall_balls: 240,
+    runPer1k: 300 // 5 min/km
+  },
+  advanced: {
+    skierg: 180, sled_push: 80, sled_pull: 70, burpee_broad_jump: 180,
+    rowing: 180, farmers_carry: 70, sandbag_lunges: 100, wall_balls: 180,
+    runPer1k: 240 // 4 min/km
+  }
+};
