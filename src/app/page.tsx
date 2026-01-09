@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSession, signOut } from 'next-auth/react';
+import Link from 'next/link';
 import EquipmentSelector from '@/components/EquipmentSelector';
 import WorkoutDisplay from '@/components/WorkoutDisplay';
 import RaceSimulator from '@/components/RaceSimulator';
@@ -8,12 +10,14 @@ import PacingCalculator from '@/components/PacingCalculator';
 import ProgressTracker from '@/components/ProgressTracker';
 import { UserEquipment, GeneratedWorkout } from '@/lib/types';
 import { loadEquipment } from '@/lib/storage';
+import { fetchEquipment } from '@/lib/api';
 import { generateFullSimulation, generateQuickWorkout, generateStationPractice } from '@/lib/workout-generator';
 import { HYROX_STATIONS } from '@/lib/hyrox-data';
 
 type Tab = 'workout' | 'simulator' | 'pacing' | 'progress' | 'equipment';
 
 export default function Home() {
+  const { data: session, status } = useSession();
   const [activeTab, setActiveTab] = useState<Tab>('workout');
   const [equipment, setEquipment] = useState<UserEquipment[]>([]);
   const [currentWorkout, setCurrentWorkout] = useState<GeneratedWorkout | null>(null);
@@ -23,11 +27,37 @@ export default function Home() {
   const [selectedStations, setSelectedStations] = useState<string[]>([]);
 
   useEffect(() => {
-    const savedEquipment = loadEquipment();
-    if (savedEquipment.length > 0) {
-      setEquipment(savedEquipment);
+    async function loadUserEquipment() {
+      if (session?.user) {
+        // Authenticated: load from API
+        try {
+          const apiEquipment = await fetchEquipment();
+          if (apiEquipment.length > 0) {
+            setEquipment(apiEquipment.map(e => ({
+              equipmentId: e.equipmentId,
+              available: e.available
+            })));
+          }
+        } catch {
+          // Fallback to localStorage on error
+          const savedEquipment = loadEquipment();
+          if (savedEquipment.length > 0) {
+            setEquipment(savedEquipment);
+          }
+        }
+      } else {
+        // Guest: load from localStorage
+        const savedEquipment = loadEquipment();
+        if (savedEquipment.length > 0) {
+          setEquipment(savedEquipment);
+        }
+      }
     }
-  }, []);
+
+    if (status !== 'loading') {
+      loadUserEquipment();
+    }
+  }, [session, status]);
 
   const handleGenerateWorkout = () => {
     let workout: GeneratedWorkout;
@@ -78,11 +108,41 @@ export default function Home() {
               <h1 className="text-2xl font-bold text-orange-500">HYROX Trainer</h1>
               <p className="text-sm text-gray-400">Train Anywhere, Race Ready</p>
             </div>
-            <div className="text-right">
-              <div className="text-sm text-gray-400">Equipment configured</div>
-              <div className="text-orange-400 font-semibold">
-                {equipment.filter(e => e.available).length} items
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <div className="text-sm text-gray-400">Equipment configured</div>
+                <div className="text-orange-400 font-semibold">
+                  {equipment.filter(e => e.available).length} items
+                </div>
               </div>
+              {status === 'loading' ? (
+                <div className="w-20 h-10 bg-gray-800 rounded-lg animate-pulse" />
+              ) : session ? (
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-gray-300">{session.user.name || session.user.email}</span>
+                  <button
+                    onClick={() => signOut()}
+                    className="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-sm text-gray-300"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Link
+                    href="/auth/signin"
+                    className="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-sm text-gray-300"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/auth/signup"
+                    className="px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded-lg text-sm text-white font-medium"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -224,7 +284,10 @@ export default function Home() {
         {activeTab === 'progress' && <ProgressTracker />}
 
         {activeTab === 'equipment' && (
-          <EquipmentSelector onEquipmentChange={setEquipment} />
+          <EquipmentSelector
+            onEquipmentChange={setEquipment}
+            isAuthenticated={!!session}
+          />
         )}
       </main>
 

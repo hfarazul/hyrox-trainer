@@ -1,0 +1,116 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// NextAuth.js Models
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  password      String?   // For credentials auth
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts       Account[]
+  sessions       Session[]
+  equipment      UserEquipment[]
+  workoutSessions WorkoutSession[]
+  raceGoal       RaceGoal?
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Application Models
+model UserEquipment {
+  id          String  @id @default(cuid())
+  userId      String
+  equipmentId String
+  available   Boolean @default(false)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, equipmentId])
+}
+
+model WorkoutSession {
+  id        String   @id @default(cuid())
+  userId    String
+  date      DateTime @default(now())
+  type      String   // 'full_simulation', 'quick_workout', 'station_practice'
+  totalTime Int      // in seconds
+  notes     String?
+
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stations StationResult[]
+
+  @@index([userId, date])
+}
+
+model StationResult {
+  id              String  @id @default(cuid())
+  sessionId       String
+  stationId       String
+  alternativeUsed String?
+  timeSeconds     Int
+  completed       Boolean @default(true)
+  notes           String?
+
+  session WorkoutSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+}
+
+model RaceGoal {
+  id         String @id @default(cuid())
+  userId     String @unique
+  targetTime Int    // in minutes
+  division   String // 'men_open', 'men_pro', 'women_open', 'women_pro'
+  fiveKTime  Int    // in minutes
+  experience String // 'beginner', 'intermediate', 'advanced'
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

@@ -1,54 +1,91 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AVAILABLE_EQUIPMENT } from '@/lib/hyrox-data';
 import { UserEquipment } from '@/lib/types';
 import { saveEquipment, loadEquipment } from '@/lib/storage';
+import { fetchEquipment, saveEquipmentAPI } from '@/lib/api';
 
 interface Props {
   onEquipmentChange?: (equipment: UserEquipment[]) => void;
+  isAuthenticated?: boolean;
 }
 
-export default function EquipmentSelector({ onEquipmentChange }: Props) {
+export default function EquipmentSelector({ onEquipmentChange, isAuthenticated = false }: Props) {
   const [equipment, setEquipment] = useState<UserEquipment[]>([]);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    const saved = loadEquipment();
-    if (saved.length > 0) {
-      setEquipment(saved);
-    } else {
-      // Initialize with all equipment as unavailable
-      const initial = AVAILABLE_EQUIPMENT.map(eq => ({
-        equipmentId: eq.id,
-        available: false
-      }));
-      setEquipment(initial);
-    }
-  }, []);
+    async function loadUserEquipment() {
+      if (isAuthenticated) {
+        try {
+          const apiEquipment = await fetchEquipment();
+          if (apiEquipment.length > 0) {
+            setEquipment(apiEquipment.map(e => ({
+              equipmentId: e.equipmentId,
+              available: e.available
+            })));
+            return;
+          }
+        } catch {
+          // Fall through to localStorage
+        }
+      }
 
-  const toggleEquipment = (equipmentId: string) => {
+      // Load from localStorage or initialize
+      const saved = loadEquipment();
+      if (saved.length > 0) {
+        setEquipment(saved);
+      } else {
+        const initial = AVAILABLE_EQUIPMENT.map(eq => ({
+          equipmentId: eq.id,
+          available: false
+        }));
+        setEquipment(initial);
+      }
+    }
+
+    loadUserEquipment();
+  }, [isAuthenticated]);
+
+  const persistEquipment = useCallback(async (updated: UserEquipment[]) => {
+    setSaving(true);
+    try {
+      if (isAuthenticated) {
+        await saveEquipmentAPI(updated);
+      }
+      // Always save to localStorage as backup
+      saveEquipment(updated);
+    } catch (error) {
+      console.error('Failed to save equipment:', error);
+    } finally {
+      setSaving(false);
+    }
+  }, [isAuthenticated]);
+
+  const toggleEquipment = async (equipmentId: string) => {
     const updated = equipment.map(eq =>
       eq.equipmentId === equipmentId
         ? { ...eq, available: !eq.available }
         : eq
     );
     setEquipment(updated);
-    saveEquipment(updated);
     onEquipmentChange?.(updated);
+    await persistEquipment(updated);
   };
 
-  const selectAll = () => {
+  const selectAll = async () => {
     const updated = equipment.map(eq => ({ ...eq, available: true }));
     setEquipment(updated);
-    saveEquipment(updated);
     onEquipmentChange?.(updated);
+    await persistEquipment(updated);
   };
 
-  const selectNone = () => {
+  const selectNone = async () => {
     const updated = equipment.map(eq => ({ ...eq, available: false }));
     setEquipment(updated);
-    saveEquipment(updated);
     onEquipmentChange?.(updated);
+    await persistEquipment(updated);
   };
 
   const categories = ['cardio', 'weights', 'bodyweight', 'resistance', 'other'] as const;
@@ -56,17 +93,24 @@ export default function EquipmentSelector({ onEquipmentChange }: Props) {
   return (
     <div className="bg-gray-900 rounded-xl p-6">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-white">Your Equipment</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-xl font-bold text-white">Your Equipment</h2>
+          {saving && (
+            <span className="text-xs text-gray-400">Saving...</span>
+          )}
+        </div>
         <div className="space-x-2">
           <button
             onClick={selectAll}
-            className="px-3 py-1 text-sm bg-green-600 hover:bg-green-700 rounded text-white"
+            disabled={saving}
+            className="px-3 py-1 text-sm bg-green-600 hover:bg-green-700 disabled:opacity-50 rounded text-white"
           >
             Select All
           </button>
           <button
             onClick={selectNone}
-            className="px-3 py-1 text-sm bg-gray-600 hover:bg-gray-700 rounded text-white"
+            disabled={saving}
+            className="px-3 py-1 text-sm bg-gray-600 hover:bg-gray-700 disabled:opacity-50 rounded text-white"
           >
             Clear
           </button>
@@ -74,6 +118,11 @@ export default function EquipmentSelector({ onEquipmentChange }: Props) {
       </div>
       <p className="text-gray-400 text-sm mb-4">
         Select the equipment you have access to. We&apos;ll generate workouts with suitable alternatives.
+        {!isAuthenticated && (
+          <span className="text-yellow-500 block mt-1">
+            Sign in to sync your equipment across devices.
+          </span>
+        )}
       </p>
 
       {categories.map(category => (
@@ -89,11 +138,12 @@ export default function EquipmentSelector({ onEquipmentChange }: Props) {
                 <button
                   key={eq.id}
                   onClick={() => toggleEquipment(eq.id)}
+                  disabled={saving}
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                     isSelected
                       ? 'bg-orange-500 text-white'
                       : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                  }`}
+                  } ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   {eq.name}
                 </button>
