@@ -8,7 +8,7 @@ import WorkoutDisplay from '@/components/WorkoutDisplay';
 import RaceSimulator from '@/components/RaceSimulator';
 import PacingCalculator from '@/components/PacingCalculator';
 import ProgressTracker from '@/components/ProgressTracker';
-import { UserEquipment, GeneratedWorkout } from '@/lib/types';
+import { UserEquipment, GeneratedWorkout, RaceSimulatorConfig } from '@/lib/types';
 import { loadEquipment } from '@/lib/storage';
 import { fetchEquipment } from '@/lib/api';
 import { generateFullSimulation, generateQuickWorkout, generateStationPractice } from '@/lib/workout-generator';
@@ -25,6 +25,7 @@ export default function Home() {
   const [quickDuration, setQuickDuration] = useState(30);
   const [quickFocus, setQuickFocus] = useState<'cardio' | 'strength' | 'mixed'>('mixed');
   const [selectedStations, setSelectedStations] = useState<string[]>([]);
+  const [simulatorConfig, setSimulatorConfig] = useState<RaceSimulatorConfig | null>(null);
 
   useEffect(() => {
     async function loadUserEquipment() {
@@ -80,6 +81,20 @@ export default function Home() {
     }
 
     setCurrentWorkout(workout);
+  };
+
+  const handleStartSimulation = (workout: GeneratedWorkout) => {
+    const typeMap: Record<typeof workoutType, RaceSimulatorConfig['type']> = {
+      'full': 'full_simulation',
+      'quick': 'quick_workout',
+      'station': 'station_practice',
+    };
+
+    setSimulatorConfig({
+      workout,
+      type: typeMap[workoutType],
+    });
+    setActiveTab('simulator');
   };
 
   const tabs: { id: Tab; label: string; icon: string }[] = [
@@ -271,13 +286,18 @@ export default function Home() {
             {currentWorkout && (
               <WorkoutDisplay
                 workout={currentWorkout}
-                onStartSimulation={() => setActiveTab('simulator')}
+                onStartSimulation={() => handleStartSimulation(currentWorkout)}
               />
             )}
           </div>
         )}
 
-        {activeTab === 'simulator' && <RaceSimulator />}
+        {activeTab === 'simulator' && (
+          <RaceSimulator
+            config={simulatorConfig || undefined}
+            onComplete={() => setActiveTab('progress')}
+          />
+        )}
 
         {activeTab === 'pacing' && <PacingCalculator />}
 

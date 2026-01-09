@@ -2,24 +2,30 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { HYROX_STATIONS } from '@/lib/hyrox-data';
-import { WorkoutSession, StationResult, UserEquipment } from '@/lib/types';
+import { WorkoutSession, StationResult, UserEquipment, RaceSimulatorConfig, WorkoutBlock } from '@/lib/types';
 import { getBestAlternative } from '@/lib/workout-generator';
 import { addSession, generateId, formatTime, loadEquipment } from '@/lib/storage';
 
-type SimulationPhase = 'not_started' | 'running' | 'station' | 'completed';
+type SimulationPhase = 'not_started' | 'running' | 'station' | 'rest' | 'completed';
 
 interface CurrentActivity {
-  type: 'run' | 'station';
-  stationIndex: number;
+  type: 'run' | 'station' | 'rest';
+  blockIndex: number;
   startTime: number;
 }
 
-export default function RaceSimulator() {
+interface Props {
+  config?: RaceSimulatorConfig;
+  onComplete?: () => void;
+}
+
+export default function RaceSimulator({ config, onComplete }: Props) {
   const [phase, setPhase] = useState<SimulationPhase>('not_started');
   const [currentActivity, setCurrentActivity] = useState<CurrentActivity | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [stationResults, setStationResults] = useState<StationResult[]>([]);
   const [runTimes, setRunTimes] = useState<number[]>([]);
+  const [restTimes, setRestTimes] = useState<number[]>([]);
   const [equipment, setEquipment] = useState<UserEquipment[]>([]);
   const [isPaused, setIsPaused] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
@@ -27,6 +33,27 @@ export default function RaceSimulator() {
   // Use refs to avoid stale closures in timer
   const sessionStartTimeRef = useRef<number>(0);
   const isPausedRef = useRef<boolean>(false);
+
+  // Get workout blocks from config or use default full simulation
+  const workoutBlocks = useMemo(() => {
+    if (config?.workout?.mainWorkout) {
+      return config.workout.mainWorkout;
+    }
+    // Default: generate full simulation blocks
+    const blocks: WorkoutBlock[] = [];
+    for (const station of HYROX_STATIONS) {
+      blocks.push({ type: 'run', distance: 1000, notes: '1km run at race pace' });
+      blocks.push({ type: 'station', stationId: station.id, notes: station.officialRequirement });
+    }
+    return blocks;
+  }, [config]);
+
+  const workoutName = config?.workout?.name || 'Full HYROX Simulation';
+  const workoutType = config?.type || 'full_simulation';
+
+  // Calculate stats from blocks
+  const stationBlocks = useMemo(() => workoutBlocks.filter(b => b.type === 'station'), [workoutBlocks]);
+  const runBlocks = useMemo(() => workoutBlocks.filter(b => b.type === 'run'), [workoutBlocks]);
 
   useEffect(() => {
     setEquipment(loadEquipment());
@@ -77,10 +104,14 @@ export default function RaceSimulator() {
     const now = Date.now();
     sessionStartTimeRef.current = now;
     setElapsedTime(0);
-    setPhase('running');
-    setCurrentActivity({ type: 'run', stationIndex: 0, startTime: now });
+
+    // Start with first block
+    const firstBlock = workoutBlocks[0];
+    setPhase(firstBlock.type === 'run' ? 'running' : firstBlock.type === 'station' ? 'station' : 'rest');
+    setCurrentActivity({ type: firstBlock.type, blockIndex: 0, startTime: now });
     setStationResults([]);
     setRunTimes([]);
+    setRestTimes([]);
     setIsPaused(false);
   };
 
@@ -88,40 +119,42 @@ export default function RaceSimulator() {
     if (!currentActivity) return;
 
     const activityTime = Date.now() - currentActivity.startTime;
+    const currentBlock = workoutBlocks[currentActivity.blockIndex];
 
-    if (currentActivity.type === 'run') {
+    // Record the time based on activity type
+    if (currentBlock.type === 'run') {
       setRunTimes(prev => [...prev, activityTime]);
-      setPhase('station');
-      setCurrentActivity({
-        type: 'station',
-        stationIndex: currentActivity.stationIndex,
-        startTime: Date.now()
-      });
-    } else {
-      const station = HYROX_STATIONS[currentActivity.stationIndex];
-      const alternative = getBestAlternative(station.id, availableEquipmentIds);
+    } else if (currentBlock.type === 'station' && currentBlock.stationId) {
+      const station = HYROX_STATIONS.find(s => s.id === currentBlock.stationId);
+      const alternative = station ? getBestAlternative(station.id, availableEquipmentIds) : null;
 
       setStationResults(prev => [...prev, {
-        stationId: station.id,
-        alternativeUsed: alternative?.name,
+        stationId: currentBlock.stationId!,
+        alternativeUsed: currentBlock.alternativeName || alternative?.name,
         timeSeconds: Math.round(activityTime / 1000),
         completed: true
       }]);
-
-      if (currentActivity.stationIndex < 7) {
-        setPhase('running');
-        setCurrentActivity({
-          type: 'run',
-          stationIndex: currentActivity.stationIndex + 1,
-          startTime: Date.now()
-        });
-      } else {
-        // Race complete!
-        setPhase('completed');
-        setCurrentActivity(null);
-      }
+    } else if (currentBlock.type === 'rest') {
+      setRestTimes(prev => [...prev, activityTime]);
     }
-  }, [currentActivity, availableEquipmentIds]);
+
+    // Move to next block or complete
+    const nextBlockIndex = currentActivity.blockIndex + 1;
+
+    if (nextBlockIndex < workoutBlocks.length) {
+      const nextBlock = workoutBlocks[nextBlockIndex];
+      setPhase(nextBlock.type === 'run' ? 'running' : nextBlock.type === 'station' ? 'station' : 'rest');
+      setCurrentActivity({
+        type: nextBlock.type,
+        blockIndex: nextBlockIndex,
+        startTime: Date.now()
+      });
+    } else {
+      // Workout complete!
+      setPhase('completed');
+      setCurrentActivity(null);
+    }
+  }, [currentActivity, workoutBlocks, availableEquipmentIds]);
 
   const showNotification = (message: string) => {
     setNotification(message);
@@ -132,7 +165,7 @@ export default function RaceSimulator() {
     const session: WorkoutSession = {
       id: generateId(),
       date: new Date().toISOString(),
-      type: 'full_simulation',
+      type: workoutType,
       stations: stationResults,
       totalTime: Math.round(elapsedTime / 1000)
     };
@@ -146,16 +179,26 @@ export default function RaceSimulator() {
     setElapsedTime(0);
     setStationResults([]);
     setRunTimes([]);
+    setRestTimes([]);
     setIsPaused(false);
     sessionStartTimeRef.current = 0;
+    onComplete?.();
+  };
+
+  const getCurrentBlock = () => {
+    if (!currentActivity) return null;
+    return workoutBlocks[currentActivity.blockIndex];
   };
 
   const getCurrentStation = () => {
-    if (!currentActivity) return null;
-    return HYROX_STATIONS[currentActivity.stationIndex];
+    const block = getCurrentBlock();
+    if (!block || block.type !== 'station' || !block.stationId) return null;
+    return HYROX_STATIONS.find(s => s.id === block.stationId);
   };
 
   const getCurrentAlternative = () => {
+    const block = getCurrentBlock();
+    if (block?.alternativeName) return { name: block.alternativeName, description: block.notes };
     const station = getCurrentStation();
     if (!station) return null;
     return getBestAlternative(station.id, availableEquipmentIds);
@@ -166,6 +209,16 @@ export default function RaceSimulator() {
     return Date.now() - currentActivity.startTime;
   };
 
+  const getRunDistance = () => {
+    const block = getCurrentBlock();
+    if (block?.distance) return `${block.distance}m`;
+    return '1km';
+  };
+
+  // Calculate progress
+  const completedBlocks = currentActivity ? currentActivity.blockIndex : workoutBlocks.length;
+  const progressPercent = (completedBlocks / workoutBlocks.length) * 100;
+
   return (
     <div className="bg-gray-900 rounded-xl p-6 relative">
       {/* Toast Notification */}
@@ -175,26 +228,27 @@ export default function RaceSimulator() {
         </div>
       )}
 
-      <h2 className="text-2xl font-bold text-white mb-6">Race Simulator</h2>
+      <h2 className="text-2xl font-bold text-white mb-6">{workoutName}</h2>
 
       {phase === 'not_started' && (
         <div className="text-center py-12">
           <div className="text-6xl mb-4">🏁</div>
-          <h3 className="text-2xl font-bold text-white mb-4">Ready to Race?</h3>
+          <h3 className="text-2xl font-bold text-white mb-4">Ready to Start?</h3>
           <p className="text-gray-400 mb-6 max-w-md mx-auto">
-            Complete a full HYROX simulation with all 8 stations and 8x 1km runs.
+            {stationBlocks.length} station{stationBlocks.length !== 1 ? 's' : ''}
+            {runBlocks.length > 0 && ` and ${runBlocks.length} run${runBlocks.length !== 1 ? 's' : ''}`}.
             We&apos;ll track your time for each segment.
           </p>
           <button
             onClick={startSimulation}
             className="px-8 py-4 bg-orange-500 hover:bg-orange-600 rounded-xl text-xl font-bold text-white focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-gray-900"
           >
-            Start Simulation
+            Start Workout
           </button>
         </div>
       )}
 
-      {(phase === 'running' || phase === 'station') && (
+      {(phase === 'running' || phase === 'station' || phase === 'rest') && (
         <div>
           {/* Main Timer */}
           <div className="text-center mb-8">
@@ -208,20 +262,31 @@ export default function RaceSimulator() {
           <div className={`p-6 rounded-xl mb-6 ${
             phase === 'running'
               ? 'bg-blue-900/50 border-2 border-blue-500'
+              : phase === 'rest'
+              ? 'bg-gray-800/50 border-2 border-gray-600'
               : 'bg-orange-900/50 border-2 border-orange-500'
           }`}>
             <div className="text-center">
-              <div className="text-5xl mb-3">{phase === 'running' ? '🏃' : '💪'}</div>
+              <div className="text-5xl mb-3">
+                {phase === 'running' ? '🏃' : phase === 'rest' ? '😮‍💨' : '💪'}
+              </div>
               <div className="text-sm text-gray-400 mb-1">
-                {phase === 'running' ? `Run ${(currentActivity?.stationIndex ?? 0) + 1}/8` : `Station ${(currentActivity?.stationIndex ?? 0) + 1}/8`}
+                Block {(currentActivity?.blockIndex ?? 0) + 1}/{workoutBlocks.length}
               </div>
               <div className="text-3xl font-bold text-white mb-2">
                 {phase === 'running'
-                  ? '1km Run'
-                  : getCurrentAlternative()?.name ?? getCurrentStation()?.name}
+                  ? `${getRunDistance()} Run`
+                  : phase === 'rest'
+                  ? 'Rest'
+                  : getCurrentBlock()?.alternativeName || getCurrentAlternative()?.name || getCurrentStation()?.name}
               </div>
-              {phase === 'station' && getCurrentAlternative() && (
-                <p className="text-gray-300 mb-2">{getCurrentAlternative()?.description}</p>
+              {phase === 'station' && (getCurrentAlternative() || getCurrentBlock()?.notes) && (
+                <p className="text-gray-300 mb-2">
+                  {getCurrentBlock()?.notes || getCurrentAlternative()?.description}
+                </p>
+              )}
+              {phase === 'rest' && getCurrentBlock()?.notes && (
+                <p className="text-gray-300 mb-2">{getCurrentBlock()?.notes}</p>
               )}
               <div className="text-4xl font-mono text-orange-400">
                 {formatTime(Math.round(getActivityTime() / 1000))}
@@ -242,7 +307,7 @@ export default function RaceSimulator() {
               disabled={isPaused}
               className="px-8 py-3 bg-green-500 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-semibold text-white focus:outline-none focus:ring-2 focus:ring-green-400"
             >
-              Complete {phase === 'running' ? 'Run' : 'Station'}
+              Complete {phase === 'running' ? 'Run' : phase === 'rest' ? 'Rest' : 'Station'}
             </button>
             <button
               onClick={resetSimulation}
@@ -254,23 +319,16 @@ export default function RaceSimulator() {
 
           {/* Progress */}
           <div className="mt-8">
-            <div className="flex gap-1 mb-2">
-              {HYROX_STATIONS.map((station, idx) => (
-                <div
-                  key={station.id}
-                  className={`flex-1 h-2 rounded ${
-                    stationResults.find(r => r.stationId === station.id)
-                      ? 'bg-green-500'
-                      : currentActivity?.stationIndex === idx
-                      ? 'bg-orange-500 animate-pulse'
-                      : 'bg-gray-700'
-                  }`}
-                />
-              ))}
+            <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-orange-500 to-green-500 transition-all duration-300"
+                style={{ width: `${progressPercent}%` }}
+              />
             </div>
-            <div className="flex justify-between text-xs text-gray-500">
-              <span>Station 1</span>
-              <span>Station 8</span>
+            <div className="flex justify-between text-xs text-gray-500 mt-1">
+              <span>Start</span>
+              <span>{Math.round(progressPercent)}% complete</span>
+              <span>Finish</span>
             </div>
           </div>
         </div>
@@ -280,7 +338,7 @@ export default function RaceSimulator() {
         <div>
           <div className="text-center py-8">
             <div className="text-6xl mb-4">🎉</div>
-            <h3 className="text-3xl font-bold text-white mb-2">Race Complete!</h3>
+            <h3 className="text-3xl font-bold text-white mb-2">Workout Complete!</h3>
             <div className="text-5xl font-mono font-bold text-orange-400 mb-4">
               {formatTime(Math.round(elapsedTime / 1000))}
             </div>
@@ -291,27 +349,29 @@ export default function RaceSimulator() {
             <h4 className="text-lg font-semibold text-white">Breakdown</h4>
 
             {/* Runs */}
-            <div className="p-4 bg-blue-900/30 border border-blue-700 rounded-lg">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-white font-medium">8x 1km Runs</span>
-                <span className="text-blue-400 font-bold">
-                  {formatTime(Math.round(runTimes.reduce((a, b) => a + b, 0) / 1000))}
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {runTimes.map((time, idx) => (
-                  <span key={idx} className="text-sm px-2 py-1 bg-blue-900 rounded text-blue-300">
-                    Run {idx + 1}: {formatTime(Math.round(time / 1000))}
+            {runTimes.length > 0 && (
+              <div className="p-4 bg-blue-900/30 border border-blue-700 rounded-lg">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-white font-medium">{runTimes.length}x Runs</span>
+                  <span className="text-blue-400 font-bold">
+                    {formatTime(Math.round(runTimes.reduce((a, b) => a + b, 0) / 1000))}
                   </span>
-                ))}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {runTimes.map((time, idx) => (
+                    <span key={idx} className="text-sm px-2 py-1 bg-blue-900 rounded text-blue-300">
+                      Run {idx + 1}: {formatTime(Math.round(time / 1000))}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Stations */}
             {stationResults.map((result, idx) => {
               const station = HYROX_STATIONS.find(s => s.id === result.stationId);
               return (
-                <div key={result.stationId} className="p-4 bg-gray-800 rounded-lg flex items-center justify-between">
+                <div key={`${result.stationId}-${idx}`} className="p-4 bg-gray-800 rounded-lg flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <span className="w-8 h-8 flex items-center justify-center bg-orange-500 rounded-full text-white font-bold text-sm">
                       {idx + 1}
@@ -331,6 +391,18 @@ export default function RaceSimulator() {
                 </div>
               );
             })}
+
+            {/* Rest Times */}
+            {restTimes.length > 0 && (
+              <div className="p-4 bg-gray-700/30 border border-gray-600 rounded-lg">
+                <div className="flex justify-between items-center">
+                  <span className="text-white font-medium">Rest Time</span>
+                  <span className="text-gray-400 font-bold">
+                    {formatTime(Math.round(restTimes.reduce((a, b) => a + b, 0) / 1000))}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Actions */}
@@ -345,7 +417,7 @@ export default function RaceSimulator() {
               onClick={resetSimulation}
               className="px-6 py-3 bg-orange-500 hover:bg-orange-600 rounded-lg font-semibold text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
             >
-              New Simulation
+              New Workout
             </button>
           </div>
         </div>

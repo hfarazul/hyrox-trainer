@@ -40,10 +40,15 @@ export interface UserEquipment {
 export interface WorkoutSession {
   id: string;
   date: string;
-  type: 'full_simulation' | 'station_practice' | 'custom';
+  type: 'full_simulation' | 'station_practice' | 'quick_workout' | 'custom';
   stations: StationResult[];
   totalTime: number;
   notes?: string;
+}
+
+export interface RaceSimulatorConfig {
+  workout: GeneratedWorkout;
+  type: 'full_simulation' | 'station_practice' | 'quick_workout';
 }
 
 export interface StationResult {
