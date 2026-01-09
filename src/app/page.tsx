@@ -22,7 +22,7 @@ export default function Home() {
   const [equipment, setEquipment] = useState<UserEquipment[]>([]);
   const [currentWorkout, setCurrentWorkout] = useState<GeneratedWorkout | null>(null);
   const [workoutType, setWorkoutType] = useState<'full' | 'quick' | 'station'>('full');
-  const [quickDuration, setQuickDuration] = useState(30);
+  const [quickDuration, setQuickDuration] = useState('30');
   const [quickFocus, setQuickFocus] = useState<'cardio' | 'strength' | 'mixed'>('mixed');
   const [selectedStations, setSelectedStations] = useState<string[]>([]);
   const [simulatorConfig, setSimulatorConfig] = useState<RaceSimulatorConfig | null>(null);
@@ -68,7 +68,7 @@ export default function Home() {
         workout = generateFullSimulation(equipment);
         break;
       case 'quick':
-        workout = generateQuickWorkout(equipment, quickDuration, quickFocus);
+        workout = generateQuickWorkout(equipment, parseInt(quickDuration) || 30, quickFocus);
         break;
       case 'station':
         workout = generateStationPractice(
@@ -226,7 +226,12 @@ export default function Home() {
                     <input
                       type="number"
                       value={quickDuration}
-                      onChange={e => setQuickDuration(parseInt(e.target.value) || 30)}
+                      onChange={e => setQuickDuration(e.target.value)}
+                      onBlur={e => {
+                        const val = parseInt(e.target.value) || 30;
+                        const clamped = Math.min(90, Math.max(15, val));
+                        setQuickDuration(String(clamped));
+                      }}
                       className="w-full px-3 sm:px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white text-base"
                       min={15}
                       max={90}

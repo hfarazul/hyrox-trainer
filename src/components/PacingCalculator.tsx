@@ -18,11 +18,17 @@ export default function PacingCalculator() {
   const [pacingPlan, setPacingPlan] = useState<ReturnType<typeof calculatePacingPlan>>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
+  // Local string state for inputs (allows free typing)
+  const [targetTimeInput, setTargetTimeInput] = useState(String(DEFAULT_GOAL.targetTime));
+  const [fiveKTimeInput, setFiveKTimeInput] = useState(String(DEFAULT_GOAL.fiveKTime));
+
   // Load saved goal on mount
   useEffect(() => {
     const saved = loadRaceGoal();
     if (saved) {
       setGoal(saved);
+      setTargetTimeInput(String(saved.targetTime));
+      setFiveKTimeInput(String(saved.fiveKTime));
     }
     setIsLoaded(true);
   }, []);
@@ -38,20 +44,20 @@ export default function PacingCalculator() {
     }
   }, [goal, isLoaded]);
 
-  // Safe input handlers with validation
-  const handleTargetTimeChange = useCallback((value: string) => {
-    const parsed = parseInt(value, 10);
-    if (!isNaN(parsed) && parsed >= 45 && parsed <= 180) {
-      setGoal(prev => ({ ...prev, targetTime: parsed }));
-    }
-  }, []);
+  // Blur handlers - validate and update goal
+  const handleTargetTimeBlur = useCallback(() => {
+    const parsed = parseInt(targetTimeInput, 10);
+    const val = isNaN(parsed) ? 75 : Math.min(180, Math.max(45, parsed));
+    setTargetTimeInput(String(val));
+    setGoal(prev => ({ ...prev, targetTime: val }));
+  }, [targetTimeInput]);
 
-  const handleFiveKTimeChange = useCallback((value: string) => {
-    const parsed = parseInt(value, 10);
-    if (!isNaN(parsed) && parsed >= 15 && parsed <= 45) {
-      setGoal(prev => ({ ...prev, fiveKTime: parsed }));
-    }
-  }, []);
+  const handleFiveKTimeBlur = useCallback(() => {
+    const parsed = parseInt(fiveKTimeInput, 10);
+    const val = isNaN(parsed) ? 25 : Math.min(45, Math.max(15, parsed));
+    setFiveKTimeInput(String(val));
+    setGoal(prev => ({ ...prev, fiveKTime: val }));
+  }, [fiveKTimeInput]);
 
   const totalStationTime = pacingPlan.reduce((sum, s) => sum + s.targetTime, 0);
   const runPacePerKm = Math.max(0, Math.round((goal.targetTime * 60 - totalStationTime - ROX_ZONE_TRANSITION_TIME_SECONDS) / 8));
@@ -72,8 +78,9 @@ export default function PacingCalculator() {
           <input
             id="targetTime"
             type="number"
-            value={goal.targetTime}
-            onChange={e => handleTargetTimeChange(e.target.value)}
+            value={targetTimeInput}
+            onChange={e => setTargetTimeInput(e.target.value)}
+            onBlur={handleTargetTimeBlur}
             className="w-full px-3 sm:px-4 py-3 sm:py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-base focus:outline-none focus:ring-2 focus:ring-orange-400"
             min={45}
             max={180}
@@ -87,8 +94,9 @@ export default function PacingCalculator() {
           <input
             id="fiveKTime"
             type="number"
-            value={goal.fiveKTime}
-            onChange={e => handleFiveKTimeChange(e.target.value)}
+            value={fiveKTimeInput}
+            onChange={e => setFiveKTimeInput(e.target.value)}
+            onBlur={handleFiveKTimeBlur}
             className="w-full px-3 sm:px-4 py-3 sm:py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-base focus:outline-none focus:ring-2 focus:ring-orange-400"
             min={15}
             max={45}
