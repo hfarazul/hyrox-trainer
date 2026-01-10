@@ -37,6 +37,8 @@ export interface UserEquipment {
   weight?: number;
 }
 
+export type PerformanceRanking = 'elite' | 'fast' | 'good' | 'solid' | 'finish';
+
 export interface WorkoutSession {
   id: string;
   date: string;
@@ -45,6 +47,9 @@ export interface WorkoutSession {
   totalTime: number;
   notes?: string;
   partial?: boolean; // true if workout was stopped early
+  ranking?: PerformanceRanking;
+  isPR?: boolean; // true if this was a personal record
+  estimatedDuration?: number; // expected workout duration in minutes
 }
 
 export interface RaceSimulatorConfig {

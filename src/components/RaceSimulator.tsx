@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { HYROX_STATIONS } from '@/lib/hyrox-data';
-import { WorkoutSession, StationResult, UserEquipment, RaceSimulatorConfig, WorkoutBlock } from '@/lib/types';
-import { getBestAlternative } from '@/lib/workout-generator';
-import { addSession, generateId, formatTime, loadEquipment } from '@/lib/storage';
+import { WorkoutSession, StationResult, UserEquipment, RaceSimulatorConfig, WorkoutBlock, PerformanceRanking } from '@/lib/types';
+import { getBestAlternative, calculateRanking, getRankingInfo } from '@/lib/workout-generator';
+import { addSession, generateId, formatTime, loadEquipment, loadSessions } from '@/lib/storage';
 
 type SimulationPhase = 'not_started' | 'running' | 'station' | 'rest' | 'completed';
 
@@ -30,6 +30,8 @@ export default function RaceSimulator({ config, onComplete }: Props) {
   const [isPaused, setIsPaused] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
   const [showStopConfirm, setShowStopConfirm] = useState(false);
+  const [ranking, setRanking] = useState<PerformanceRanking | null>(null);
+  const [isPR, setIsPR] = useState(false);
 
   // Use refs to avoid stale closures in timer
   const sessionStartTimeRef = useRef<number>(0);
@@ -152,10 +154,27 @@ export default function RaceSimulator({ config, onComplete }: Props) {
       });
     } else {
       // Workout complete!
+      const finalTime = Date.now() - sessionStartTimeRef.current;
+      const finalTimeSeconds = Math.round(finalTime / 1000);
+
+      // Calculate ranking based on estimated duration
+      const estimatedDuration = config?.workout?.duration || 75;
+      const calculatedRanking = calculateRanking(finalTimeSeconds, estimatedDuration);
+      setRanking(calculatedRanking);
+
+      // Check for PR (personal record)
+      const sessions = loadSessions();
+      const sameTypeSessions = sessions.filter(s => s.type === workoutType && !s.partial);
+      const bestPreviousTime = sameTypeSessions.length > 0
+        ? Math.min(...sameTypeSessions.map(s => s.totalTime))
+        : Infinity;
+      const isPersonalRecord = finalTimeSeconds < bestPreviousTime;
+      setIsPR(isPersonalRecord);
+
       setPhase('completed');
       setCurrentActivity(null);
     }
-  }, [currentActivity, workoutBlocks, availableEquipmentIds]);
+  }, [currentActivity, workoutBlocks, availableEquipmentIds, config, workoutType]);
 
   const showNotification = (message: string) => {
     setNotification(message);
@@ -169,7 +188,10 @@ export default function RaceSimulator({ config, onComplete }: Props) {
       type: workoutType,
       stations: stationResults,
       totalTime: Math.round(elapsedTime / 1000),
-      partial: isPartial
+      partial: isPartial,
+      ranking: isPartial ? undefined : ranking || undefined,
+      isPR: isPartial ? undefined : isPR,
+      estimatedDuration: config?.workout?.duration
     };
     addSession(session);
     showNotification(isPartial ? 'Partial session saved!' : 'Session saved successfully!');
@@ -192,6 +214,8 @@ export default function RaceSimulator({ config, onComplete }: Props) {
     setRunTimes([]);
     setRestTimes([]);
     setIsPaused(false);
+    setRanking(null);
+    setIsPR(false);
     sessionStartTimeRef.current = 0;
     onComplete?.();
   };
@@ -379,6 +403,25 @@ export default function RaceSimulator({ config, onComplete }: Props) {
             <div className="text-4xl sm:text-5xl font-mono font-bold text-orange-400 mb-4">
               {formatTime(Math.round(elapsedTime / 1000))}
             </div>
+
+            {/* Ranking Badge */}
+            {ranking && (
+              <div className="flex flex-col items-center gap-2 mb-4">
+                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${getRankingInfo(ranking).bgColor}`}>
+                  <span className="text-2xl">{getRankingInfo(ranking).emoji}</span>
+                  <span className="text-xl font-bold text-white">{getRankingInfo(ranking).label}</span>
+                </div>
+                <p className={`text-sm ${getRankingInfo(ranking).color}`}>
+                  {getRankingInfo(ranking).description}
+                </p>
+                {isPR && (
+                  <div className="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-pulse">
+                    <span className="text-lg">🔥</span>
+                    <span className="text-sm font-bold text-white">NEW PERSONAL RECORD!</span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Results Breakdown */}

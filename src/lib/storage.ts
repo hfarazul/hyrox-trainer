@@ -6,6 +6,7 @@ const STORAGE_KEYS = {
   EQUIPMENT: 'hyrox_equipment',
   SESSIONS: 'hyrox_sessions',
   RACE_GOAL: 'hyrox_race_goal',
+  EXCLUDED_EXERCISES: 'hyrox_excluded_exercises',
 };
 
 const MAX_SESSIONS = 100;
@@ -105,6 +106,28 @@ export function loadRaceGoal(): RaceGoal | null {
   if (typeof window === 'undefined') return null;
   const data = localStorage.getItem(STORAGE_KEYS.RACE_GOAL);
   return safeJsonParse(data, validateRaceGoal);
+}
+
+// Excluded exercises storage
+export function saveExcludedExercises(exercises: string[]): void {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(STORAGE_KEYS.EXCLUDED_EXERCISES, JSON.stringify(exercises));
+  }
+}
+
+export function loadExcludedExercises(): string[] {
+  if (typeof window === 'undefined') return [];
+  const data = localStorage.getItem(STORAGE_KEYS.EXCLUDED_EXERCISES);
+  if (!data) return [];
+  try {
+    const parsed = JSON.parse(data);
+    if (Array.isArray(parsed) && parsed.every(item => typeof item === 'string')) {
+      return parsed;
+    }
+  } catch {
+    console.error('Failed to parse excluded exercises');
+  }
+  return [];
 }
 
 export function generateId(): string {

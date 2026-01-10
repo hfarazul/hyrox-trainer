@@ -1,6 +1,73 @@
 import { HYROX_STATIONS, AVERAGE_TIMES, ROX_ZONE_TRANSITION_TIME_SECONDS, OFFICIAL_WORK } from './hyrox-data';
-import { GeneratedWorkout, WorkoutBlock, Exercise, UserEquipment, Alternative } from './types';
+import { GeneratedWorkout, WorkoutBlock, Exercise, UserEquipment, Alternative, PerformanceRanking } from './types';
 import { generateId } from './storage';
+
+// Performance ranking thresholds (percentage of estimated time)
+// Elite: < 85%, Fast: 85-100%, Good: 100-115%, Solid: 115-135%, Finish: > 135%
+export function calculateRanking(
+  actualTimeSeconds: number,
+  estimatedDurationMinutes: number
+): PerformanceRanking {
+  const estimatedSeconds = estimatedDurationMinutes * 60;
+  const percentage = (actualTimeSeconds / estimatedSeconds) * 100;
+
+  if (percentage < 85) return 'elite';
+  if (percentage < 100) return 'fast';
+  if (percentage < 115) return 'good';
+  if (percentage < 135) return 'solid';
+  return 'finish';
+}
+
+export function getRankingInfo(ranking: PerformanceRanking): {
+  label: string;
+  emoji: string;
+  color: string;
+  bgColor: string;
+  description: string;
+} {
+  switch (ranking) {
+    case 'elite':
+      return {
+        label: 'ELITE',
+        emoji: '🏆',
+        color: 'text-yellow-300',
+        bgColor: 'bg-gradient-to-r from-yellow-600 to-amber-500',
+        description: 'Top tier performance!'
+      };
+    case 'fast':
+      return {
+        label: 'FAST',
+        emoji: '⚡',
+        color: 'text-purple-300',
+        bgColor: 'bg-gradient-to-r from-purple-600 to-pink-500',
+        description: 'Great pace!'
+      };
+    case 'good':
+      return {
+        label: 'GOOD',
+        emoji: '💪',
+        color: 'text-green-300',
+        bgColor: 'bg-gradient-to-r from-green-600 to-emerald-500',
+        description: 'Solid performance'
+      };
+    case 'solid':
+      return {
+        label: 'SOLID',
+        emoji: '✓',
+        color: 'text-blue-300',
+        bgColor: 'bg-gradient-to-r from-blue-600 to-cyan-500',
+        description: 'Keep pushing!'
+      };
+    case 'finish':
+      return {
+        label: 'FINISHER',
+        emoji: '🏁',
+        color: 'text-gray-300',
+        bgColor: 'bg-gradient-to-r from-gray-600 to-gray-500',
+        description: 'You finished!'
+      };
+  }
+}
 
 // Fisher-Yates shuffle for unbiased randomization
 function shuffleArray<T>(array: T[]): T[] {
@@ -14,13 +81,22 @@ function shuffleArray<T>(array: T[]): T[] {
 
 export function getBestAlternative(
   stationId: string,
-  availableEquipment: string[]
+  availableEquipment: string[],
+  excludedExercises: string[] = []
 ): Alternative | null {
   const station = HYROX_STATIONS.find(s => s.id === stationId);
   if (!station) return null;
 
+  // Filter out excluded exercises
+  const availableAlts = station.alternatives.filter(
+    alt => !excludedExercises.includes(alt.name)
+  );
+
+  // If all alternatives are excluded, use the original list
+  const altsToUse = availableAlts.length > 0 ? availableAlts : station.alternatives;
+
   // Sort alternatives by intensity (prefer high) and conversion factor
-  const sortedAlts = [...station.alternatives].sort((a, b) => {
+  const sortedAlts = [...altsToUse].sort((a, b) => {
     const intensityOrder = { high: 3, medium: 2, low: 1 };
     return (intensityOrder[b.intensity] * b.conversionFactor) -
            (intensityOrder[a.intensity] * a.conversionFactor);
@@ -38,9 +114,21 @@ export function getBestAlternative(
   return sortedAlts.find(alt => alt.equipmentNeeded.length === 0) || sortedAlts[0];
 }
 
+// Get all unique exercise names for exclusion UI
+export function getAllExerciseNames(): string[] {
+  const exercises = new Set<string>();
+  for (const station of HYROX_STATIONS) {
+    for (const alt of station.alternatives) {
+      exercises.add(alt.name);
+    }
+  }
+  return Array.from(exercises).sort();
+}
+
 export function generateFullSimulation(
   userEquipment: UserEquipment[],
-  includeRuns: boolean = true
+  includeRuns: boolean = true,
+  excludedExercises: string[] = []
 ): GeneratedWorkout {
   const availableIds = userEquipment.filter(e => e.available).map(e => e.equipmentId);
   const mainWorkout: WorkoutBlock[] = [];
@@ -54,7 +142,7 @@ export function generateFullSimulation(
       });
     }
 
-    const alternative = getBestAlternative(station.id, availableIds);
+    const alternative = getBestAlternative(station.id, availableIds, excludedExercises);
     mainWorkout.push({
       type: 'station',
       stationId: station.id,
@@ -77,7 +165,8 @@ export function generateFullSimulation(
 export function generateStationPractice(
   stationIds: string[],
   userEquipment: UserEquipment[],
-  sets: number = 3
+  sets: number = 3,
+  excludedExercises: string[] = []
 ): GeneratedWorkout {
   const availableIds = userEquipment.filter(e => e.available).map(e => e.equipmentId);
   const mainWorkout: WorkoutBlock[] = [];
@@ -93,7 +182,7 @@ export function generateStationPractice(
         notes: '400m run (recovery between stations)'
       });
 
-      const alternative = getBestAlternative(stationId, availableIds);
+      const alternative = getBestAlternative(stationId, availableIds, excludedExercises);
       mainWorkout.push({
         type: 'station',
         stationId: station.id,
@@ -127,7 +216,8 @@ export function generateStationPractice(
 export function generateQuickWorkout(
   userEquipment: UserEquipment[],
   durationMinutes: number = 30,
-  focus: 'cardio' | 'strength' | 'mixed' = 'mixed'
+  focus: 'cardio' | 'strength' | 'mixed' = 'mixed',
+  excludedExercises: string[] = []
 ): GeneratedWorkout {
   const availableIds = userEquipment.filter(e => e.available).map(e => e.equipmentId);
   const mainWorkout: WorkoutBlock[] = [];
@@ -151,7 +241,7 @@ export function generateQuickWorkout(
       notes: '500m run'
     });
 
-    const alternative = getBestAlternative(station.id, availableIds);
+    const alternative = getBestAlternative(station.id, availableIds, excludedExercises);
     mainWorkout.push({
       type: 'station',
       stationId: station.id,
@@ -174,7 +264,8 @@ export function generateQuickWorkout(
 export function generateRaceCoverageWorkout(
   userEquipment: UserEquipment[],
   coveragePercent: number = 50,
-  isWomen: boolean = false
+  isWomen: boolean = false,
+  excludedExercises: string[] = []
 ): GeneratedWorkout {
   const availableIds = userEquipment.filter(e => e.available).map(e => e.equipmentId);
   const mainWorkout: WorkoutBlock[] = [];
@@ -206,7 +297,7 @@ export function generateRaceCoverageWorkout(
     }
 
     // Get alternative if needed
-    const alternative = getBestAlternative(station.id, availableIds);
+    const alternative = getBestAlternative(station.id, availableIds, excludedExercises);
     mainWorkout.push({
       type: 'station',
       stationId: station.id,

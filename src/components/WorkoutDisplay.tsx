@@ -1,17 +1,32 @@
 'use client';
 
 import { GeneratedWorkout, WorkoutBlock } from '@/lib/types';
-import { HYROX_STATIONS } from '@/lib/hyrox-data';
+import { HYROX_STATIONS, DIVISION_INFO } from '@/lib/hyrox-data';
 import { formatTime } from '@/lib/storage';
+
+type Division = 'men_open' | 'men_pro' | 'women_open' | 'women_pro';
 
 interface Props {
   workout: GeneratedWorkout;
   onStartSimulation?: () => void;
+  division?: Division;
 }
 
-export default function WorkoutDisplay({ workout, onStartSimulation }: Props) {
+export default function WorkoutDisplay({ workout, onStartSimulation, division = 'men_open' }: Props) {
   const getStationInfo = (stationId: string) =>
     HYROX_STATIONS.find(s => s.id === stationId);
+
+  const getStationWeight = (stationId: string): string | null => {
+    const divisionInfo = DIVISION_INFO[division];
+    switch (stationId) {
+      case 'sled_push': return divisionInfo.sledPush;
+      case 'sled_pull': return divisionInfo.sledPull;
+      case 'farmers_carry': return divisionInfo.farmers;
+      case 'sandbag_lunges': return divisionInfo.sandbag;
+      case 'wall_balls': return divisionInfo.wallBall;
+      default: return null;
+    }
+  };
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -47,6 +62,9 @@ export default function WorkoutDisplay({ workout, onStartSimulation }: Props) {
                 ALL 8 STATIONS
               </span>
             )}
+            <span className="px-2 py-1 rounded text-xs font-semibold bg-gray-700 text-gray-300">
+              {DIVISION_INFO[division].label}
+            </span>
           </div>
         </div>
         {/* Desktop button */}
@@ -120,6 +138,11 @@ export default function WorkoutDisplay({ workout, onStartSimulation }: Props) {
                       {station && block.alternativeName !== station.name && (
                         <span className="text-xs px-1.5 sm:px-2 py-0.5 bg-gray-700 rounded text-gray-400">
                           replaces {station.name}
+                        </span>
+                      )}
+                      {block.stationId && getStationWeight(block.stationId) && (
+                        <span className="text-xs px-1.5 sm:px-2 py-0.5 bg-purple-600/50 rounded text-purple-300">
+                          {getStationWeight(block.stationId)}
                         </span>
                       )}
                     </div>
