@@ -32,7 +32,8 @@ export default function WorkoutDisplay({ workout, onStartSimulation }: Props) {
   };
 
   return (
-    <div className="bg-gray-900 rounded-xl p-4 sm:p-6">
+    <div className="bg-gray-900 rounded-xl p-4 sm:p-6 pb-20 sm:pb-6">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-4 mb-4">
         <div>
           <h2 className="text-lg sm:text-2xl font-bold text-white">{workout.name}</h2>
@@ -43,15 +44,28 @@ export default function WorkoutDisplay({ workout, onStartSimulation }: Props) {
             </span>
           </div>
         </div>
+        {/* Desktop button */}
         {onStartSimulation && (
           <button
             onClick={onStartSimulation}
-            className="w-full sm:w-auto px-4 py-3 sm:py-2 bg-orange-500 hover:bg-orange-600 rounded-lg font-semibold text-white text-sm sm:text-base"
+            className="hidden sm:block px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded-lg font-semibold text-white text-base"
           >
             Start Timer
           </button>
         )}
       </div>
+
+      {/* Mobile sticky button */}
+      {onStartSimulation && (
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-gray-950 via-gray-950 to-transparent sm:hidden z-40">
+          <button
+            onClick={onStartSimulation}
+            className="w-full py-4 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 rounded-xl font-bold text-white text-lg shadow-lg"
+          >
+            Start Timer
+          </button>
+        </div>
+      )}
 
       {/* Warmup */}
       <div className="mb-4 sm:mb-6">

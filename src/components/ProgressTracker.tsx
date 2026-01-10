@@ -20,9 +20,11 @@ export default function ProgressTracker() {
     let bestTotal = Infinity;
 
     for (const session of sessions) {
-      if (session.totalTime > 0 && session.totalTime < bestTotal) {
+      // Only count complete sessions for best total time
+      if (!session.partial && session.totalTime > 0 && session.totalTime < bestTotal) {
         bestTotal = session.totalTime;
       }
+      // Station times count from all sessions
       for (const result of session.stations) {
         if (!bests[result.stationId] || result.timeSeconds < bests[result.stationId]) {
           bests[result.stationId] = result.timeSeconds;
@@ -147,6 +149,11 @@ export default function ProgressTracker() {
                     {session.type === 'full_simulation' ? 'Full Simulation' :
                      session.type === 'quick_workout' ? 'Quick Workout' : 'Station Practice'}
                   </span>
+                  {session.partial && (
+                    <span className="text-xs px-1.5 py-0.5 bg-yellow-600/30 text-yellow-400 rounded">
+                      Partial
+                    </span>
+                  )}
                   <span className="text-gray-500 text-xs sm:text-sm">
                     {formatDate(session.date)}
                   </span>

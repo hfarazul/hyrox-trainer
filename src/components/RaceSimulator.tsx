@@ -29,6 +29,7 @@ export default function RaceSimulator({ config, onComplete }: Props) {
   const [equipment, setEquipment] = useState<UserEquipment[]>([]);
   const [isPaused, setIsPaused] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
+  const [showStopConfirm, setShowStopConfirm] = useState(false);
 
   // Use refs to avoid stale closures in timer
   const sessionStartTimeRef = useRef<number>(0);
@@ -161,16 +162,26 @@ export default function RaceSimulator({ config, onComplete }: Props) {
     setTimeout(() => setNotification(null), 3000);
   };
 
-  const saveSession = () => {
+  const saveSession = (isPartial = false) => {
     const session: WorkoutSession = {
       id: generateId(),
       date: new Date().toISOString(),
       type: workoutType,
       stations: stationResults,
-      totalTime: Math.round(elapsedTime / 1000)
+      totalTime: Math.round(elapsedTime / 1000),
+      partial: isPartial
     };
     addSession(session);
-    showNotification('Session saved successfully!');
+    showNotification(isPartial ? 'Partial session saved!' : 'Session saved successfully!');
+  };
+
+  const stopAndSave = () => {
+    setShowStopConfirm(false);
+    setIsPaused(true);
+    saveSession(true);
+    setTimeout(() => {
+      resetSimulation();
+    }, 1500);
   };
 
   const resetSimulation = () => {
@@ -310,12 +321,38 @@ export default function RaceSimulator({ config, onComplete }: Props) {
               Complete {phase === 'running' ? 'Run' : phase === 'rest' ? 'Rest' : 'Station'}
             </button>
             <button
-              onClick={resetSimulation}
-              className="px-6 py-3 bg-red-600 hover:bg-red-700 rounded-lg font-semibold text-white focus:outline-none focus:ring-2 focus:ring-red-400 text-sm sm:text-base"
+              onClick={() => setShowStopConfirm(true)}
+              className="px-6 py-3 bg-yellow-600 hover:bg-yellow-700 rounded-lg font-semibold text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm sm:text-base"
             >
-              Reset
+              Stop & Save
             </button>
           </div>
+
+          {/* Stop & Save Confirmation Modal */}
+          {showStopConfirm && (
+            <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+              <div className="bg-gray-800 rounded-xl p-6 max-w-sm w-full">
+                <h3 className="text-lg font-bold text-white mb-2">Stop Workout?</h3>
+                <p className="text-gray-400 text-sm mb-4">
+                  Your progress will be saved. You&apos;ve completed {stationResults.length} station{stationResults.length !== 1 ? 's' : ''} so far.
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowStopConfirm(false)}
+                    className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg font-medium text-white text-sm"
+                  >
+                    Continue
+                  </button>
+                  <button
+                    onClick={stopAndSave}
+                    className="flex-1 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 rounded-lg font-medium text-white text-sm"
+                  >
+                    Stop & Save
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Progress */}
           <div className="mt-6 sm:mt-8">
@@ -408,7 +445,7 @@ export default function RaceSimulator({ config, onComplete }: Props) {
           {/* Actions */}
           <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4">
             <button
-              onClick={saveSession}
+              onClick={() => saveSession(false)}
               className="px-6 py-3 bg-green-500 hover:bg-green-600 rounded-lg font-semibold text-white focus:outline-none focus:ring-2 focus:ring-green-400 text-sm sm:text-base"
             >
               Save Results

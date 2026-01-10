@@ -124,12 +124,21 @@ export default function Home() {
               <p className="text-xs sm:text-sm text-gray-400 hidden sm:block">Train Anywhere, Race Ready</p>
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
-              <div className="text-right hidden md:block">
-                <div className="text-sm text-gray-400">Equipment configured</div>
-                <div className="text-orange-400 font-semibold">
-                  {equipment.filter(e => e.available).length} items
+              {/* Equipment quick access - clickable */}
+              <button
+                onClick={() => setActiveTab('equipment')}
+                className="text-right px-2 py-1 -mx-2 rounded-lg hover:bg-gray-800 transition-colors"
+                title="Edit equipment"
+              >
+                <div className="text-xs sm:text-sm text-gray-400 hidden sm:block">Equipment</div>
+                <div className="text-orange-400 font-semibold flex items-center gap-1">
+                  <span className="text-sm sm:text-base">{equipment.filter(e => e.available).length}</span>
+                  <span className="text-xs text-gray-500">items</span>
+                  <svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
                 </div>
-              </div>
+              </button>
               {status === 'loading' ? (
                 <div className="w-16 sm:w-20 h-9 sm:h-10 bg-gray-800 rounded-lg animate-pulse" />
               ) : session ? (

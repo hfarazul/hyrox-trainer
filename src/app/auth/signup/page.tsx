@@ -44,7 +44,18 @@ export default function SignUpPage() {
         return;
       }
 
-      router.push('/auth/signin?registered=true');
+      // Auto sign in and redirect to onboarding
+      const signInResult = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (signInResult?.ok) {
+        router.push('/onboarding');
+      } else {
+        router.push('/auth/signin?registered=true');
+      }
     } catch {
       setError('Something went wrong');
     } finally {
@@ -68,7 +79,7 @@ export default function SignUpPage() {
           {/* Google Sign Up */}
           <button
             type="button"
-            onClick={() => signIn('google', { callbackUrl: '/' })}
+            onClick={() => signIn('google', { callbackUrl: '/onboarding' })}
             className="w-full py-3 bg-white hover:bg-gray-100 rounded-lg font-semibold text-gray-800 flex items-center justify-center gap-3 focus:outline-none focus:ring-2 focus:ring-gray-400"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">

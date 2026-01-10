@@ -44,6 +44,7 @@ export interface WorkoutSession {
   stations: StationResult[];
   totalTime: number;
   notes?: string;
+  partial?: boolean; // true if workout was stopped early
 }
 
 export interface RaceSimulatorConfig {
