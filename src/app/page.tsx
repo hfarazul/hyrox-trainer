@@ -11,7 +11,7 @@ import ProgressTracker from '@/components/ProgressTracker';
 import { UserEquipment, GeneratedWorkout, RaceSimulatorConfig } from '@/lib/types';
 import { loadEquipment } from '@/lib/storage';
 import { fetchEquipment } from '@/lib/api';
-import { generateFullSimulation, generateQuickWorkout, generateStationPractice } from '@/lib/workout-generator';
+import { generateFullSimulation, generateQuickWorkout, generateStationPractice, generateRaceCoverageWorkout } from '@/lib/workout-generator';
 import { HYROX_STATIONS } from '@/lib/hyrox-data';
 
 type Tab = 'workout' | 'simulator' | 'pacing' | 'progress' | 'equipment';
@@ -21,10 +21,11 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>('workout');
   const [equipment, setEquipment] = useState<UserEquipment[]>([]);
   const [currentWorkout, setCurrentWorkout] = useState<GeneratedWorkout | null>(null);
-  const [workoutType, setWorkoutType] = useState<'full' | 'quick' | 'station'>('full');
+  const [workoutType, setWorkoutType] = useState<'full' | 'quick' | 'station' | 'coverage'>('full');
   const [quickDuration, setQuickDuration] = useState('30');
   const [quickFocus, setQuickFocus] = useState<'cardio' | 'strength' | 'mixed'>('mixed');
   const [selectedStations, setSelectedStations] = useState<string[]>([]);
+  const [coveragePercent, setCoveragePercent] = useState<25 | 50 | 75 | 100>(50);
   const [simulatorConfig, setSimulatorConfig] = useState<RaceSimulatorConfig | null>(null);
 
   useEffect(() => {
@@ -76,6 +77,9 @@ export default function Home() {
           equipment
         );
         break;
+      case 'coverage':
+        workout = generateRaceCoverageWorkout(equipment, coveragePercent);
+        break;
       default:
         workout = generateFullSimulation(equipment);
     }
@@ -88,6 +92,7 @@ export default function Home() {
       'full': 'full_simulation',
       'quick': 'quick_workout',
       'station': 'station_practice',
+      'coverage': 'full_simulation', // Coverage uses full simulation tracking
     };
 
     setSimulatorConfig({
@@ -205,9 +210,10 @@ export default function Home() {
               {/* Workout Type */}
               <div className="mb-4">
                 <label className="block text-sm text-gray-400 mb-2">Workout Type</label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {[
                     { id: 'full', label: 'Full Sim', fullLabel: 'Full Simulation' },
+                    { id: 'coverage', label: 'Coverage', fullLabel: 'Race Coverage' },
                     { id: 'quick', label: 'Quick', fullLabel: 'Quick Workout' },
                     { id: 'station', label: 'Practice', fullLabel: 'Station Practice' },
                   ].map(type => (
@@ -279,6 +285,38 @@ export default function Home() {
                         {station.name}
                       </button>
                     ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Race Coverage Options */}
+              {workoutType === 'coverage' && (
+                <div className="mb-4">
+                  <label className="block text-sm text-gray-400 mb-2">Race Coverage</label>
+                  <div className="grid grid-cols-4 gap-2 mb-3">
+                    {([25, 50, 75, 100] as const).map(percent => (
+                      <button
+                        key={percent}
+                        onClick={() => setCoveragePercent(percent)}
+                        className={`px-3 py-3 rounded-lg text-sm font-medium transition-all ${
+                          coveragePercent === percent
+                            ? 'bg-orange-500 text-white'
+                            : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                        }`}
+                      >
+                        {percent}%
+                      </button>
+                    ))}
+                  </div>
+                  <div className="bg-gray-800/50 rounded-lg p-3 text-xs sm:text-sm text-gray-400">
+                    <p className="font-medium text-gray-300 mb-1">What you&apos;ll do:</p>
+                    <ul className="space-y-1">
+                      <li>• 8x {Math.round(1000 * coveragePercent / 100)}m runs</li>
+                      <li>• {Math.round(1000 * coveragePercent / 100)}m SkiErg & Rowing</li>
+                      <li>• {Math.round(100 * coveragePercent / 100)} Wall Balls</li>
+                      <li>• {Math.round(50 * coveragePercent / 100)}m Sled Push/Pull</li>
+                      <li>• All 8 stations at {coveragePercent}% volume</li>
+                    </ul>
                   </div>
                 </div>
               )}

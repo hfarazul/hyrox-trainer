@@ -1,4 +1,4 @@
-import { HYROX_STATIONS, AVERAGE_TIMES, ROX_ZONE_TRANSITION_TIME_SECONDS } from './hyrox-data';
+import { HYROX_STATIONS, AVERAGE_TIMES, ROX_ZONE_TRANSITION_TIME_SECONDS, OFFICIAL_WORK } from './hyrox-data';
 import { GeneratedWorkout, WorkoutBlock, Exercise, UserEquipment, Alternative } from './types';
 import { generateId } from './storage';
 
@@ -168,6 +168,65 @@ export function generateQuickWorkout(
     warmup: getShortWarmup(),
     mainWorkout,
     cooldown: getShortCooldown()
+  };
+}
+
+export function generateRaceCoverageWorkout(
+  userEquipment: UserEquipment[],
+  coveragePercent: number = 50,
+  isWomen: boolean = false
+): GeneratedWorkout {
+  const availableIds = userEquipment.filter(e => e.available).map(e => e.equipmentId);
+  const mainWorkout: WorkoutBlock[] = [];
+  const scale = coveragePercent / 100;
+
+  // Scale run distance (1000m at 100%, 500m at 50%, etc.)
+  const runDistance = Math.round(1000 * scale);
+
+  for (const station of HYROX_STATIONS) {
+    // Add scaled run
+    mainWorkout.push({
+      type: 'run',
+      distance: runDistance,
+      notes: `${runDistance}m run (${coveragePercent}% of race distance)`
+    });
+
+    // Get official work for this station
+    const work = OFFICIAL_WORK[station.id as keyof typeof OFFICIAL_WORK];
+    let scaledValue: number;
+    let workDescription: string;
+
+    if (work) {
+      // Use women's value for wall balls if applicable
+      const baseValue = isWomen && 'womenValue' in work ? work.womenValue! : work.value;
+      scaledValue = Math.round(baseValue * scale);
+      workDescription = `${scaledValue}${work.unit} (${coveragePercent}% of ${baseValue}${work.unit})`;
+    } else {
+      workDescription = station.officialRequirement;
+    }
+
+    // Get alternative if needed
+    const alternative = getBestAlternative(station.id, availableIds);
+    mainWorkout.push({
+      type: 'station',
+      stationId: station.id,
+      alternativeName: alternative?.name || station.name,
+      notes: workDescription
+    });
+  }
+
+  // Estimate duration based on coverage
+  const baseDuration = 75; // Full race ~75 min
+  const estimatedDuration = Math.round(baseDuration * scale);
+
+  return {
+    id: generateId(),
+    name: `${coveragePercent}% Race Coverage`,
+    duration: estimatedDuration,
+    difficulty: coveragePercent >= 75 ? 'hard' : coveragePercent >= 50 ? 'medium' : 'easy',
+    warmup: coveragePercent >= 75 ? getWarmup() : getShortWarmup(),
+    mainWorkout,
+    cooldown: coveragePercent >= 75 ? getCooldown() : getShortCooldown()
   };
 }
 

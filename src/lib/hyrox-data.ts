@@ -3,6 +3,18 @@ import { HyroxStation, Equipment } from './types';
 // ROX Zone transition time (~7 minutes for all 8 transitions)
 export const ROX_ZONE_TRANSITION_TIME_SECONDS = 420;
 
+// Official work values for scaling (used in race coverage mode)
+export const OFFICIAL_WORK = {
+  skierg: { value: 1000, unit: 'm' },
+  sled_push: { value: 50, unit: 'm' },
+  sled_pull: { value: 50, unit: 'm' },
+  burpee_broad_jump: { value: 80, unit: 'm' },
+  rowing: { value: 1000, unit: 'm' },
+  farmers_carry: { value: 200, unit: 'm' },
+  sandbag_lunges: { value: 100, unit: 'm' },
+  wall_balls: { value: 100, unit: 'reps', womenValue: 75 },
+};
+
 export const HYROX_STATIONS: HyroxStation[] = [
   {
     id: 'skierg',

@@ -37,11 +37,16 @@ export default function WorkoutDisplay({ workout, onStartSimulation }: Props) {
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-4 mb-4">
         <div>
           <h2 className="text-lg sm:text-2xl font-bold text-white">{workout.name}</h2>
-          <div className="flex items-center gap-2 sm:gap-3 mt-1 sm:mt-2">
+          <div className="flex items-center gap-2 sm:gap-3 mt-1 sm:mt-2 flex-wrap">
             <span className="text-gray-400 text-sm sm:text-base">~{workout.duration} min</span>
             <span className={`px-2 py-1 rounded text-xs font-semibold text-white ${getDifficultyColor(workout.difficulty)}`}>
               {workout.difficulty.toUpperCase()}
             </span>
+            {workout.name.includes('Race Coverage') && (
+              <span className="px-2 py-1 rounded text-xs font-semibold bg-purple-600 text-white">
+                ALL 8 STATIONS
+              </span>
+            )}
           </div>
         </div>
         {/* Desktop button */}
