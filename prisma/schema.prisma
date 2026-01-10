@@ -21,11 +21,12 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts       Account[]
-  sessions       Session[]
-  equipment      UserEquipment[]
+  accounts        Account[]
+  sessions        Session[]
+  equipment       UserEquipment[]
   workoutSessions WorkoutSession[]
-  raceGoal       RaceGoal?
+  raceGoal        RaceGoal?
+  userProgram     UserProgram?
 }
 
 model Account {
@@ -113,4 +114,30 @@ model RaceGoal {
   experience String // 'beginner', 'intermediate', 'advanced'
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserProgram {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  programId         String   // 'foundation-8-week' or 'race-prep-12-week'
+  startDate         DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  completedWorkouts CompletedProgramWorkout[]
+}
+
+model CompletedProgramWorkout {
+  id            String   @id @default(cuid())
+  userProgramId String
+  week          Int
+  dayOfWeek     Int
+  sessionId     String?  // Optional reference to workout session
+  completedAt   DateTime @default(now())
+
+  userProgram   UserProgram @relation(fields: [userProgramId], references: [id], onDelete: Cascade)
+
+  @@unique([userProgramId, week, dayOfWeek])
+  @@index([userProgramId])
 }

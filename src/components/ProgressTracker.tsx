@@ -459,7 +459,7 @@ export default function ProgressTracker() {
                     <span className="text-white font-medium text-sm sm:text-base">
                       {session.type === 'full_simulation' ? 'Full Simulation' :
                        session.type === 'quick_workout' ? 'Quick Workout' :
-                       session.type === 'race_coverage' ? 'Race Coverage' : 'Station Practice'}
+                       session.type === 'station_practice' ? 'Station Practice' : 'Custom'}
                     </span>
                     {session.partial && (
                       <span className="text-xs px-1.5 py-0.5 bg-yellow-600/30 text-yellow-400 rounded">

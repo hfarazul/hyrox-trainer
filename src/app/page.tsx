@@ -8,15 +8,17 @@ import WorkoutDisplay from '@/components/WorkoutDisplay';
 import RaceSimulator from '@/components/RaceSimulator';
 import PacingCalculator from '@/components/PacingCalculator';
 import ProgressTracker from '@/components/ProgressTracker';
-import { UserEquipment, GeneratedWorkout, RaceSimulatorConfig } from '@/lib/types';
-import { loadEquipment, loadExcludedExercises, saveExcludedExercises } from '@/lib/storage';
-import { fetchEquipment } from '@/lib/api';
+import ProgramSelector from '@/components/ProgramSelector';
+import WeeklyCalendar from '@/components/WeeklyCalendar';
+import { UserEquipment, GeneratedWorkout, RaceSimulatorConfig, UserProgram, ScheduledWorkout } from '@/lib/types';
+import { loadEquipment, loadExcludedExercises, saveExcludedExercises, loadUserProgram, saveUserProgram, clearUserProgram, generateId, addCompletedProgramWorkout } from '@/lib/storage';
+import { fetchEquipment, fetchUserProgram, startProgramAPI, quitProgramAPI, completeWorkoutAPI } from '@/lib/api';
 import { generateFullSimulation, generateQuickWorkout, generateStationPractice, generateRaceCoverageWorkout, getAllExerciseNames } from '@/lib/workout-generator';
 import { HYROX_STATIONS, DIVISION_INFO } from '@/lib/hyrox-data';
 
 type Division = 'men_open' | 'men_pro' | 'women_open' | 'women_pro';
 
-type Tab = 'workout' | 'simulator' | 'pacing' | 'progress' | 'equipment';
+type Tab = 'workout' | 'simulator' | 'pacing' | 'progress' | 'equipment' | 'programs';
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -32,6 +34,8 @@ export default function Home() {
   const [excludedExercises, setExcludedExercises] = useState<string[]>([]);
   const [showExcludePanel, setShowExcludePanel] = useState(false);
   const [division, setDivision] = useState<Division>('men_open');
+  const [userProgram, setUserProgram] = useState<UserProgram | null>(null);
+  const [programWorkoutContext, setProgramWorkoutContext] = useState<{ week: number; dayOfWeek: number } | null>(null);
 
   useEffect(() => {
     async function loadUserEquipment() {
@@ -73,6 +77,35 @@ export default function Home() {
       setExcludedExercises(saved);
     }
   }, []);
+
+  // Load user program
+  useEffect(() => {
+    async function loadProgram() {
+      if (session?.user) {
+        // Authenticated: load from API
+        try {
+          const apiProgram = await fetchUserProgram();
+          setUserProgram(apiProgram);
+        } catch {
+          // Fallback to localStorage on error
+          const saved = loadUserProgram();
+          if (saved) {
+            setUserProgram(saved);
+          }
+        }
+      } else {
+        // Guest: load from localStorage
+        const saved = loadUserProgram();
+        if (saved) {
+          setUserProgram(saved);
+        }
+      }
+    }
+
+    if (status !== 'loading') {
+      loadProgram();
+    }
+  }, [session, status]);
 
   const toggleExcludedExercise = (exerciseName: string) => {
     setExcludedExercises(prev => {
@@ -147,8 +180,132 @@ export default function Home() {
     });
   };
 
+  // Program handlers
+  const handleStartProgram = async (programId: string) => {
+    if (session?.user) {
+      // Authenticated: use API
+      try {
+        const newProgram = await startProgramAPI(programId);
+        setUserProgram(newProgram);
+      } catch (error) {
+        console.error('Failed to start program:', error);
+      }
+    } else {
+      // Guest: use localStorage
+      const newProgram: UserProgram = {
+        id: generateId(),
+        programId,
+        startDate: new Date().toISOString(),
+        completedWorkouts: [],
+      };
+      saveUserProgram(newProgram);
+      setUserProgram(newProgram);
+    }
+  };
+
+  const handleQuitProgram = async () => {
+    if (session?.user) {
+      // Authenticated: use API
+      try {
+        await quitProgramAPI();
+      } catch (error) {
+        console.error('Failed to quit program:', error);
+      }
+    } else {
+      // Guest: use localStorage
+      clearUserProgram();
+    }
+    setUserProgram(null);
+    setProgramWorkoutContext(null);
+  };
+
+  const handleStartProgramWorkout = (week: number, scheduledWorkout: ScheduledWorkout) => {
+    // Generate workout based on scheduled workout params
+    let workout: GeneratedWorkout;
+
+    switch (scheduledWorkout.type) {
+      case 'quick':
+        workout = generateQuickWorkout(
+          equipment,
+          scheduledWorkout.params.duration || 30,
+          scheduledWorkout.params.focus || 'mixed',
+          excludedExercises
+        );
+        break;
+      case 'station':
+        workout = generateStationPractice(
+          scheduledWorkout.params.stations || ['skierg', 'wall_balls'],
+          equipment,
+          scheduledWorkout.params.sets || 2,
+          excludedExercises
+        );
+        break;
+      case 'coverage':
+        workout = generateRaceCoverageWorkout(
+          equipment,
+          scheduledWorkout.params.coverage || 50,
+          division.startsWith('women'),
+          excludedExercises
+        );
+        break;
+      case 'full':
+        workout = generateFullSimulation(equipment, true, excludedExercises);
+        break;
+      default:
+        return; // Rest day, do nothing
+    }
+
+    // Store context for marking completion later
+    setProgramWorkoutContext({ week, dayOfWeek: scheduledWorkout.dayOfWeek });
+
+    // Start the workout
+    setSimulatorConfig({
+      workout,
+      type: scheduledWorkout.type === 'full' ? 'full_simulation' :
+            scheduledWorkout.type === 'station' ? 'station_practice' : 'quick_workout',
+    });
+    setActiveTab('simulator');
+  };
+
+  const handleProgramWorkoutComplete = async (sessionId: string) => {
+    if (programWorkoutContext && userProgram) {
+      if (session?.user) {
+        // Authenticated: use API
+        try {
+          await completeWorkoutAPI(
+            programWorkoutContext.week,
+            programWorkoutContext.dayOfWeek,
+            sessionId
+          );
+          // Reload user program to get updated completedWorkouts
+          const updated = await fetchUserProgram();
+          if (updated) {
+            setUserProgram(updated);
+          }
+        } catch (error) {
+          console.error('Failed to complete workout:', error);
+        }
+      } else {
+        // Guest: use localStorage
+        addCompletedProgramWorkout(
+          programWorkoutContext.week,
+          programWorkoutContext.dayOfWeek,
+          sessionId
+        );
+        // Reload user program to get updated completedWorkouts
+        const updated = loadUserProgram();
+        if (updated) {
+          setUserProgram(updated);
+        }
+      }
+      setProgramWorkoutContext(null);
+    }
+    setActiveTab('programs');
+  };
+
   const tabs: { id: Tab; label: string; icon: string }[] = [
     { id: 'workout', label: 'Workouts', icon: '💪' },
+    { id: 'programs', label: 'Programs', icon: '📅' },
     { id: 'simulator', label: 'Race Sim', icon: '🏁' },
     { id: 'pacing', label: 'Pacing', icon: '⏱️' },
     { id: 'progress', label: 'Progress', icon: '📊' },
@@ -475,13 +632,33 @@ export default function Home() {
         {activeTab === 'simulator' && (
           <RaceSimulator
             config={simulatorConfig || undefined}
-            onComplete={() => setActiveTab('progress')}
+            onComplete={(sessionId) => {
+              if (programWorkoutContext && sessionId) {
+                handleProgramWorkoutComplete(sessionId);
+              } else {
+                setActiveTab('progress');
+              }
+            }}
           />
         )}
 
         {activeTab === 'pacing' && <PacingCalculator />}
 
         {activeTab === 'progress' && <ProgressTracker />}
+
+        {activeTab === 'programs' && (
+          userProgram ? (
+            <WeeklyCalendar
+              userProgram={userProgram}
+              onStartWorkout={handleStartProgramWorkout}
+              onQuitProgram={handleQuitProgram}
+            />
+          ) : (
+            <ProgramSelector
+              onStartProgram={handleStartProgram}
+            />
+          )
+        )}
 
         {activeTab === 'equipment' && (
           <EquipmentSelector

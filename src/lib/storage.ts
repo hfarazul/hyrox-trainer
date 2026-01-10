@@ -1,12 +1,13 @@
 'use client';
 
-import { WorkoutSession, UserEquipment, RaceGoal } from './types';
+import { WorkoutSession, UserEquipment, RaceGoal, UserProgram } from './types';
 
 const STORAGE_KEYS = {
   EQUIPMENT: 'hyrox_equipment',
   SESSIONS: 'hyrox_sessions',
   RACE_GOAL: 'hyrox_race_goal',
   EXCLUDED_EXERCISES: 'hyrox_excluded_exercises',
+  USER_PROGRAM: 'hyrox_user_program',
 };
 
 const MAX_SESSIONS = 100;
@@ -165,4 +166,56 @@ export function parseTimeToSeconds(timeStr: string): number {
   }
   const mins = parseInt(timeStr, 10);
   return isNaN(mins) ? 0 : mins * 60;
+}
+
+// User Program storage
+function validateUserProgram(parsed: unknown): UserProgram | null {
+  if (
+    typeof parsed === 'object' &&
+    parsed !== null &&
+    'id' in parsed &&
+    'programId' in parsed &&
+    'startDate' in parsed &&
+    'completedWorkouts' in parsed &&
+    Array.isArray((parsed as UserProgram).completedWorkouts)
+  ) {
+    return parsed as UserProgram;
+  }
+  return null;
+}
+
+export function saveUserProgram(program: UserProgram): void {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(STORAGE_KEYS.USER_PROGRAM, JSON.stringify(program));
+  }
+}
+
+export function loadUserProgram(): UserProgram | null {
+  if (typeof window === 'undefined') return null;
+  const data = localStorage.getItem(STORAGE_KEYS.USER_PROGRAM);
+  return safeJsonParse(data, validateUserProgram);
+}
+
+export function clearUserProgram(): void {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem(STORAGE_KEYS.USER_PROGRAM);
+  }
+}
+
+export function addCompletedProgramWorkout(
+  week: number,
+  dayOfWeek: number,
+  sessionId: string
+): void {
+  const program = loadUserProgram();
+  if (!program) return;
+
+  program.completedWorkouts.push({
+    week,
+    dayOfWeek,
+    sessionId,
+    completedAt: new Date().toISOString(),
+  });
+
+  saveUserProgram(program);
 }

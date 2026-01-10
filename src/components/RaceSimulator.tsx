@@ -16,7 +16,7 @@ interface CurrentActivity {
 
 interface Props {
   config?: RaceSimulatorConfig;
-  onComplete?: () => void;
+  onComplete?: (sessionId?: string) => void;
 }
 
 export default function RaceSimulator({ config, onComplete }: Props) {
@@ -36,6 +36,7 @@ export default function RaceSimulator({ config, onComplete }: Props) {
   // Use refs to avoid stale closures in timer
   const sessionStartTimeRef = useRef<number>(0);
   const isPausedRef = useRef<boolean>(false);
+  const lastSessionIdRef = useRef<string | undefined>(undefined);
 
   // Get workout blocks from config or use default full simulation
   const workoutBlocks = useMemo(() => {
@@ -182,8 +183,9 @@ export default function RaceSimulator({ config, onComplete }: Props) {
   };
 
   const saveSession = (isPartial = false) => {
+    const sessionId = generateId();
     const session: WorkoutSession = {
-      id: generateId(),
+      id: sessionId,
       date: new Date().toISOString(),
       type: workoutType,
       stations: stationResults,
@@ -194,6 +196,7 @@ export default function RaceSimulator({ config, onComplete }: Props) {
       estimatedDuration: config?.workout?.duration
     };
     addSession(session);
+    lastSessionIdRef.current = sessionId;
     showNotification(isPartial ? 'Partial session saved!' : 'Session saved successfully!');
   };
 
@@ -207,6 +210,7 @@ export default function RaceSimulator({ config, onComplete }: Props) {
   };
 
   const resetSimulation = () => {
+    const sessionId = lastSessionIdRef.current;
     setPhase('not_started');
     setCurrentActivity(null);
     setElapsedTime(0);
@@ -217,7 +221,8 @@ export default function RaceSimulator({ config, onComplete }: Props) {
     setRanking(null);
     setIsPR(false);
     sessionStartTimeRef.current = 0;
-    onComplete?.();
+    lastSessionIdRef.current = undefined;
+    onComplete?.(sessionId);
   };
 
   const getCurrentBlock = () => {

@@ -1,4 +1,4 @@
-import { UserEquipment, WorkoutSession, RaceGoal } from './types';
+import { UserEquipment, WorkoutSession, RaceGoal, UserProgram } from './types';
 
 // Equipment API
 export async function fetchEquipment(): Promise<UserEquipment[]> {
@@ -95,5 +95,51 @@ export async function saveRaceGoalAPI(goal: RaceGoal): Promise<void> {
   });
   if (!response.ok && response.status !== 401) {
     throw new Error('Failed to save race goal');
+  }
+}
+
+// User Program API
+export async function fetchUserProgram(): Promise<UserProgram | null> {
+  const response = await fetch('/api/user-program');
+  if (!response.ok) {
+    if (response.status === 401) return null;
+    throw new Error('Failed to fetch user program');
+  }
+  return response.json();
+}
+
+export async function startProgramAPI(programId: string): Promise<UserProgram> {
+  const response = await fetch('/api/user-program', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ programId }),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to start program');
+  }
+  return response.json();
+}
+
+export async function quitProgramAPI(): Promise<void> {
+  const response = await fetch('/api/user-program', {
+    method: 'DELETE',
+  });
+  if (!response.ok && response.status !== 401) {
+    throw new Error('Failed to quit program');
+  }
+}
+
+export async function completeWorkoutAPI(
+  week: number,
+  dayOfWeek: number,
+  sessionId?: string
+): Promise<void> {
+  const response = await fetch('/api/user-program/complete-workout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ week, dayOfWeek, sessionId }),
+  });
+  if (!response.ok && response.status !== 401) {
+    throw new Error('Failed to complete workout');
   }
 }

@@ -107,3 +107,51 @@ export interface WorkoutBlock {
   reps?: number;
   notes?: string;
 }
+
+// Training Program Types
+
+export interface TrainingProgram {
+  id: string;
+  name: string;
+  description: string;
+  weeks: number;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  workoutsPerWeek: number;
+  schedule: ProgramWeek[];
+}
+
+export interface ProgramWeek {
+  week: number;
+  theme: string;
+  workouts: ScheduledWorkout[];
+}
+
+export type ScheduledWorkoutType = 'quick' | 'station' | 'coverage' | 'full' | 'rest';
+
+export interface ScheduledWorkout {
+  dayOfWeek: number;  // 0=Sun, 1=Mon, 2=Tue, etc.
+  dayName: string;
+  type: ScheduledWorkoutType;
+  params: {
+    duration?: number;
+    focus?: 'cardio' | 'strength' | 'mixed';
+    coverage?: number;
+    stations?: string[];
+    sets?: number;
+  };
+  estimatedMinutes: number;
+}
+
+export interface UserProgram {
+  id: string;
+  programId: string;
+  startDate: string;
+  completedWorkouts: CompletedProgramWorkout[];
+}
+
+export interface CompletedProgramWorkout {
+  week: number;
+  dayOfWeek: number;
+  sessionId: string;
+  completedAt: string;
+}
