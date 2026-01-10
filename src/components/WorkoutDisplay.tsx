@@ -10,9 +10,10 @@ interface Props {
   workout: GeneratedWorkout;
   onStartSimulation?: () => void;
   division?: Division;
+  onChangeExercise?: (blockIndex: number, alternativeName: string) => void;
 }
 
-export default function WorkoutDisplay({ workout, onStartSimulation, division = 'men_open' }: Props) {
+export default function WorkoutDisplay({ workout, onStartSimulation, division = 'men_open', onChangeExercise }: Props) {
   const getStationInfo = (stationId: string) =>
     HYROX_STATIONS.find(s => s.id === stationId);
 
@@ -128,13 +129,33 @@ export default function WorkoutDisplay({ workout, onStartSimulation, division = 
                   <span className="text-xl sm:text-2xl flex-shrink-0">{getBlockIcon(block)}</span>
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-1 sm:gap-2">
-                      <span className="font-semibold text-white text-sm sm:text-base">
-                        {block.type === 'run'
-                          ? `Run ${block.distance}m`
-                          : block.type === 'station'
-                          ? block.alternativeName || station?.name
-                          : `Rest ${block.duration ? formatTime(block.duration) : ''}`}
-                      </span>
+                      {block.type === 'run' ? (
+                        <span className="font-semibold text-white text-sm sm:text-base">
+                          Run {block.distance}m
+                        </span>
+                      ) : block.type === 'station' ? (
+                        block.allAlternatives && block.allAlternatives.length > 1 && onChangeExercise ? (
+                          <select
+                            value={block.alternativeName || station?.name || ''}
+                            onChange={(e) => onChangeExercise(idx, e.target.value)}
+                            className="font-semibold text-white text-sm sm:text-base bg-gray-800 border border-gray-600 rounded px-2 py-1 cursor-pointer hover:border-orange-500 focus:border-orange-500 focus:outline-none"
+                          >
+                            {block.allAlternatives.map(alt => (
+                              <option key={alt.name} value={alt.name}>
+                                {alt.name} ({alt.intensity})
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <span className="font-semibold text-white text-sm sm:text-base">
+                            {block.alternativeName || station?.name}
+                          </span>
+                        )
+                      ) : (
+                        <span className="font-semibold text-white text-sm sm:text-base">
+                          Rest {block.duration ? formatTime(block.duration) : ''}
+                        </span>
+                      )}
                       {station && block.alternativeName !== station.name && (
                         <span className="text-xs px-1.5 sm:px-2 py-0.5 bg-gray-700 rounded text-gray-400">
                           replaces {station.name}

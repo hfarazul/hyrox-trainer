@@ -101,6 +101,7 @@ export interface WorkoutBlock {
   type: 'run' | 'station' | 'rest';
   stationId?: string;
   alternativeName?: string;
+  allAlternatives?: Alternative[];  // All available alternatives for dropdown selection
   duration?: number;
   distance?: number;
   reps?: number;

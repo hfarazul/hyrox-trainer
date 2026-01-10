@@ -127,6 +127,26 @@ export default function Home() {
     setActiveTab('simulator');
   };
 
+  const handleChangeExercise = (blockIndex: number, newAlternativeName: string) => {
+    if (!currentWorkout) return;
+
+    const block = currentWorkout.mainWorkout[blockIndex];
+    const station = HYROX_STATIONS.find(s => s.id === block.stationId);
+    const newAlt = station?.alternatives.find(a => a.name === newAlternativeName);
+
+    setCurrentWorkout(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        mainWorkout: prev.mainWorkout.map((b, i) =>
+          i === blockIndex
+            ? { ...b, alternativeName: newAlternativeName, notes: newAlt?.description || b.notes }
+            : b
+        )
+      };
+    });
+  };
+
   const tabs: { id: Tab; label: string; icon: string }[] = [
     { id: 'workout', label: 'Workouts', icon: '💪' },
     { id: 'simulator', label: 'Race Sim', icon: '🏁' },
@@ -446,6 +466,7 @@ export default function Home() {
                 workout={currentWorkout}
                 onStartSimulation={() => handleStartSimulation(currentWorkout)}
                 division={division}
+                onChangeExercise={handleChangeExercise}
               />
             )}
           </div>
