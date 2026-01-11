@@ -1,0 +1,48 @@
+Station Order,Station ID,Station Name,Exercise Type,Exercise Name,Description,Official Requirement,Base Value,Unit,Intensity,Conversion Factor,Equipment Needed,Muscle Groups,Men Open Weight,Men Pro Weight,Women Open Weight,Women Pro Weight,Video URL
+1,skierg,SkiErg,Official,SkiErg,Vertical pulling movement simulating cross-country skiing,1000m,1000,m,,,,"lats, shoulders, triceps, core",N/A,N/A,N/A,N/A,https://www.youtube.com/watch?v=dU-gLHDPOj4
+1,skierg,SkiErg,Alternative,Medicine Ball Slams,100 reps of explosive ball slams,,100,reps,high,1.0,medicine_ball,,,,,,https://www.youtube.com/watch?v=N7t9BX-DExI
+1,skierg,SkiErg,Alternative,Battle Rope Slams,3 min of alternating slams,,180,s,high,1.0,battle_ropes,,,,,,,
+1,skierg,SkiErg,Alternative,Dumbbell Pullovers,50 reps lying pullovers,,50,reps,medium,0.8,dumbbells,,,,,,,
+1,skierg,SkiErg,Alternative,Burpee Pull-ups,30 burpee to pull-up,,30,reps,high,1.2,pull_up_bar,,,,,,,
+1,skierg,SkiErg,Alternative,Jumping Jacks + Arm Circles,200 jumping jacks with arm circles,,200,reps,low,0.6,,,,,,,,
+2,sled_push,Sled Push,Official,Sled Push,Push a weighted sled across the floor,50m,50,m,,,,"quads, glutes, calves, core",152kg,202kg,102kg,152kg,https://www.youtube.com/watch?v=DeTUDPo6_YM
+2,sled_push,Sled Push,Alternative,Weighted Hill Sprints,4x50m uphill with vest,,200,m,high,1.0,weighted_vest,,,,,,,
+2,sled_push,Sled Push,Alternative,Wall Drives,60 seconds wall push drives,,60,s,medium,0.7,,,,,,,,
+2,sled_push,Sled Push,Alternative,Resistance Band Pushes,60 seconds pushing against band,,60,s,medium,0.8,resistance_bands,,,,,,,
+2,sled_push,Sled Push,Alternative,Bear Crawls,100m forward bear crawl,,100,m,high,0.9,,,,,,,,
+2,sled_push,Sled Push,Alternative,Stair Climbs with Weight,5 floors with heavy backpack,,5,floors,high,1.0,backpack,,,,,,,
+3,sled_pull,Sled Pull,Official,Sled Pull,Pull a weighted sled using a rope,50m,50,m,,,,"back, biceps, grip, core",103kg,153kg,78kg,103kg,https://www.youtube.com/watch?v=Wgi3b40uDEY
+3,sled_pull,Sled Pull,Alternative,Rope Pulls with Weight,Pull weighted bag 50m with rope,,50,m,high,1.0,"rope, backpack",,,,,,,
+3,sled_pull,Sled Pull,Alternative,Resistance Band Rows,100 seated band rows,,100,reps,medium,0.8,resistance_bands,,,,,,,
+3,sled_pull,Sled Pull,Alternative,Towel Rows,60 inverted rows using towel over bar,,60,reps,medium,0.9,"towel, pull_up_bar",,,,,,,
+3,sled_pull,Sled Pull,Alternative,Heavy Bent Over Rows,60 heavy dumbbell rows,,60,reps,high,0.9,dumbbells,,,,,,,
+3,sled_pull,Sled Pull,Alternative,Backwards Drags,Drag heavy bag backwards 100m,,100,m,high,1.0,backpack,,,,,,,
+4,burpee_broad_jump,Burpee Broad Jumps,Official,Burpee Broad Jumps,Burpee followed by a forward broad jump,80m,80,m,,,,"full_body, legs, core, cardio",N/A,N/A,N/A,N/A,https://www.youtube.com/watch?v=_yN-Lp7bfzM
+4,burpee_broad_jump,Burpee Broad Jumps,Alternative,Burpee Broad Jumps,Same as official - no equipment needed!,,80,m,high,1.0,,,,,,,,https://www.youtube.com/watch?v=_yN-Lp7bfzM
+4,burpee_broad_jump,Burpee Broad Jumps,Alternative,Burpee Box Jumps,40 burpee to box jump,,40,reps,high,1.1,plyo_box,,,,,,,
+4,burpee_broad_jump,Burpee Broad Jumps,Alternative,Burpee Tuck Jumps,50 burpee to tuck jump,,50,reps,high,0.9,,,,,,,,
+4,burpee_broad_jump,Burpee Broad Jumps,Alternative,Squat Jump Burpees,60 burpee to squat jump,,60,reps,medium,0.8,,,,,,,,
+5,rowing,Rowing,Official,Rowing,Row 1000m on a Concept2 rowing machine,1000m,1000,m,,,,"back, legs, core, arms",N/A,N/A,N/A,N/A,https://www.youtube.com/watch?v=6jXyP0ZuqUI
+5,rowing,Rowing,Alternative,Assault Bike,50 calories on assault bike,,50,cal,high,1.0,assault_bike,,,,,,,
+5,rowing,Rowing,Alternative,Kettlebell Swings + Deadlifts,50 swings + 30 deadlifts,,80,reps,high,0.9,kettlebell,,,,,,,
+5,rowing,Rowing,Alternative,Resistance Band Rows + Squats,60 rows + 40 squats superset,,100,reps,medium,0.8,resistance_bands,,,,,,,
+5,rowing,Rowing,Alternative,Bent Over Rows + Jump Squats,40 rows + 40 jump squats,,80,reps,high,0.9,dumbbells,,,,,,,
+5,rowing,Rowing,Alternative,Mountain Climbers + Superman,100 climbers + 30 supermans,,130,reps,medium,0.7,,,,,,,,
+6,farmers_carry,Farmers Carry,Official,Farmers Carry,Carry heavy kettlebells for distance,200m,200,m,,,,"grip, traps, core, forearms",2x24kg,2x32kg,2x16kg,2x24kg,https://www.youtube.com/watch?v=32vmZmkuQO4
+6,farmers_carry,Farmers Carry,Alternative,Dumbbell Farmers Carry,200m with heavy dumbbells,,200,m,high,1.0,dumbbells,,,,,,,https://www.youtube.com/watch?v=j8c9uNjr7nQ
+6,farmers_carry,Farmers Carry,Alternative,Bucket/Jug Carry,200m carrying water jugs,,200,m,medium,0.9,water_jugs,,,,,,,
+6,farmers_carry,Farmers Carry,Alternative,Heavy Backpack Carry,200m with loaded backpack + weights in hands,,200,m,high,1.0,"backpack, dumbbells",,,,,,,
+6,farmers_carry,Farmers Carry,Alternative,Suitcase Carry,200m each side with heavy bag,,200,m,medium,0.8,backpack,,,,,,,
+6,farmers_carry,Farmers Carry,Alternative,Grocery Bag Carry,200m with heavy bags,,200,m,low,0.6,,,,,,,,
+7,sandbag_lunges,Sandbag Lunges,Official,Sandbag Lunges,Walking lunges while holding a sandbag,100m,100,m,,,,"quads, glutes, core, shoulders",20kg,30kg,10kg,20kg,https://www.youtube.com/watch?v=L4OMLuZKpyw
+7,sandbag_lunges,Sandbag Lunges,Alternative,Dumbbell Lunges,100m with dumbbells at sides,,100,m,high,0.9,dumbbells,,,,,,,
+7,sandbag_lunges,Sandbag Lunges,Alternative,Backpack Lunges,100m with weighted backpack,,100,m,high,1.0,backpack,,,,,,,
+7,sandbag_lunges,Sandbag Lunges,Alternative,Goblet Lunges,100m holding kettlebell at chest,,100,m,high,0.95,kettlebell,,,,,,,
+7,sandbag_lunges,Sandbag Lunges,Alternative,Bodyweight Lunges,150m bodyweight walking lunges,,150,m,medium,0.7,,,,,,,,
+7,sandbag_lunges,Sandbag Lunges,Alternative,Bulgarian Split Squats,30 each leg with weight,,60,reps,high,0.9,dumbbells,,,,,,,
+8,wall_balls,Wall Balls,Official,Wall Balls,Throw medicine ball to target on wall,100 reps (75 women),100,reps,,,,"quads, glutes, shoulders, core",6kg/3m target,9kg/3m target,4kg/2.7m target,6kg/3m target,https://www.youtube.com/watch?v=lSNZGkPoLk4
+8,wall_balls,Wall Balls,Alternative,Wall Balls,Same as official with medicine ball,,100,reps,high,1.0,"medicine_ball, wall",,,,,,,https://www.youtube.com/watch?v=EqjGKsiIMCE
+8,wall_balls,Wall Balls,Alternative,Thrusters,75 dumbbell thrusters,,75,reps,high,1.0,dumbbells,,,,,,,https://www.youtube.com/watch?v=JQnNas11CQo
+8,wall_balls,Wall Balls,Alternative,Goblet Squat to Press,75 goblet squat + press,,75,reps,high,0.95,kettlebell,,,,,,,
+8,wall_balls,Wall Balls,Alternative,Jump Squats + Push Press,50 jump squats + 50 push press,,100,reps,high,0.9,dumbbells,,,,,,,
+8,wall_balls,Wall Balls,Alternative,Squat + Overhead Reach,100 bodyweight squat with jump reach,,100,reps,medium,0.7,,,,,,,,
