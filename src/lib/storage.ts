@@ -112,6 +112,12 @@ export function updateSession(session: WorkoutSession): void {
   saveSessions(sessions);
 }
 
+export function deleteSession(sessionId: string): void {
+  const sessions = loadSessions();
+  const filtered = sessions.filter(s => s.id !== sessionId);
+  saveSessions(filtered);
+}
+
 export function saveRaceGoal(goal: RaceGoal): void {
   if (typeof window !== 'undefined') {
     localStorage.setItem(STORAGE_KEYS.RACE_GOAL, JSON.stringify(goal));

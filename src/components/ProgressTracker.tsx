@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { WorkoutSession, PerformanceRanking } from '@/lib/types';
 import { HYROX_STATIONS } from '@/lib/hyrox-data';
-import { loadSessions, formatTime } from '@/lib/storage';
+import { loadSessions, deleteSession, formatTime } from '@/lib/storage';
 import { getRankingInfo } from '@/lib/workout-generator';
 
 type TabType = 'overview' | 'trends' | 'history';
@@ -11,10 +11,17 @@ type TabType = 'overview' | 'trends' | 'history';
 export default function ProgressTracker() {
   const [sessions, setSessions] = useState<WorkoutSession[]>([]);
   const [activeTab, setActiveTab] = useState<TabType>('overview');
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   useEffect(() => {
     setSessions(loadSessions());
   }, []);
+
+  const handleDeleteSession = (sessionId: string) => {
+    deleteSession(sessionId);
+    setSessions(loadSessions());
+    setDeleteConfirmId(null);
+  };
 
   const getStationName = (stationId: string) =>
     HYROX_STATIONS.find(s => s.id === stationId)?.name || stationId;
@@ -453,8 +460,19 @@ export default function ProgressTracker() {
             </div>
           ) : (
             sessions.slice(0, 20).map(session => (
-              <div key={session.id} className="p-3 sm:p-4 bg-gray-800 rounded-lg">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0 mb-2">
+              <div key={session.id} className="p-3 sm:p-4 bg-gray-800 rounded-lg relative">
+                {/* Delete button */}
+                <button
+                  onClick={() => setDeleteConfirmId(session.id)}
+                  className="absolute top-2 right-2 p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
+                  title="Delete session"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0 mb-2 pr-8">
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
                     <span className="text-white font-medium text-sm sm:text-base">
                       {session.type === 'full_simulation' ? 'Full Simulation' :
@@ -504,6 +522,32 @@ export default function ProgressTracker() {
                 )}
               </div>
             ))
+          )}
+
+          {/* Delete Confirmation Modal */}
+          {deleteConfirmId && (
+            <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+              <div className="bg-gray-800 rounded-xl p-6 max-w-sm w-full">
+                <h3 className="text-lg font-bold text-white mb-2">Delete Session?</h3>
+                <p className="text-gray-400 text-sm mb-4">
+                  This will permanently delete this workout session. This action cannot be undone.
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setDeleteConfirmId(null)}
+                    className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg font-medium text-white text-sm"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => handleDeleteSession(deleteConfirmId)}
+                    className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-medium text-white text-sm"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
           )}
         </div>
       )}
