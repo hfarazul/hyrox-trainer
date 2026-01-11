@@ -34,9 +34,10 @@ export default function RaceSimulator({ config, onComplete }: Props) {
   const [isPR, setIsPR] = useState(false);
 
   // Use refs to avoid stale closures in timer
-  const sessionStartTimeRef = useRef<number>(0);
   const isPausedRef = useRef<boolean>(false);
   const lastSessionIdRef = useRef<string | undefined>(undefined);
+  const lastTickTimeRef = useRef<number>(0);
+  const activityElapsedRef = useRef<number>(0);
 
   // Get workout blocks from config or use default full simulation
   const workoutBlocks = useMemo(() => {
@@ -68,7 +69,14 @@ export default function RaceSimulator({ config, onComplete }: Props) {
     isPausedRef.current = isPaused;
   }, [isPaused]);
 
-  // Timer effect with stable refs
+  // Reset lastTickTime when resuming from pause
+  useEffect(() => {
+    if (!isPaused && phase !== 'not_started' && phase !== 'completed') {
+      lastTickTimeRef.current = Date.now();
+    }
+  }, [isPaused, phase]);
+
+  // Timer effect with accumulator pattern
   useEffect(() => {
     let animationFrameId: number;
     let lastUpdate = 0;
@@ -80,7 +88,11 @@ export default function RaceSimulator({ config, onComplete }: Props) {
 
       // Throttle updates to ~10fps for performance
       if (timestamp - lastUpdate >= 100) {
-        setElapsedTime(Date.now() - sessionStartTimeRef.current);
+        const now = Date.now();
+        const delta = now - lastTickTimeRef.current;
+        lastTickTimeRef.current = now;
+        setElapsedTime(prev => prev + delta);
+        activityElapsedRef.current += delta;
         lastUpdate = timestamp;
       }
 
@@ -106,7 +118,8 @@ export default function RaceSimulator({ config, onComplete }: Props) {
 
   const startSimulation = () => {
     const now = Date.now();
-    sessionStartTimeRef.current = now;
+    lastTickTimeRef.current = now;
+    activityElapsedRef.current = 0;
     setElapsedTime(0);
 
     // Start with first block
@@ -122,7 +135,7 @@ export default function RaceSimulator({ config, onComplete }: Props) {
   const completeCurrentActivity = useCallback(() => {
     if (!currentActivity) return;
 
-    const activityTime = Date.now() - currentActivity.startTime;
+    const activityTime = activityElapsedRef.current;
     const currentBlock = workoutBlocks[currentActivity.blockIndex];
 
     // Record the time based on activity type
@@ -153,24 +166,29 @@ export default function RaceSimulator({ config, onComplete }: Props) {
         blockIndex: nextBlockIndex,
         startTime: Date.now()
       });
+      // Reset activity timer for next activity
+      activityElapsedRef.current = 0;
     } else {
-      // Workout complete!
-      const finalTime = Date.now() - sessionStartTimeRef.current;
-      const finalTimeSeconds = Math.round(finalTime / 1000);
+      // Workout complete! Use accumulated elapsed time
+      setElapsedTime(prev => {
+        const finalTimeSeconds = Math.round(prev / 1000);
 
-      // Calculate ranking based on estimated duration
-      const estimatedDuration = config?.workout?.duration || 75;
-      const calculatedRanking = calculateRanking(finalTimeSeconds, estimatedDuration);
-      setRanking(calculatedRanking);
+        // Calculate ranking based on estimated duration
+        const estimatedDuration = config?.workout?.duration || 75;
+        const calculatedRanking = calculateRanking(finalTimeSeconds, estimatedDuration);
+        setRanking(calculatedRanking);
 
-      // Check for PR (personal record)
-      const sessions = loadSessions();
-      const sameTypeSessions = sessions.filter(s => s.type === workoutType && !s.partial);
-      const bestPreviousTime = sameTypeSessions.length > 0
-        ? Math.min(...sameTypeSessions.map(s => s.totalTime))
-        : Infinity;
-      const isPersonalRecord = finalTimeSeconds < bestPreviousTime;
-      setIsPR(isPersonalRecord);
+        // Check for PR (personal record)
+        const sessions = loadSessions();
+        const sameTypeSessions = sessions.filter(s => s.type === workoutType && !s.partial);
+        const bestPreviousTime = sameTypeSessions.length > 0
+          ? Math.min(...sameTypeSessions.map(s => s.totalTime))
+          : Infinity;
+        const isPersonalRecord = finalTimeSeconds < bestPreviousTime;
+        setIsPR(isPersonalRecord);
+
+        return prev;
+      });
 
       setPhase('completed');
       setCurrentActivity(null);
@@ -220,7 +238,8 @@ export default function RaceSimulator({ config, onComplete }: Props) {
     setIsPaused(false);
     setRanking(null);
     setIsPR(false);
-    sessionStartTimeRef.current = 0;
+    lastTickTimeRef.current = 0;
+    activityElapsedRef.current = 0;
     lastSessionIdRef.current = undefined;
     onComplete?.(sessionId);
   };
@@ -246,7 +265,7 @@ export default function RaceSimulator({ config, onComplete }: Props) {
 
   const getActivityTime = () => {
     if (!currentActivity) return 0;
-    return Date.now() - currentActivity.startTime;
+    return activityElapsedRef.current;
   };
 
   const getRunDistance = () => {
