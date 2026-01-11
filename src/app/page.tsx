@@ -659,6 +659,16 @@ export default function Home() {
         {activeTab === 'progress' && <ProgressTracker />}
 
         {activeTab === 'programs' && (
+          <div className="bg-gray-900 rounded-xl p-6 sm:p-8">
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">🚧</div>
+              <h2 className="text-2xl font-bold text-white mb-2">Coming Soon</h2>
+              <p className="text-gray-400 max-w-md mx-auto">
+                Training programs are being developed. Check back soon for structured workout plans!
+              </p>
+            </div>
+          </div>
+          /* Programs feature - preserved for later
           userProgram ? (
             <WeeklyCalendar
               userProgram={userProgram}
@@ -670,6 +680,7 @@ export default function Home() {
               onStartProgram={handleStartProgram}
             />
           )
+          */
         )}
 
         {activeTab === 'equipment' && (
