@@ -3,8 +3,44 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { HYROX_STATIONS } from '@/lib/hyrox-data';
 import { WorkoutSession, StationResult, UserEquipment, RaceSimulatorConfig, WorkoutBlock, PerformanceRanking } from '@/lib/types';
-import { getBestAlternative, calculateRanking, getRankingInfo } from '@/lib/workout-generator';
+import { getBestAlternative, calculateRanking, getRankingInfo, RankingIcon } from '@/lib/workout-generator';
 import { addSession, updateSession, generateId, formatTime, loadEquipment, loadSessions } from '@/lib/storage';
+
+// SVG icon component for rankings
+function RankingIconSVG({ icon, className = "w-6 h-6" }: { icon: RankingIcon; className?: string }) {
+  switch (icon) {
+    case 'trophy':
+      return (
+        <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+          <path d="M5 3h14v2H5V3zm2 2v8c0 2.5 2 4.5 4.5 4.5h1c2.5 0 4.5-2 4.5-4.5V5h2v8c0 3-2 5.5-4.5 6.3V21h2v2H7v-2h2v-1.7C6.5 18.5 4.5 16 4.5 13V5H5V3h2v2z"/>
+        </svg>
+      );
+    case 'bolt':
+      return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      );
+    case 'muscle':
+      return (
+        <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+          <path d="M7 11.5a4.5 4.5 0 01-3-1.13A4.5 4.5 0 012 7a4.5 4.5 0 018.85-1h2.3A4.5 4.5 0 0122 7a4.5 4.5 0 01-2 3.73A4.5 4.5 0 0117 11.5h-2v2h-6v-2H7z"/>
+        </svg>
+      );
+    case 'check':
+      return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      );
+    case 'flag':
+      return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2z" />
+        </svg>
+      );
+  }
+}
 
 type SimulationPhase = 'not_started' | 'running' | 'station' | 'rest' | 'completed';
 
@@ -310,7 +346,7 @@ export default function RaceSimulator({ config, onComplete }: Props) {
   const progressPercent = (completedBlocks / workoutBlocks.length) * 100;
 
   return (
-    <div className="bg-gray-900 rounded-xl p-4 sm:p-6 relative">
+    <div className="bg-[#141414] rounded-xl p-4 sm:p-6 relative">
       {/* Toast Notification */}
       {notification && (
         <div className="fixed top-4 right-4 sm:top-6 sm:right-6 bg-green-500 text-white px-4 py-3 rounded-lg shadow-xl z-50 text-sm font-medium animate-bounce">
@@ -318,11 +354,16 @@ export default function RaceSimulator({ config, onComplete }: Props) {
         </div>
       )}
 
-      <h2 className="text-lg sm:text-2xl font-bold text-white mb-4 sm:mb-6 pr-8">{workoutName}</h2>
+      <h2 className="text-lg sm:text-2xl font-black tracking-wide uppercase text-white mb-4 sm:mb-6 pr-8">{workoutName}</h2>
 
       {phase === 'not_started' && (
         <div className="text-center py-8 sm:py-12">
-          <div className="text-5xl sm:text-6xl mb-3 sm:mb-4">🏁</div>
+          <div className="flex justify-center mb-3 sm:mb-4">
+            <svg className="w-16 h-16 sm:w-20 sm:h-20 text-[#ffed00]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
           <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4">Ready to Start?</h3>
           <p className="text-gray-400 mb-5 sm:mb-6 max-w-md mx-auto text-sm sm:text-base px-4">
             {stationBlocks.length} station{stationBlocks.length !== 1 ? 's' : ''}
@@ -331,7 +372,7 @@ export default function RaceSimulator({ config, onComplete }: Props) {
           </p>
           <button
             onClick={startSimulation}
-            className="px-6 sm:px-8 py-3 sm:py-4 bg-orange-500 hover:bg-orange-600 rounded-xl text-lg sm:text-xl font-bold text-white focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-gray-900"
+            className="px-6 sm:px-8 py-3 sm:py-4 bg-orange-500 hover:bg-orange-600 rounded-xl text-lg sm:text-xl font-bold text-white focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-black"
           >
             Start Workout
           </button>
@@ -353,12 +394,24 @@ export default function RaceSimulator({ config, onComplete }: Props) {
             phase === 'running'
               ? 'bg-blue-900/50 border-2 border-blue-500'
               : phase === 'rest'
-              ? 'bg-gray-800/50 border-2 border-gray-600'
+              ? 'bg-[#1f1f1f]/50 border-2 border-[#404040]'
               : 'bg-orange-900/50 border-2 border-orange-500'
           }`}>
             <div className="text-center">
-              <div className="text-4xl sm:text-5xl mb-2 sm:mb-3">
-                {phase === 'running' ? '🏃' : phase === 'rest' ? '😮‍💨' : '💪'}
+              <div className="flex justify-center mb-2 sm:mb-3">
+                {phase === 'running' ? (
+                  <svg className="w-12 h-12 sm:w-14 sm:h-14 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                ) : phase === 'rest' ? (
+                  <svg className="w-12 h-12 sm:w-14 sm:h-14 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  </svg>
+                ) : (
+                  <svg className="w-12 h-12 sm:w-14 sm:h-14 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 8h4v12H4V8zm6-4h4v16h-4V4zm6 8h4v8h-4v-8z" />
+                  </svg>
+                )}
               </div>
               <div className="text-xs sm:text-sm text-gray-400 mb-1">
                 Block {(currentActivity?.blockIndex ?? 0) + 1}/{workoutBlocks.length}
@@ -388,7 +441,7 @@ export default function RaceSimulator({ config, onComplete }: Props) {
           <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4">
             <button
               onClick={() => setIsPaused(!isPaused)}
-              className="px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold text-white focus:outline-none focus:ring-2 focus:ring-gray-400 text-sm sm:text-base"
+              className="px-6 py-3 bg-[#262626] hover:bg-[#333333] rounded-lg font-semibold text-white focus:outline-none focus:ring-2 focus:ring-[#404040] text-sm sm:text-base"
             >
               {isPaused ? 'Resume' : 'Pause'}
             </button>
@@ -410,7 +463,7 @@ export default function RaceSimulator({ config, onComplete }: Props) {
           {/* Stop & Save Confirmation Modal */}
           {showStopConfirm && (
             <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-              <div className="bg-gray-800 rounded-xl p-6 max-w-sm w-full">
+              <div className="bg-[#1f1f1f] rounded-xl p-6 max-w-sm w-full">
                 <h3 className="text-lg font-bold text-white mb-2">Stop Workout?</h3>
                 <p className="text-gray-400 text-sm mb-4">
                   Your progress will be saved. You&apos;ve completed {stationResults.length} station{stationResults.length !== 1 ? 's' : ''} so far.
@@ -418,7 +471,7 @@ export default function RaceSimulator({ config, onComplete }: Props) {
                 <div className="flex gap-3">
                   <button
                     onClick={() => setShowStopConfirm(false)}
-                    className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg font-medium text-white text-sm"
+                    className="flex-1 px-4 py-2 bg-[#262626] hover:bg-[#333333] rounded-lg font-medium text-white text-sm"
                   >
                     Continue
                   </button>
@@ -435,7 +488,7 @@ export default function RaceSimulator({ config, onComplete }: Props) {
 
           {/* Progress */}
           <div className="mt-6 sm:mt-8">
-            <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+            <div className="h-2 bg-[#262626] rounded-full overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-orange-500 to-green-500 transition-all duration-300"
                 style={{ width: `${progressPercent}%` }}
@@ -453,7 +506,11 @@ export default function RaceSimulator({ config, onComplete }: Props) {
       {phase === 'completed' && (
         <div>
           <div className="text-center py-6 sm:py-8">
-            <div className="text-5xl sm:text-6xl mb-3 sm:mb-4">🎉</div>
+            <div className="flex justify-center mb-3 sm:mb-4">
+              <svg className="w-16 h-16 sm:w-20 sm:h-20 text-[#ffed00]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" />
+              </svg>
+            </div>
             <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2">Workout Complete!</h3>
             <div className="text-4xl sm:text-5xl font-mono font-bold text-orange-400 mb-4">
               {formatTime(Math.round(elapsedTime / 1000))}
@@ -463,7 +520,7 @@ export default function RaceSimulator({ config, onComplete }: Props) {
             {ranking && (
               <div className="flex flex-col items-center gap-2 mb-4">
                 <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${getRankingInfo(ranking).bgColor}`}>
-                  <span className="text-2xl">{getRankingInfo(ranking).emoji}</span>
+                  <RankingIconSVG icon={getRankingInfo(ranking).icon} className="w-7 h-7" />
                   <span className="text-xl font-bold text-white">{getRankingInfo(ranking).label}</span>
                 </div>
                 <p className={`text-sm ${getRankingInfo(ranking).color}`}>
@@ -471,7 +528,9 @@ export default function RaceSimulator({ config, onComplete }: Props) {
                 </p>
                 {isPR && (
                   <div className="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-pulse">
-                    <span className="text-lg">🔥</span>
+                    <svg className="w-5 h-5 text-yellow-300" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2c.55 0 1 .45 1 1v1.07A8.001 8.001 0 0119.93 11H21c.55 0 1 .45 1 1s-.45 1-1 1h-1.07A8.001 8.001 0 0113 19.93V21c0 .55-.45 1-1 1s-1-.45-1-1v-1.07A8.001 8.001 0 014.07 13H3c-.55 0-1-.45-1-1s.45-1 1-1h1.07A8.001 8.001 0 0111 4.07V3c0-.55.45-1 1-1zm0 4a6 6 0 100 12 6 6 0 000-12zm0 2a4 4 0 110 8 4 4 0 010-8z"/>
+                    </svg>
                     <span className="text-sm font-bold text-white">NEW PERSONAL RECORD!</span>
                   </div>
                 )}
@@ -506,7 +565,7 @@ export default function RaceSimulator({ config, onComplete }: Props) {
             {stationResults.map((result, idx) => {
               const station = HYROX_STATIONS.find(s => s.id === result.stationId);
               return (
-                <div key={`${result.stationId}-${idx}`} className="p-3 sm:p-4 bg-gray-800 rounded-lg flex items-center justify-between gap-2">
+                <div key={`${result.stationId}-${idx}`} className="p-3 sm:p-4 bg-[#1f1f1f] rounded-lg flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                     <span className="w-7 h-7 sm:w-8 sm:h-8 flex-shrink-0 flex items-center justify-center bg-orange-500 rounded-full text-white font-bold text-xs sm:text-sm">
                       {idx + 1}
@@ -529,7 +588,7 @@ export default function RaceSimulator({ config, onComplete }: Props) {
 
             {/* Rest Times */}
             {restTimes.length > 0 && (
-              <div className="p-3 sm:p-4 bg-gray-700/30 border border-gray-600 rounded-lg">
+              <div className="p-3 sm:p-4 bg-[#262626]/30 border border-[#404040] rounded-lg">
                 <div className="flex justify-between items-center">
                   <span className="text-white font-medium text-sm sm:text-base">Rest Time</span>
                   <span className="text-gray-400 font-bold text-sm sm:text-base">

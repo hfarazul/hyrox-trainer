@@ -58,31 +58,48 @@ export default function WorkoutDisplay({ workout, onStartSimulation, division = 
   };
 
   const getBlockIcon = (block: WorkoutBlock) => {
+    const iconClass = "w-6 h-6 sm:w-7 sm:h-7";
     switch (block.type) {
-      case 'run': return '🏃';
-      case 'station': return '💪';
-      case 'rest': return '😮‍💨';
-      default: return '•';
+      case 'run': return (
+        <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      );
+      case 'station': return (
+        <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4 8h4v12H4V8zm6-4h4v16h-4V4zm6 8h4v8h-4v-8z" />
+        </svg>
+      );
+      case 'rest': return (
+        <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+      );
+      default: return (
+        <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+      );
     }
   };
 
   return (
-    <div className="bg-gray-900 rounded-xl p-4 sm:p-6 pb-20 sm:pb-6">
+    <div className="bg-[#141414] rounded-xl p-4 sm:p-6 pb-20 sm:pb-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-4 mb-4">
         <div>
-          <h2 className="text-lg sm:text-2xl font-bold text-white">{workout.name}</h2>
+          <h2 className="text-lg sm:text-2xl font-black tracking-wide uppercase text-white">{workout.name}</h2>
           <div className="flex items-center gap-2 sm:gap-3 mt-1 sm:mt-2 flex-wrap">
             <span className="text-gray-400 text-sm sm:text-base">~{workout.duration} min</span>
             <span className={`px-2 py-1 rounded text-xs font-semibold text-white ${getDifficultyColor(workout.difficulty)}`}>
               {workout.difficulty.toUpperCase()}
             </span>
             {workout.name.includes('Race Coverage') && (
-              <span className="px-2 py-1 rounded text-xs font-semibold bg-purple-600 text-white">
+              <span className="px-2 py-1 rounded text-xs font-semibold bg-[#ffed00]/20 text-[#ffed00]">
                 ALL 8 STATIONS
               </span>
             )}
-            <span className="px-2 py-1 rounded text-xs font-semibold bg-gray-700 text-gray-300">
+            <span className="px-2 py-1 rounded text-xs font-semibold bg-[#262626] text-gray-300">
               {DIVISION_INFO[division].label}
             </span>
           </div>
@@ -100,7 +117,7 @@ export default function WorkoutDisplay({ workout, onStartSimulation, division = 
 
       {/* Mobile sticky button */}
       {onStartSimulation && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-gray-950 via-gray-950 to-transparent sm:hidden z-40">
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black via-black to-transparent sm:hidden z-40">
           <button
             onClick={onStartSimulation}
             className="w-full py-4 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 rounded-xl font-bold text-white text-lg shadow-lg"
@@ -112,7 +129,7 @@ export default function WorkoutDisplay({ workout, onStartSimulation, division = 
 
       {/* Warmup */}
       <div className="mb-4 sm:mb-6">
-        <h3 className="text-base sm:text-lg font-semibold text-orange-400 mb-2 sm:mb-3">Warm-up</h3>
+        <h3 className="text-base sm:text-lg font-bold text-[#ffed00] mb-2 sm:mb-3 uppercase tracking-wide">Warm-up</h3>
         <div className="space-y-2">
           {workout.warmup.map((exercise, idx) => (
             <div key={idx} className="flex items-center gap-2 sm:gap-3 text-gray-300 text-sm sm:text-base">
@@ -129,7 +146,7 @@ export default function WorkoutDisplay({ workout, onStartSimulation, division = 
 
       {/* Main Workout */}
       <div className="mb-4 sm:mb-6">
-        <h3 className="text-base sm:text-lg font-semibold text-orange-400 mb-2 sm:mb-3">Main Workout</h3>
+        <h3 className="text-base sm:text-lg font-bold text-[#ffed00] mb-2 sm:mb-3 uppercase tracking-wide">Main Workout</h3>
         <div className="space-y-2 sm:space-y-3">
           {workout.mainWorkout.map((block, idx) => {
             const station = block.stationId ? getStationInfo(block.stationId) : null;
@@ -138,14 +155,14 @@ export default function WorkoutDisplay({ workout, onStartSimulation, division = 
                 key={idx}
                 className={`p-3 sm:p-4 rounded-lg ${
                   block.type === 'run'
-                    ? 'bg-blue-900/30 border border-blue-700'
+                    ? 'bg-[#1e3a5f]/50 border border-[#1d4ed8]'
                     : block.type === 'station'
-                    ? 'bg-orange-900/30 border border-orange-700'
-                    : 'bg-gray-800 border border-gray-700'
+                    ? 'bg-[#431407]/50 border border-[#c2410c]'
+                    : 'bg-[#1f1f1f] border border-[#262626]'
                 }`}
               >
                 <div className="flex items-start gap-2 sm:gap-3">
-                  <span className="text-xl sm:text-2xl flex-shrink-0">{getBlockIcon(block)}</span>
+                  <span className="flex-shrink-0 text-gray-400">{getBlockIcon(block)}</span>
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-1 sm:gap-2">
                       {block.type === 'run' ? (
@@ -157,7 +174,7 @@ export default function WorkoutDisplay({ workout, onStartSimulation, division = 
                           <select
                             value={block.alternativeName || station?.name || ''}
                             onChange={(e) => onChangeExercise(idx, e.target.value)}
-                            className="font-semibold text-white text-sm sm:text-base bg-gray-800 border border-gray-600 rounded px-2 py-1 cursor-pointer hover:border-orange-500 focus:border-orange-500 focus:outline-none"
+                            className="font-semibold text-white text-sm sm:text-base bg-[#1f1f1f] border border-[#404040] rounded px-2 py-1 cursor-pointer hover:border-orange-500 focus:border-orange-500 focus:outline-none transition-colors"
                           >
                             {block.allAlternatives.map(alt => (
                               <option key={alt.name} value={alt.name}>
@@ -176,12 +193,12 @@ export default function WorkoutDisplay({ workout, onStartSimulation, division = 
                         </span>
                       )}
                       {station && block.alternativeName !== station.name && (
-                        <span className="text-xs px-1.5 sm:px-2 py-0.5 bg-gray-700 rounded text-gray-400">
+                        <span className="text-xs px-1.5 sm:px-2 py-0.5 bg-[#262626] rounded text-gray-400">
                           replaces {station.name}
                         </span>
                       )}
                       {block.stationId && getStationWeight(block.stationId) && (
-                        <span className="text-xs px-1.5 sm:px-2 py-0.5 bg-purple-600/50 rounded text-purple-300">
+                        <span className="text-xs px-1.5 sm:px-2 py-0.5 bg-[#ffed00]/20 rounded text-[#ffed00]">
                           {getStationWeight(block.stationId)}
                         </span>
                       )}
@@ -194,7 +211,7 @@ export default function WorkoutDisplay({ workout, onStartSimulation, division = 
                         {station.muscleGroups.map(muscle => (
                           <span
                             key={muscle}
-                            className="text-xs px-1.5 sm:px-2 py-0.5 bg-gray-800 rounded text-gray-500"
+                            className="text-xs px-1.5 sm:px-2 py-0.5 bg-[#262626] rounded text-gray-500"
                           >
                             {muscle}
                           </span>
@@ -216,7 +233,7 @@ export default function WorkoutDisplay({ workout, onStartSimulation, division = 
 
       {/* Cooldown */}
       <div>
-        <h3 className="text-base sm:text-lg font-semibold text-orange-400 mb-2 sm:mb-3">Cool-down</h3>
+        <h3 className="text-base sm:text-lg font-bold text-[#ffed00] mb-2 sm:mb-3 uppercase tracking-wide">Cool-down</h3>
         <div className="space-y-2">
           {workout.cooldown.map((exercise, idx) => (
             <div key={idx} className="flex items-center gap-2 sm:gap-3 text-gray-300 text-sm sm:text-base">

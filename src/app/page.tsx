@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import EquipmentSelector from '@/components/EquipmentSelector';
@@ -308,13 +308,39 @@ export default function Home() {
     setActiveTab('programs');
   };
 
-  const tabs: { id: Tab; label: string; icon: string }[] = [
-    { id: 'workout', label: 'Workouts', icon: '💪' },
-    { id: 'programs', label: 'Programs', icon: '📅' },
-    { id: 'simulator', label: 'Race Sim', icon: '🏁' },
-    { id: 'pacing', label: 'Pacing', icon: '⏱️' },
-    { id: 'progress', label: 'Progress', icon: '📊' },
-    { id: 'equipment', label: 'Equipment', icon: '🏋️' },
+  const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
+    { id: 'workout', label: 'Workouts', icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+      </svg>
+    )},
+    { id: 'programs', label: 'Programs', icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+    )},
+    { id: 'simulator', label: 'Race Sim', icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    )},
+    { id: 'pacing', label: 'Pacing', icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    )},
+    { id: 'progress', label: 'Progress', icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      </svg>
+    )},
+    { id: 'equipment', label: 'Equipment', icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    )},
   ];
 
   const toggleStation = (stationId: string) => {
@@ -326,24 +352,26 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950">
+    <div className="min-h-screen bg-black">
       {/* Header */}
-      <header className="bg-gray-900 border-b border-gray-800">
+      <header className="bg-[#0a0a0a] border-b border-[#262626]">
         <div className="max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-2">
             <div className="min-w-0">
-              <h1 className="text-xl sm:text-2xl font-bold text-orange-500">HYROX Trainer</h1>
+              <h1 className="text-xl sm:text-2xl font-black tracking-wider">
+                <span className="text-[#ffed00]">HY</span><span className="text-white">TRAIN</span>
+              </h1>
               <p className="text-xs sm:text-sm text-gray-400 hidden sm:block">Train Anywhere, Race Ready</p>
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
               {/* Equipment quick access - clickable */}
               <button
                 onClick={() => setActiveTab('equipment')}
-                className="text-right px-2 py-1 -mx-2 rounded-lg hover:bg-gray-800 transition-colors"
+                className="text-right px-2 py-1 -mx-2 rounded-lg hover:bg-[#1a1a1a] transition-colors"
                 title="Edit equipment"
               >
                 <div className="text-xs sm:text-sm text-gray-400 hidden sm:block">Equipment</div>
-                <div className="text-orange-400 font-semibold flex items-center gap-1">
+                <div className="text-[#ffed00] font-semibold flex items-center gap-1">
                   <span className="text-sm sm:text-base">{equipment.filter(e => e.available).length}</span>
                   <span className="text-xs text-gray-500">items</span>
                   <svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -352,13 +380,13 @@ export default function Home() {
                 </div>
               </button>
               {status === 'loading' ? (
-                <div className="w-16 sm:w-20 h-9 sm:h-10 bg-gray-800 rounded-lg animate-pulse" />
+                <div className="w-16 sm:w-20 h-9 sm:h-10 bg-[#1f1f1f] rounded-lg animate-pulse" />
               ) : session ? (
                 <div className="flex items-center gap-2 sm:gap-3">
                   <span className="text-xs sm:text-sm text-gray-300 hidden sm:inline max-w-[120px] truncate">{session.user.name || session.user.email}</span>
                   <button
                     onClick={() => signOut()}
-                    className="px-3 sm:px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-xs sm:text-sm text-gray-300 whitespace-nowrap"
+                    className="px-3 sm:px-4 py-2 bg-[#1f1f1f] hover:bg-[#262626] rounded-lg text-xs sm:text-sm text-gray-300 whitespace-nowrap border border-[#262626]"
                   >
                     Sign Out
                   </button>
@@ -367,13 +395,13 @@ export default function Home() {
                 <div className="flex items-center gap-1 sm:gap-2">
                   <Link
                     href="/auth/signin"
-                    className="px-3 sm:px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-xs sm:text-sm text-gray-300"
+                    className="px-3 sm:px-4 py-2 bg-[#1f1f1f] hover:bg-[#262626] rounded-lg text-xs sm:text-sm text-gray-300 border border-[#262626]"
                   >
                     Sign In
                   </Link>
                   <Link
                     href="/auth/signup"
-                    className="px-3 sm:px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded-lg text-xs sm:text-sm text-white font-medium"
+                    className="px-3 sm:px-4 py-2 bg-[#ffed00] hover:bg-[#e6d600] rounded-lg text-xs sm:text-sm text-black font-semibold"
                   >
                     Sign Up
                   </Link>
@@ -385,20 +413,20 @@ export default function Home() {
       </header>
 
       {/* Navigation */}
-      <nav className="bg-gray-900/50 border-b border-gray-800 sticky top-0 z-50 backdrop-blur">
+      <nav className="bg-[#0a0a0a]/90 border-b border-[#262626] sticky top-0 z-50 backdrop-blur-md">
         <div className="max-w-6xl mx-auto px-2 sm:px-4">
           <div className="flex justify-between sm:justify-start overflow-x-auto scrollbar-hide">
             {tabs.map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-4 py-3 font-medium whitespace-nowrap border-b-2 transition-colors min-w-0 flex-1 sm:flex-none ${
+                className={`flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-3 font-medium whitespace-nowrap border-b-2 transition-colors min-w-0 flex-1 sm:flex-none ${
                   activeTab === tab.id
-                    ? 'text-orange-400 border-orange-400'
-                    : 'text-gray-400 border-transparent hover:text-gray-200'
+                    ? 'text-[#ffed00] border-[#ffed00]'
+                    : 'text-gray-400 border-transparent hover:text-white'
                 }`}
               >
-                <span className="text-lg sm:text-base">{tab.icon}</span>
+                {tab.icon}
                 <span className="hidden sm:inline text-sm">{tab.label}</span>
               </button>
             ))}
@@ -411,8 +439,8 @@ export default function Home() {
         {activeTab === 'workout' && (
           <div className="space-y-4 sm:space-y-6">
             {/* Workout Generator Controls */}
-            <div className="bg-gray-900 rounded-xl p-4 sm:p-6">
-              <h2 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Generate Workout</h2>
+            <div className="bg-[#141414] rounded-xl p-4 sm:p-6">
+              <h2 className="text-lg sm:text-xl font-black tracking-wide uppercase text-white mb-3 sm:mb-4">Generate Workout</h2>
 
               {/* Workout Type */}
               <div className="mb-4">
@@ -427,10 +455,10 @@ export default function Home() {
                     <button
                       key={type.id}
                       onClick={() => setWorkoutType(type.id as typeof workoutType)}
-                      className={`px-2 sm:px-4 py-3 rounded-lg text-xs sm:text-sm font-medium transition-all ${
+                      className={`px-2 sm:px-4 py-3 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
                         workoutType === type.id
                           ? 'bg-orange-500 text-white'
-                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                          : 'bg-[#1f1f1f] text-gray-300 hover:bg-[#262626] border border-[#262626]'
                       }`}
                     >
                       <span className="sm:hidden">{type.label}</span>
@@ -448,10 +476,10 @@ export default function Home() {
                     <button
                       key={key}
                       onClick={() => setDivision(key)}
-                      className={`px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${
+                      className={`px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
                         division === key
                           ? 'bg-orange-500 text-white'
-                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                          : 'bg-[#1f1f1f] text-gray-300 hover:bg-[#262626] border border-[#262626]'
                       }`}
                     >
                       {info.label}
@@ -474,7 +502,7 @@ export default function Home() {
                         const clamped = Math.min(90, Math.max(15, val));
                         setQuickDuration(String(clamped));
                       }}
-                      className="w-full px-3 sm:px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white text-base"
+                      className="w-full px-3 sm:px-4 py-3 bg-[#1f1f1f] border border-[#262626] rounded-lg text-white text-base focus:border-orange-500 focus:outline-none transition-colors"
                       min={15}
                       max={90}
                     />
@@ -484,7 +512,7 @@ export default function Home() {
                     <select
                       value={quickFocus}
                       onChange={e => setQuickFocus(e.target.value as typeof quickFocus)}
-                      className="w-full px-3 sm:px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white text-base"
+                      className="w-full px-3 sm:px-4 py-3 bg-[#1f1f1f] border border-[#262626] rounded-lg text-white text-base focus:border-orange-500 focus:outline-none transition-colors"
                     >
                       <option value="mixed">Mixed</option>
                       <option value="cardio">Cardio</option>
@@ -503,10 +531,10 @@ export default function Home() {
                       <button
                         key={station.id}
                         onClick={() => toggleStation(station.id)}
-                        className={`px-3 py-3 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${
+                        className={`px-3 py-3 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
                           selectedStations.includes(station.id)
                             ? 'bg-orange-500 text-white'
-                            : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                            : 'bg-[#1f1f1f] text-gray-300 hover:bg-[#262626] border border-[#262626]'
                         }`}
                       >
                         {station.name}
@@ -542,7 +570,7 @@ export default function Home() {
                       <span>150%</span>
                     </div>
                   </div>
-                  <div className="bg-gray-800/50 rounded-lg p-3 text-xs sm:text-sm text-gray-400">
+                  <div className="bg-[#1a1a1a] rounded-lg p-3 text-xs sm:text-sm text-gray-400 border border-[#262626]">
                     <p className="font-medium text-gray-300 mb-1">What you&apos;ll do:</p>
                     <ul className="space-y-1">
                       <li>• 8x {Math.round(1000 * coveragePercent / 100)}m runs</li>
@@ -559,10 +587,12 @@ export default function Home() {
               <div className="mb-4">
                 <button
                   onClick={() => setShowExcludePanel(!showExcludePanel)}
-                  className="flex items-center justify-between w-full px-3 py-2 bg-gray-800 rounded-lg text-sm text-gray-300 hover:bg-gray-700 transition-colors"
+                  className="flex items-center justify-between w-full px-3 py-2 bg-[#1f1f1f] rounded-lg text-sm text-gray-300 hover:bg-[#262626] border border-[#262626] transition-colors"
                 >
                   <span className="flex items-center gap-2">
-                    <span>🚫</span>
+                    <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                    </svg>
                     <span>Exclude Exercises</span>
                     {excludedExercises.length > 0 && (
                       <span className="px-1.5 py-0.5 bg-red-500/20 text-red-400 rounded text-xs">
@@ -581,7 +611,7 @@ export default function Home() {
                 </button>
 
                 {showExcludePanel && (
-                  <div className="mt-2 p-3 bg-gray-800/50 rounded-lg">
+                  <div className="mt-2 p-3 bg-[#1a1a1a] rounded-lg border border-[#262626]">
                     <p className="text-xs text-gray-400 mb-2">
                       Select exercises you want to skip. The next best alternative will be used.
                     </p>
@@ -593,7 +623,7 @@ export default function Home() {
                           className={`px-2 py-1 rounded text-xs font-medium transition-all ${
                             excludedExercises.includes(exercise)
                               ? 'bg-red-500/30 text-red-300 line-through'
-                              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                              : 'bg-[#262626] text-gray-300 hover:bg-[#333333]'
                           }`}
                         >
                           {exercise}
@@ -659,10 +689,14 @@ export default function Home() {
         {activeTab === 'progress' && <ProgressTracker />}
 
         {activeTab === 'programs' && (
-          <div className="bg-gray-900 rounded-xl p-6 sm:p-8">
+          <div className="bg-[#141414] rounded-xl p-6 sm:p-8">
             <div className="text-center py-12">
-              <div className="text-6xl mb-4">🚧</div>
-              <h2 className="text-2xl font-bold text-white mb-2">Coming Soon</h2>
+              <div className="flex justify-center mb-4">
+                <svg className="w-16 h-16 sm:w-20 sm:h-20 text-[#ffed00]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-black tracking-wide uppercase text-white mb-2">Coming Soon</h2>
               <p className="text-gray-400 max-w-md mx-auto">
                 Training programs are being developed. Check back soon for structured workout plans!
               </p>
@@ -692,10 +726,10 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-900 border-t border-gray-800 mt-12">
+      <footer className="bg-[#0a0a0a] border-t border-[#262626] mt-12">
         <div className="max-w-6xl mx-auto px-4 py-6 text-center text-gray-500 text-sm">
           <p>Train with whatever equipment you have. Alternatives adapted to your setup.</p>
-          <p className="mt-2">Built for HYROX athletes who train anywhere.</p>
+          <p className="mt-2">Built for <span className="text-[#ffed00] font-semibold">HYROX</span> athletes. Powered by <span className="font-semibold"><span className="text-[#ffed00]">HY</span>TRAIN</span>.</p>
         </div>
       </footer>
     </div>

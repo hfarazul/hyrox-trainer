@@ -28,7 +28,7 @@ export default function ProgramSelector({ onStartProgram, currentProgramId }: Pr
   };
 
   return (
-    <div className="bg-gray-900 rounded-xl p-4 sm:p-6">
+    <div className="bg-[#141414] rounded-xl p-4 sm:p-6">
       <h2 className="text-lg sm:text-2xl font-bold text-white mb-2">Training Programs</h2>
       <p className="text-gray-400 text-sm mb-6">
         Choose a structured program to guide your HYROX preparation
@@ -44,7 +44,7 @@ export default function ProgramSelector({ onStartProgram, currentProgramId }: Pr
               className={`relative p-4 sm:p-6 rounded-xl border-2 transition-all ${
                 isCurrent
                   ? 'border-orange-500 bg-orange-500/10'
-                  : 'border-gray-700 bg-gray-800 hover:border-gray-600'
+                  : 'border-[#262626] bg-[#1f1f1f] hover:border-gray-600'
               }`}
             >
               {/* Current badge */}
@@ -68,7 +68,17 @@ export default function ProgramSelector({ onStartProgram, currentProgramId }: Pr
                   </div>
                 </div>
                 <div className="text-3xl">
-                  {program.difficulty === 'beginner' ? '🌱' : '🎯'}
+                  {program.difficulty === 'beginner' ? (
+                    <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                    </svg>
+                  ) : (
+                    <svg className="w-8 h-8 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <circle cx="12" cy="12" r="10" />
+                      <circle cx="12" cy="12" r="6" />
+                      <circle cx="12" cy="12" r="2" />
+                    </svg>
+                  )}
                 </div>
               </div>
 
@@ -79,11 +89,11 @@ export default function ProgramSelector({ onStartProgram, currentProgramId }: Pr
 
               {/* Stats */}
               <div className="grid grid-cols-2 gap-3 mb-4">
-                <div className="p-3 bg-gray-900/50 rounded-lg text-center">
+                <div className="p-3 bg-[#141414]/50 rounded-lg text-center">
                   <div className="text-xl font-bold text-orange-400">{program.workoutsPerWeek}</div>
                   <div className="text-xs text-gray-500">workouts/week</div>
                 </div>
-                <div className="p-3 bg-gray-900/50 rounded-lg text-center">
+                <div className="p-3 bg-[#141414]/50 rounded-lg text-center">
                   <div className="text-xl font-bold text-orange-400">{program.weeks * program.workoutsPerWeek}</div>
                   <div className="text-xs text-gray-500">total workouts</div>
                 </div>
@@ -93,7 +103,7 @@ export default function ProgramSelector({ onStartProgram, currentProgramId }: Pr
               {isCurrent ? (
                 <button
                   disabled
-                  className="w-full py-3 bg-gray-700 text-gray-400 rounded-lg font-semibold cursor-not-allowed"
+                  className="w-full py-3 bg-[#262626] text-gray-400 rounded-lg font-semibold cursor-not-allowed"
                 >
                   Currently Active
                 </button>
@@ -111,7 +121,7 @@ export default function ProgramSelector({ onStartProgram, currentProgramId }: Pr
       </div>
 
       {/* Info section */}
-      <div className="mt-6 p-4 bg-gray-800/50 rounded-lg">
+      <div className="mt-6 p-4 bg-[#1f1f1f]/50 rounded-lg">
         <h4 className="text-sm font-semibold text-white mb-2">How Programs Work</h4>
         <ul className="text-sm text-gray-400 space-y-1">
           <li>• Each week has scheduled workouts tailored to your fitness level</li>

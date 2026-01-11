@@ -66,8 +66,8 @@ export default function PacingCalculator() {
   const divisionInfo = DIVISION_INFO[goal.division];
 
   return (
-    <div className="bg-gray-900 rounded-xl p-4 sm:p-6">
-      <h2 className="text-lg sm:text-2xl font-bold text-white mb-4 sm:mb-6">Pacing Calculator</h2>
+    <div className="bg-[#141414] rounded-xl p-4 sm:p-6">
+      <h2 className="text-lg sm:text-2xl font-black tracking-wide uppercase text-white mb-4 sm:mb-6">Pacing Calculator</h2>
 
       {/* Inputs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
@@ -81,7 +81,7 @@ export default function PacingCalculator() {
             value={targetTimeInput}
             onChange={e => setTargetTimeInput(e.target.value)}
             onBlur={handleTargetTimeBlur}
-            className="w-full px-3 sm:px-4 py-3 sm:py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-base focus:outline-none focus:ring-2 focus:ring-orange-400"
+            className="w-full px-3 sm:px-4 py-3 sm:py-2 bg-[#1f1f1f] border border-[#262626] rounded-lg text-white text-base focus:outline-none focus:ring-2 focus:ring-orange-400"
             min={45}
             max={180}
           />
@@ -97,7 +97,7 @@ export default function PacingCalculator() {
             value={fiveKTimeInput}
             onChange={e => setFiveKTimeInput(e.target.value)}
             onBlur={handleFiveKTimeBlur}
-            className="w-full px-3 sm:px-4 py-3 sm:py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-base focus:outline-none focus:ring-2 focus:ring-orange-400"
+            className="w-full px-3 sm:px-4 py-3 sm:py-2 bg-[#1f1f1f] border border-[#262626] rounded-lg text-white text-base focus:outline-none focus:ring-2 focus:ring-orange-400"
             min={15}
             max={45}
           />
@@ -111,7 +111,7 @@ export default function PacingCalculator() {
             id="division"
             value={goal.division}
             onChange={e => setGoal(prev => ({ ...prev, division: e.target.value as RaceGoal['division'] }))}
-            className="w-full px-3 sm:px-4 py-3 sm:py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-base focus:outline-none focus:ring-2 focus:ring-orange-400"
+            className="w-full px-3 sm:px-4 py-3 sm:py-2 bg-[#1f1f1f] border border-[#262626] rounded-lg text-white text-base focus:outline-none focus:ring-2 focus:ring-orange-400"
           >
             <option value="men_open">Men Open</option>
             <option value="men_pro">Men Pro</option>
@@ -128,7 +128,7 @@ export default function PacingCalculator() {
             id="experience"
             value={goal.experience}
             onChange={e => setGoal(prev => ({ ...prev, experience: e.target.value as RaceGoal['experience'] }))}
-            className="w-full px-3 sm:px-4 py-3 sm:py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-base focus:outline-none focus:ring-2 focus:ring-orange-400"
+            className="w-full px-3 sm:px-4 py-3 sm:py-2 bg-[#1f1f1f] border border-[#262626] rounded-lg text-white text-base focus:outline-none focus:ring-2 focus:ring-orange-400"
           >
             <option value="beginner">Beginner</option>
             <option value="intermediate">Intermediate</option>
@@ -138,7 +138,7 @@ export default function PacingCalculator() {
       </div>
 
       {/* Division Weights */}
-      <div className="p-3 sm:p-4 bg-gray-800 rounded-lg mb-4 sm:mb-6">
+      <div className="p-3 sm:p-4 bg-[#1f1f1f] rounded-lg mb-4 sm:mb-6">
         <h3 className="text-xs sm:text-sm font-semibold text-gray-400 mb-2">{divisionInfo.label} Division Weights</h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 text-xs sm:text-sm">
           <div><span className="text-gray-500">Sled Push:</span> <span className="text-white">{divisionInfo.sledPush}</span></div>
@@ -159,7 +159,7 @@ export default function PacingCalculator() {
           <div className="text-2xl sm:text-3xl font-bold text-blue-400">{formatTime(runPacePerKm)}</div>
           <div className="text-xs sm:text-sm text-gray-400">Run Pace /km</div>
         </div>
-        <div className="p-3 sm:p-4 bg-gray-800 rounded-lg text-center">
+        <div className="p-3 sm:p-4 bg-[#1f1f1f] rounded-lg text-center">
           <div className="text-2xl sm:text-3xl font-bold text-gray-300">{formatTime(ROX_ZONE_TRANSITION_TIME_SECONDS)}</div>
           <div className="text-xs sm:text-sm text-gray-400">ROX Zone Time</div>
         </div>
@@ -171,7 +171,7 @@ export default function PacingCalculator() {
         {pacingPlan.map((station, idx) => {
           const stationInfo = HYROX_STATIONS.find(s => s.id === station.stationId);
           return (
-            <div key={station.stationId} className="flex items-center gap-2 sm:gap-4 p-2 sm:p-3 bg-gray-800 rounded-lg">
+            <div key={station.stationId} className="flex items-center gap-2 sm:gap-4 p-2 sm:p-3 bg-[#1f1f1f] rounded-lg">
               <span className="w-7 h-7 sm:w-8 sm:h-8 flex-shrink-0 flex items-center justify-center bg-orange-500 rounded-full text-white font-bold text-xs sm:text-sm">
                 {idx + 1}
               </span>

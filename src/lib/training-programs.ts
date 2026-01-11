@@ -258,13 +258,15 @@ export function getWorkoutTypeLabel(type: string): string {
   }
 }
 
-export function getWorkoutTypeIcon(type: string): string {
+export type WorkoutTypeIconName = 'bolt' | 'weights' | 'target' | 'flag' | 'moon' | 'muscle';
+
+export function getWorkoutTypeIcon(type: string): WorkoutTypeIconName {
   switch (type) {
-    case 'quick': return '⚡';
-    case 'station': return '🏋️';
-    case 'coverage': return '🎯';
-    case 'full': return '🏁';
-    case 'rest': return '😴';
-    default: return '💪';
+    case 'quick': return 'bolt';
+    case 'station': return 'weights';
+    case 'coverage': return 'target';
+    case 'full': return 'flag';
+    case 'rest': return 'moon';
+    default: return 'muscle';
   }
 }

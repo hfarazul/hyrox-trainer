@@ -2,7 +2,60 @@
 
 import { useState, useMemo } from 'react';
 import { UserProgram, TrainingProgram, ScheduledWorkout } from '@/lib/types';
-import { getProgramById, getWorkoutTypeIcon, getWorkoutTypeLabel } from '@/lib/training-programs';
+import { getProgramById, getWorkoutTypeIcon, getWorkoutTypeLabel, WorkoutTypeIconName } from '@/lib/training-programs';
+
+// SVG icon component for workout types
+function WorkoutTypeIconSVG({ icon, className = "w-5 h-5" }: { icon: WorkoutTypeIconName; className?: string }) {
+  switch (icon) {
+    case 'bolt':
+      return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      );
+    case 'weights':
+      return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4 8h4v12H4V8zm6-4h4v16h-4V4zm6 8h4v8h-4v-8z" />
+        </svg>
+      );
+    case 'target':
+      return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <circle cx="12" cy="12" r="10" />
+          <circle cx="12" cy="12" r="6" />
+          <circle cx="12" cy="12" r="2" />
+        </svg>
+      );
+    case 'flag':
+      return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2z" />
+        </svg>
+      );
+    case 'moon':
+      return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+      );
+    case 'muscle':
+      return (
+        <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+          <path d="M7 11.5a4.5 4.5 0 01-3-1.13A4.5 4.5 0 012 7a4.5 4.5 0 018.85-1h2.3A4.5 4.5 0 0122 7a4.5 4.5 0 01-2 3.73A4.5 4.5 0 0117 11.5h-2v2h-6v-2H7z"/>
+        </svg>
+      );
+  }
+}
+
+// Checkmark icon for completed workouts
+function CheckmarkIcon({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  );
+}
 
 interface Props {
   userProgram: UserProgram;
@@ -28,7 +81,7 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
 
   if (!program) {
     return (
-      <div className="bg-gray-900 rounded-xl p-6 text-center">
+      <div className="bg-[#141414] rounded-xl p-6 text-center">
         <p className="text-red-400">Program not found</p>
       </div>
     );
@@ -70,7 +123,7 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
   }, [weekData, selectedWeek, today, currentWeek, userProgram.completedWorkouts]);
 
   return (
-    <div className="bg-gray-900 rounded-xl p-4 sm:p-6">
+    <div className="bg-[#141414] rounded-xl p-4 sm:p-6">
       {/* Header with progress */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <div>
@@ -93,7 +146,7 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
           <span className="text-gray-400">Overall Progress</span>
           <span className="text-orange-400 font-medium">{completedCount}/{totalWorkouts} workouts</span>
         </div>
-        <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
+        <div className="h-2 bg-[#1f1f1f] rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-orange-500 to-red-500 transition-all duration-500"
             style={{ width: `${progressPercent}%` }}
@@ -106,7 +159,7 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
         <button
           onClick={() => setSelectedWeek(Math.max(1, selectedWeek - 1))}
           disabled={selectedWeek === 1}
-          className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="p-2 rounded-lg bg-[#1f1f1f] text-gray-400 hover:text-white hover:bg-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -123,7 +176,7 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
         <button
           onClick={() => setSelectedWeek(Math.min(program.weeks, selectedWeek + 1))}
           disabled={selectedWeek === program.weeks}
-          className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="p-2 rounded-lg bg-[#1f1f1f] text-gray-400 hover:text-white hover:bg-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -140,8 +193,8 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
               day.isToday
                 ? 'bg-orange-500/20 border-2 border-orange-500'
                 : day.workout
-                ? 'bg-gray-800'
-                : 'bg-gray-800/50'
+                ? 'bg-[#1f1f1f]'
+                : 'bg-[#1f1f1f]/50'
             }`}
           >
             {/* Day name */}
@@ -152,8 +205,12 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
             {/* Workout indicator */}
             {day.workout ? (
               <>
-                <div className="text-xl sm:text-2xl mb-1">
-                  {day.isCompleted ? '✅' : getWorkoutTypeIcon(day.workout.type)}
+                <div className="flex justify-center mb-1">
+                  {day.isCompleted ? (
+                    <CheckmarkIcon className="w-6 h-6 sm:w-7 sm:h-7 text-green-400" />
+                  ) : (
+                    <WorkoutTypeIconSVG icon={getWorkoutTypeIcon(day.workout.type)} className="w-6 h-6 sm:w-7 sm:h-7" />
+                  )}
                 </div>
                 <div className={`text-xs ${day.isCompleted ? 'text-green-400' : 'text-gray-400'}`}>
                   {day.workout.type === 'rest' ? 'Rest' : `${day.workout.estimatedMinutes}m`}
@@ -183,13 +240,17 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
                   completed
                     ? 'bg-green-500/10 border-green-500/30'
                     : isRestDay
-                    ? 'bg-gray-800/50 border-gray-700'
-                    : 'bg-gray-800 border-gray-700'
+                    ? 'bg-[#1f1f1f]/50 border-[#262626]'
+                    : 'bg-[#1f1f1f] border-[#262626]'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl">{completed ? '✅' : getWorkoutTypeIcon(workout.type)}</span>
+                    {completed ? (
+                      <CheckmarkIcon className="w-7 h-7 text-green-400" />
+                    ) : (
+                      <WorkoutTypeIconSVG icon={getWorkoutTypeIcon(workout.type)} className="w-7 h-7" />
+                    )}
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-white">{workout.dayName}</span>
@@ -241,7 +302,7 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
       {/* Quit confirmation modal */}
       {showQuitConfirm && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900 rounded-xl p-6 max-w-sm w-full">
+          <div className="bg-[#141414] rounded-xl p-6 max-w-sm w-full">
             <h3 className="text-lg font-bold text-white mb-2">Quit Program?</h3>
             <p className="text-gray-400 text-sm mb-4">
               Your progress will be lost. You can start a new program anytime.
@@ -249,7 +310,7 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
             <div className="flex gap-3">
               <button
                 onClick={() => setShowQuitConfirm(false)}
-                className="flex-1 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-white font-medium transition-colors"
+                className="flex-1 py-2 bg-[#1f1f1f] hover:bg-[#262626] rounded-lg text-white font-medium transition-colors"
               >
                 Cancel
               </button>

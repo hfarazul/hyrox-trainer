@@ -4,7 +4,43 @@ import { useState, useEffect } from 'react';
 import { WorkoutSession, PerformanceRanking } from '@/lib/types';
 import { HYROX_STATIONS } from '@/lib/hyrox-data';
 import { loadSessions, deleteSession, formatTime } from '@/lib/storage';
-import { getRankingInfo } from '@/lib/workout-generator';
+import { getRankingInfo, RankingIcon } from '@/lib/workout-generator';
+
+// SVG icon component for rankings
+function RankingIconSVG({ icon, className = "w-4 h-4" }: { icon: RankingIcon; className?: string }) {
+  switch (icon) {
+    case 'trophy':
+      return (
+        <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+          <path d="M5 3h14v2H5V3zm2 2v8c0 2.5 2 4.5 4.5 4.5h1c2.5 0 4.5-2 4.5-4.5V5h2v8c0 3-2 5.5-4.5 6.3V21h2v2H7v-2h2v-1.7C6.5 18.5 4.5 16 4.5 13V5H5V3h2v2z"/>
+        </svg>
+      );
+    case 'bolt':
+      return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      );
+    case 'muscle':
+      return (
+        <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+          <path d="M7 11.5a4.5 4.5 0 01-3-1.13A4.5 4.5 0 012 7a4.5 4.5 0 018.85-1h2.3A4.5 4.5 0 0122 7a4.5 4.5 0 01-2 3.73A4.5 4.5 0 0117 11.5h-2v2h-6v-2H7z"/>
+        </svg>
+      );
+    case 'check':
+      return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      );
+    case 'flag':
+      return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2z" />
+        </svg>
+      );
+  }
+}
 
 type TabType = 'overview' | 'trends' | 'history';
 
@@ -179,11 +215,15 @@ export default function ProgressTracker() {
 
   if (sessions.length === 0) {
     return (
-      <div className="bg-gray-900 rounded-xl p-4 sm:p-6">
-        <h2 className="text-lg sm:text-2xl font-bold text-white mb-4 sm:mb-6">Progress Tracker</h2>
+      <div className="bg-[#141414] rounded-xl p-4 sm:p-6">
+        <h2 className="text-lg sm:text-2xl font-black tracking-wide uppercase text-white mb-4 sm:mb-6">Progress Tracker</h2>
         <div className="text-center py-8 sm:py-12">
-          <div className="text-5xl sm:text-6xl mb-3 sm:mb-4">📊</div>
-          <h3 className="text-lg sm:text-xl font-semibold text-white mb-2">No Sessions Yet</h3>
+          <div className="flex justify-center mb-3 sm:mb-4">
+            <svg className="w-16 h-16 sm:w-20 sm:h-20 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+            </svg>
+          </div>
+          <h3 className="text-lg sm:text-xl font-bold text-white mb-2">No Sessions Yet</h3>
           <p className="text-gray-400 text-sm sm:text-base px-4">
             Complete your first race simulation to start tracking progress!
           </p>
@@ -231,14 +271,37 @@ export default function ProgressTracker() {
     }
 
     const config = {
-      improving: { icon: '📈', color: 'text-green-400', bgColor: 'bg-green-500/20', label: 'Improving' },
-      stable: { icon: '➡️', color: 'text-blue-400', bgColor: 'bg-blue-500/20', label: 'Stable' },
-      declining: { icon: '📉', color: 'text-red-400', bgColor: 'bg-red-500/20', label: 'Declining' }
+      improving: { color: 'text-green-400', bgColor: 'bg-green-500/20', label: 'Improving' },
+      stable: { color: 'text-blue-400', bgColor: 'bg-blue-500/20', label: 'Stable' },
+      declining: { color: 'text-red-400', bgColor: 'bg-red-500/20', label: 'Declining' }
     }[trendDir];
+
+    const TrendIcon = () => {
+      const iconClass = "w-5 h-5";
+      if (trendDir === 'improving') {
+        return (
+          <svg className={`${iconClass} text-green-400`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
+          </svg>
+        );
+      } else if (trendDir === 'stable') {
+        return (
+          <svg className={`${iconClass} text-blue-400`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
+          </svg>
+        );
+      } else {
+        return (
+          <svg className={`${iconClass} text-red-400`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6L9 12.75l4.286-4.286a11.948 11.948 0 014.306 6.43l.776 2.898m0 0l3.182-5.511m-3.182 5.51l-5.511-3.181" />
+          </svg>
+        );
+      }
+    };
 
     return (
       <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full ${config.bgColor}`}>
-        <span className="text-lg">{config.icon}</span>
+        <TrendIcon />
         <span className={`font-medium ${config.color}`}>
           {config.label} {percentage > 0 ? `(${percentage.toFixed(1)}%)` : ''}
         </span>
@@ -247,19 +310,19 @@ export default function ProgressTracker() {
   };
 
   return (
-    <div className="bg-gray-900 rounded-xl p-4 sm:p-6">
-      <h2 className="text-lg sm:text-2xl font-bold text-white mb-4">Progress Tracker</h2>
+    <div className="bg-[#141414] rounded-xl p-4 sm:p-6">
+      <h2 className="text-lg sm:text-2xl font-black tracking-wide uppercase text-white mb-4">Progress Tracker</h2>
 
       {/* Tab Navigation */}
-      <div className="flex gap-1 mb-4 sm:mb-6 bg-gray-800 p-1 rounded-lg">
+      <div className="flex gap-1 mb-4 sm:mb-6 bg-[#1f1f1f] p-1 rounded-lg">
         {(['overview', 'trends', 'history'] as TabType[]).map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`flex-1 px-3 py-2 rounded-md text-sm font-semibold transition-colors ${
               activeTab === tab
-                ? 'bg-orange-500 text-white'
-                : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                ? 'bg-[#ffed00] text-black'
+                : 'text-gray-400 hover:text-white hover:bg-[#262626]'
             }`}
           >
             {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -272,24 +335,28 @@ export default function ProgressTracker() {
         <>
           {/* Hero Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 mb-6">
-            <div className="p-3 sm:p-4 bg-gradient-to-br from-yellow-600 to-orange-600 rounded-lg text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-white">
+            <div className="p-3 sm:p-4 bg-gradient-to-br from-[#ffed00] to-orange-500 rounded-lg text-center">
+              <div className="text-2xl sm:text-3xl font-black text-black">
                 {bestTotal > 0 ? formatTime(bestTotal) : '--:--'}
               </div>
-              <div className="text-xs sm:text-sm text-yellow-100">Personal Best</div>
+              <div className="text-xs sm:text-sm text-black/70 font-medium">Personal Best</div>
             </div>
-            <div className="p-3 sm:p-4 bg-gray-800 rounded-lg text-center">
+            <div className="p-3 sm:p-4 bg-[#1f1f1f] rounded-lg text-center border border-[#262626]">
               <div className="text-2xl sm:text-3xl font-bold text-orange-400">{sessions.length}</div>
               <div className="text-xs sm:text-sm text-gray-400">Total Sessions</div>
             </div>
-            <div className="p-3 sm:p-4 bg-gray-800 rounded-lg text-center">
+            <div className="p-3 sm:p-4 bg-[#1f1f1f] rounded-lg text-center border border-[#262626]">
               <div className="text-2xl sm:text-3xl font-bold text-purple-400">{workoutStats.thisWeek}</div>
               <div className="text-xs sm:text-sm text-gray-400">This Week</div>
             </div>
-            <div className="p-3 sm:p-4 bg-gray-800 rounded-lg text-center">
+            <div className="p-3 sm:p-4 bg-[#1f1f1f] rounded-lg text-center border border-[#262626]">
               <div className="flex items-center justify-center gap-1">
                 <span className="text-2xl sm:text-3xl font-bold text-red-400">{workoutStats.streak}</span>
-                {workoutStats.streak > 0 && <span className="text-lg">🔥</span>}
+                {workoutStats.streak > 0 && (
+                  <svg className="w-5 h-5 text-orange-400" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12.75 3.03v.568c0 .334.148.65.405.864l1.068.89c.442.369.535 1.01.216 1.49l-.51.766a2.25 2.25 0 01-1.161.886l-.143.048a1.107 1.107 0 00-.57 1.664c.369.555.169 1.307-.427 1.605L9 13.125l.423 1.059a.956.956 0 01-1.652.928l-.679-.906a1.125 1.125 0 00-1.906.172L4.5 15.75l-.612.153M12.75 3.031a9 9 0 00-8.862 12.872M12.75 3.031a9 9 0 016.69 14.036m0 0l-.177-.529A2.25 2.25 0 0017.128 15H16.5l-.324-.324a1.453 1.453 0 00-2.328.377l-.036.073a1.586 1.586 0 01-.982.816l-.99.282c-.55.157-.894.702-.8 1.267l.073.438c.08.474.49.821.97.821.846 0 1.598.542 1.865 1.345l.215.643m5.276-3.67a9.012 9.012 0 01-5.276 3.67m0 0a9 9 0 01-10.275-4.835M15.75 9c0 .896-.393 1.7-1.016 2.25" />
+                  </svg>
+                )}
               </div>
               <div className="text-xs sm:text-sm text-gray-400">Day Streak</div>
             </div>
@@ -297,11 +364,11 @@ export default function ProgressTracker() {
 
           {/* Performance Trend + Recent Times Chart */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div className="p-4 bg-gray-800 rounded-lg">
+            <div className="p-4 bg-[#1f1f1f] rounded-lg border border-[#262626]">
               <h4 className="text-sm font-medium text-gray-400 mb-3">Performance Trend</h4>
               <TrendIndicator />
             </div>
-            <div className="p-4 bg-gray-800 rounded-lg">
+            <div className="p-4 bg-[#1f1f1f] rounded-lg border border-[#262626]">
               <h4 className="text-sm font-medium text-gray-400 mb-3">Recent Times</h4>
               {recentTimes.length > 0 ? (
                 <MiniBarChart data={recentTimes} />
@@ -313,7 +380,7 @@ export default function ProgressTracker() {
 
           {/* Ranking Distribution */}
           {Object.values(rankingDist).some(v => v > 0) && (
-            <div className="p-4 bg-gray-800 rounded-lg mb-6">
+            <div className="p-4 bg-[#1f1f1f] rounded-lg mb-6">
               <h4 className="text-sm font-medium text-gray-400 mb-3">Your Rankings</h4>
               <div className="flex flex-wrap gap-2">
                 {(Object.entries(rankingDist) as [PerformanceRanking, number][])
@@ -325,7 +392,7 @@ export default function ProgressTracker() {
                         key={ranking}
                         className={`flex items-center gap-2 px-3 py-2 rounded-lg ${info.bgColor}`}
                       >
-                        <span className="text-lg">{info.emoji}</span>
+                        <RankingIconSVG icon={info.icon} className="w-5 h-5" />
                         <span className="text-white font-medium">{info.label}</span>
                         <span className="text-white/80 text-sm">×{count}</span>
                       </div>
@@ -340,7 +407,7 @@ export default function ProgressTracker() {
             <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">Station Personal Bests</h3>
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
               {HYROX_STATIONS.map(station => (
-                <div key={station.id} className="p-2 sm:p-3 bg-gray-800 rounded-lg">
+                <div key={station.id} className="p-2 sm:p-3 bg-[#1f1f1f] rounded-lg">
                   <div className="text-xs sm:text-sm text-gray-400 mb-1 truncate">{station.name}</div>
                   <div className="flex flex-col sm:flex-row sm:items-end sm:gap-2">
                     <span className="text-lg sm:text-xl font-bold text-orange-400">
@@ -364,11 +431,11 @@ export default function ProgressTracker() {
         <>
           {/* Monthly Stats */}
           <div className="grid grid-cols-3 gap-3 mb-6">
-            <div className="p-3 bg-gray-800 rounded-lg text-center">
+            <div className="p-3 bg-[#1f1f1f] rounded-lg text-center">
               <div className="text-xl sm:text-2xl font-bold text-green-400">{workoutStats.thisMonth}</div>
               <div className="text-xs text-gray-400">This Month</div>
             </div>
-            <div className="p-3 bg-gray-800 rounded-lg text-center">
+            <div className="p-3 bg-[#1f1f1f] rounded-lg text-center">
               <div className="text-xl sm:text-2xl font-bold text-blue-400">
                 {sessions.length > 0
                   ? formatTime(Math.round(sessions.filter(s => !s.partial).reduce((a, s) => a + s.totalTime, 0) / Math.max(1, sessions.filter(s => !s.partial).length)))
@@ -376,7 +443,7 @@ export default function ProgressTracker() {
               </div>
               <div className="text-xs text-gray-400">Avg Time</div>
             </div>
-            <div className="p-3 bg-gray-800 rounded-lg text-center">
+            <div className="p-3 bg-[#1f1f1f] rounded-lg text-center">
               <div className="text-xl sm:text-2xl font-bold text-purple-400">
                 {sessions.filter(s => s.isPR).length}
               </div>
@@ -385,7 +452,7 @@ export default function ProgressTracker() {
           </div>
 
           {/* Performance Trend Card */}
-          <div className="p-4 bg-gray-800 rounded-lg mb-6">
+          <div className="p-4 bg-[#1f1f1f] rounded-lg mb-6">
             <h4 className="text-base font-medium text-white mb-3">Overall Trend</h4>
             <TrendIndicator />
             <p className="text-gray-500 text-sm mt-3">
@@ -394,7 +461,7 @@ export default function ProgressTracker() {
           </div>
 
           {/* Recent Times Chart with Labels */}
-          <div className="p-4 bg-gray-800 rounded-lg mb-6">
+          <div className="p-4 bg-[#1f1f1f] rounded-lg mb-6">
             <h4 className="text-base font-medium text-white mb-3">Performance History</h4>
             {recentTimes.length >= 2 ? (
               <>
@@ -413,7 +480,7 @@ export default function ProgressTracker() {
           </div>
 
           {/* Station Improvement */}
-          <div className="p-4 bg-gray-800 rounded-lg">
+          <div className="p-4 bg-[#1f1f1f] rounded-lg">
             <h4 className="text-base font-medium text-white mb-3">Station Analysis</h4>
             <div className="space-y-3">
               {HYROX_STATIONS.filter(s => stationBests[s.id] && averages[s.id]).map(station => {
@@ -460,7 +527,7 @@ export default function ProgressTracker() {
             </div>
           ) : (
             sessions.slice(0, 20).map(session => (
-              <div key={session.id} className="p-3 sm:p-4 bg-gray-800 rounded-lg relative">
+              <div key={session.id} className="p-3 sm:p-4 bg-[#1f1f1f] rounded-lg relative">
                 {/* Delete button */}
                 <button
                   onClick={() => setDeleteConfirmId(session.id)}
@@ -485,13 +552,17 @@ export default function ProgressTracker() {
                       </span>
                     )}
                     {session.ranking && (
-                      <span className={`text-xs px-1.5 py-0.5 rounded ${getRankingInfo(session.ranking).bgColor}`}>
-                        {getRankingInfo(session.ranking).emoji} {getRankingInfo(session.ranking).label}
+                      <span className={`text-xs px-1.5 py-0.5 rounded inline-flex items-center gap-1 ${getRankingInfo(session.ranking).bgColor}`}>
+                        <RankingIconSVG icon={getRankingInfo(session.ranking).icon} className="w-3 h-3" />
+                        {getRankingInfo(session.ranking).label}
                       </span>
                     )}
                     {session.isPR && (
-                      <span className="text-xs px-1.5 py-0.5 bg-gradient-to-r from-red-500 to-pink-500 rounded text-white font-medium">
-                        🔥 PR
+                      <span className="text-xs px-1.5 py-0.5 bg-gradient-to-r from-red-500 to-pink-500 rounded text-white font-medium inline-flex items-center gap-0.5">
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 2c.55 0 1 .45 1 1v1.07A8.001 8.001 0 0119.93 11H21c.55 0 1 .45 1 1s-.45 1-1 1h-1.07A8.001 8.001 0 0113 19.93V21c0 .55-.45 1-1 1s-1-.45-1-1v-1.07A8.001 8.001 0 014.07 13H3c-.55 0-1-.45-1-1s.45-1 1-1h1.07A8.001 8.001 0 0111 4.07V3c0-.55.45-1 1-1zm0 4a6 6 0 100 12 6 6 0 000-12z"/>
+                        </svg>
+                        PR
                       </span>
                     )}
                   </div>
@@ -526,8 +597,8 @@ export default function ProgressTracker() {
 
           {/* Delete Confirmation Modal */}
           {deleteConfirmId && (
-            <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-              <div className="bg-gray-800 rounded-xl p-6 max-w-sm w-full">
+            <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+              <div className="bg-[#141414] rounded-xl p-6 max-w-sm w-full border border-[#262626]">
                 <h3 className="text-lg font-bold text-white mb-2">Delete Session?</h3>
                 <p className="text-gray-400 text-sm mb-4">
                   This will permanently delete this workout session. This action cannot be undone.
@@ -535,13 +606,13 @@ export default function ProgressTracker() {
                 <div className="flex gap-3">
                   <button
                     onClick={() => setDeleteConfirmId(null)}
-                    className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg font-medium text-white text-sm"
+                    className="flex-1 px-4 py-2 bg-[#262626] hover:bg-[#333333] rounded-lg font-medium text-white text-sm border border-[#404040]"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={() => handleDeleteSession(deleteConfirmId)}
-                    className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-medium text-white text-sm"
+                    className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-semibold text-white text-sm"
                   >
                     Delete
                   </button>

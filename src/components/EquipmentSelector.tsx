@@ -91,10 +91,10 @@ export default function EquipmentSelector({ onEquipmentChange, isAuthenticated =
   const categories = ['cardio', 'weights', 'bodyweight', 'resistance', 'other'] as const;
 
   return (
-    <div className="bg-gray-900 rounded-xl p-4 sm:p-6">
+    <div className="bg-[#141414] rounded-xl p-4 sm:p-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
         <div className="flex items-center gap-2">
-          <h2 className="text-lg sm:text-xl font-bold text-white">Your Equipment</h2>
+          <h2 className="text-lg sm:text-xl font-black tracking-wide uppercase text-white">Your Equipment</h2>
           {saving && (
             <span className="text-xs text-gray-400">Saving...</span>
           )}
@@ -110,7 +110,7 @@ export default function EquipmentSelector({ onEquipmentChange, isAuthenticated =
           <button
             onClick={selectNone}
             disabled={saving}
-            className="flex-1 sm:flex-none px-3 py-2 sm:py-1.5 text-sm bg-gray-600 hover:bg-gray-700 disabled:opacity-50 rounded text-white"
+            className="flex-1 sm:flex-none px-3 py-2 sm:py-1.5 text-sm bg-gray-600 hover:bg-[#262626] disabled:opacity-50 rounded text-white"
           >
             Clear
           </button>
@@ -142,7 +142,7 @@ export default function EquipmentSelector({ onEquipmentChange, isAuthenticated =
                   className={`px-3 py-3 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${
                     isSelected
                       ? 'bg-orange-500 text-white'
-                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                      : 'bg-[#1f1f1f] text-gray-300 hover:bg-[#262626]'
                   } ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   {eq.name}
@@ -153,7 +153,7 @@ export default function EquipmentSelector({ onEquipmentChange, isAuthenticated =
         </div>
       ))}
 
-      <div className="mt-4 p-3 bg-gray-800 rounded-lg">
+      <div className="mt-4 p-3 bg-[#1f1f1f] rounded-lg">
         <p className="text-xs sm:text-sm text-gray-300">
           <span className="text-orange-400 font-semibold">
             {equipment.filter(e => e.available).length}

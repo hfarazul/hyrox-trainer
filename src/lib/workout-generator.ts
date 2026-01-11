@@ -18,9 +18,11 @@ export function calculateRanking(
   return 'finish';
 }
 
+export type RankingIcon = 'trophy' | 'bolt' | 'muscle' | 'check' | 'flag';
+
 export function getRankingInfo(ranking: PerformanceRanking): {
   label: string;
-  emoji: string;
+  icon: RankingIcon;
   color: string;
   bgColor: string;
   description: string;
@@ -29,7 +31,7 @@ export function getRankingInfo(ranking: PerformanceRanking): {
     case 'elite':
       return {
         label: 'ELITE',
-        emoji: '🏆',
+        icon: 'trophy',
         color: 'text-yellow-300',
         bgColor: 'bg-gradient-to-r from-yellow-600 to-amber-500',
         description: 'Top tier performance!'
@@ -37,7 +39,7 @@ export function getRankingInfo(ranking: PerformanceRanking): {
     case 'fast':
       return {
         label: 'FAST',
-        emoji: '⚡',
+        icon: 'bolt',
         color: 'text-purple-300',
         bgColor: 'bg-gradient-to-r from-purple-600 to-pink-500',
         description: 'Great pace!'
@@ -45,7 +47,7 @@ export function getRankingInfo(ranking: PerformanceRanking): {
     case 'good':
       return {
         label: 'GOOD',
-        emoji: '💪',
+        icon: 'muscle',
         color: 'text-green-300',
         bgColor: 'bg-gradient-to-r from-green-600 to-emerald-500',
         description: 'Solid performance'
@@ -53,7 +55,7 @@ export function getRankingInfo(ranking: PerformanceRanking): {
     case 'solid':
       return {
         label: 'SOLID',
-        emoji: '✓',
+        icon: 'check',
         color: 'text-blue-300',
         bgColor: 'bg-gradient-to-r from-blue-600 to-cyan-500',
         description: 'Keep pushing!'
@@ -61,7 +63,7 @@ export function getRankingInfo(ranking: PerformanceRanking): {
     case 'finish':
       return {
         label: 'FINISHER',
-        emoji: '🏁',
+        icon: 'flag',
         color: 'text-gray-300',
         bgColor: 'bg-gradient-to-r from-gray-600 to-gray-500',
         description: 'You finished!'
