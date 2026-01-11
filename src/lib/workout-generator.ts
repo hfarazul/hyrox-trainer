@@ -304,15 +304,29 @@ export function generateRaceCoverageWorkout(
 
     // Get alternative if needed
     const alternative = getBestAlternative(station.id, availableIds, excludedExercises);
-    // Use alternative's description if an alternative is selected, otherwise use scaled official requirement
     const isUsingAlternative = alternative && alternative.name !== station.name;
+
+    // Determine the notes/description to show
+    let notes: string;
+    if (isUsingAlternative && alternative.baseValue && alternative.unit) {
+      // Scale the alternative's base value
+      const scaledAltValue = Math.round(alternative.baseValue * scale);
+      notes = `${scaledAltValue}${alternative.unit} (${coveragePercent}% of ${alternative.baseValue}${alternative.unit})`;
+    } else if (isUsingAlternative) {
+      // Fallback to static description if no structured data
+      notes = alternative.description;
+    } else {
+      // Official exercise - use scaled workDescription
+      notes = workDescription;
+    }
+
     mainWorkout.push({
       type: 'station',
       stationId: station.id,
       alternativeName: alternative?.name || station.name,
       allAlternatives: station.alternatives,
       videoUrl: alternative?.videoUrl || station.videoUrl,
-      notes: isUsingAlternative ? alternative.description : workDescription
+      notes
     });
   }
 

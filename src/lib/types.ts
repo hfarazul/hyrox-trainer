@@ -25,6 +25,8 @@ export interface Alternative {
   intensity: 'low' | 'medium' | 'high';
   conversionFactor: number;
   videoUrl?: string; // YouTube video URL for exercise demo
+  baseValue?: number; // Base value at 100% coverage (e.g., 100 for "100 reps")
+  unit?: string; // Unit type (e.g., "reps", "m", "s", "cal")
 }
 
 export interface Equipment {
