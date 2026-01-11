@@ -304,13 +304,15 @@ export function generateRaceCoverageWorkout(
 
     // Get alternative if needed
     const alternative = getBestAlternative(station.id, availableIds, excludedExercises);
+    // Use alternative's description if an alternative is selected, otherwise use scaled official requirement
+    const isUsingAlternative = alternative && alternative.name !== station.name;
     mainWorkout.push({
       type: 'station',
       stationId: station.id,
       alternativeName: alternative?.name || station.name,
       allAlternatives: station.alternatives,
       videoUrl: alternative?.videoUrl || station.videoUrl,
-      notes: workDescription
+      notes: isUsingAlternative ? alternative.description : workDescription
     });
   }
 
