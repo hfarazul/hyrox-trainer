@@ -592,12 +592,12 @@ export default function Home() {
                   className="flex items-center justify-between w-full px-3 py-2 bg-[#1f1f1f] rounded-lg text-sm text-gray-300 hover:bg-[#262626] border border-[#262626] transition-colors"
                 >
                   <span className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                     </svg>
                     <span>Exclude Exercises</span>
                     {excludedExercises.length > 0 && (
-                      <span className="px-1.5 py-0.5 bg-red-500/20 text-red-400 rounded text-xs">
+                      <span className="px-1.5 py-0.5 bg-[#ffed00]/20 text-[#ffed00] rounded text-xs">
                         {excludedExercises.length} excluded
                       </span>
                     )}
