@@ -6,6 +6,25 @@ import { formatTime } from '@/lib/storage';
 
 type Division = 'men_open' | 'men_pro' | 'women_open' | 'women_pro';
 
+// Exercise Video Link Component
+function ExerciseVideoLink({ videoUrl, exerciseName }: { videoUrl?: string; exerciseName: string }) {
+  if (!videoUrl) return null;
+
+  return (
+    <a
+      href={videoUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-1 mt-2 text-xs text-orange-400 hover:text-orange-300 transition-colors"
+    >
+      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+      </svg>
+      <span>Watch demo</span>
+    </a>
+  );
+}
+
 interface Props {
   workout: GeneratedWorkout;
   onStartSimulation?: () => void;
@@ -182,6 +201,11 @@ export default function WorkoutDisplay({ workout, onStartSimulation, division = 
                         ))}
                       </div>
                     )}
+                    {/* Exercise Video Link */}
+                    <ExerciseVideoLink
+                      videoUrl={block.videoUrl}
+                      exerciseName={block.alternativeName || station?.name || 'Exercise'}
+                    />
                   </div>
                 </div>
               </div>

@@ -148,6 +148,7 @@ export function generateFullSimulation(
       stationId: station.id,
       alternativeName: alternative?.name || station.name,
       allAlternatives: station.alternatives,
+      videoUrl: alternative?.videoUrl || station.videoUrl,
       notes: alternative?.description || station.officialRequirement
     });
   }
@@ -189,6 +190,7 @@ export function generateStationPractice(
         stationId: station.id,
         alternativeName: alternative?.name || station.name,
         allAlternatives: station.alternatives,
+        videoUrl: alternative?.videoUrl || station.videoUrl,
         notes: alternative?.description || station.officialRequirement
       });
     }
@@ -249,6 +251,7 @@ export function generateQuickWorkout(
       stationId: station.id,
       alternativeName: alternative?.name || station.name,
       allAlternatives: station.alternatives,
+      videoUrl: alternative?.videoUrl || station.videoUrl,
       notes: alternative?.description || station.officialRequirement
     });
   }
@@ -306,6 +309,7 @@ export function generateRaceCoverageWorkout(
       stationId: station.id,
       alternativeName: alternative?.name || station.name,
       allAlternatives: station.alternatives,
+      videoUrl: alternative?.videoUrl || station.videoUrl,
       notes: workDescription
     });
   }

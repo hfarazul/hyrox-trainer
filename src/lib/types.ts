@@ -6,6 +6,7 @@ export interface HyroxStation {
   order: number;
   description: string;
   officialRequirement: string;
+  videoUrl?: string; // YouTube video URL for exercise demo
   weights: {
     menOpen: string;
     menPro: string;
@@ -23,6 +24,7 @@ export interface Alternative {
   equipmentNeeded: string[];
   intensity: 'low' | 'medium' | 'high';
   conversionFactor: number;
+  videoUrl?: string; // YouTube video URL for exercise demo
 }
 
 export interface Equipment {
@@ -102,6 +104,7 @@ export interface WorkoutBlock {
   stationId?: string;
   alternativeName?: string;
   allAlternatives?: Alternative[];  // All available alternatives for dropdown selection
+  videoUrl?: string; // YouTube video URL for exercise demo
   duration?: number;
   distance?: number;
   reps?: number;

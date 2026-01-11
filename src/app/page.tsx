@@ -173,7 +173,12 @@ export default function Home() {
         ...prev,
         mainWorkout: prev.mainWorkout.map((b, i) =>
           i === blockIndex
-            ? { ...b, alternativeName: newAlternativeName, notes: newAlt?.description || b.notes }
+            ? {
+                ...b,
+                alternativeName: newAlternativeName,
+                notes: newAlt?.description || b.notes,
+                videoUrl: newAlt?.videoUrl || station?.videoUrl
+              }
             : b
         )
       };
