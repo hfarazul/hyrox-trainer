@@ -29,7 +29,7 @@ export default function Home() {
   const [quickDuration, setQuickDuration] = useState('30');
   const [quickFocus, setQuickFocus] = useState<'cardio' | 'strength' | 'mixed'>('mixed');
   const [selectedStations, setSelectedStations] = useState<string[]>([]);
-  const [coveragePercent, setCoveragePercent] = useState<25 | 50 | 75 | 100>(50);
+  const [coveragePercent, setCoveragePercent] = useState(50);
   const [simulatorConfig, setSimulatorConfig] = useState<RaceSimulatorConfig | null>(null);
   const [excludedExercises, setExcludedExercises] = useState<string[]>([]);
   const [showExcludePanel, setShowExcludePanel] = useState(false);
@@ -520,20 +520,27 @@ export default function Home() {
               {workoutType === 'coverage' && (
                 <div className="mb-4">
                   <label className="block text-sm text-gray-400 mb-2">Race Coverage</label>
-                  <div className="grid grid-cols-4 gap-2 mb-3">
-                    {([25, 50, 75, 100] as const).map(percent => (
-                      <button
-                        key={percent}
-                        onClick={() => setCoveragePercent(percent)}
-                        className={`px-3 py-3 rounded-lg text-sm font-medium transition-all ${
-                          coveragePercent === percent
-                            ? 'bg-orange-500 text-white'
-                            : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                        }`}
-                      >
-                        {percent}%
-                      </button>
-                    ))}
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-2xl font-bold text-orange-400">{coveragePercent}%</span>
+                      <span className="text-xs text-gray-500">
+                        {coveragePercent < 50 ? 'Light' : coveragePercent < 80 ? 'Moderate' : coveragePercent <= 100 ? 'Full Race' : 'Beyond Race'}
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="30"
+                      max="150"
+                      step="10"
+                      value={coveragePercent}
+                      onChange={(e) => setCoveragePercent(Number(e.target.value))}
+                      className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-orange-500"
+                    />
+                    <div className="flex justify-between text-xs text-gray-500 mt-1">
+                      <span>30%</span>
+                      <span>100%</span>
+                      <span>150%</span>
+                    </div>
                   </div>
                   <div className="bg-gray-800/50 rounded-lg p-3 text-xs sm:text-sm text-gray-400">
                     <p className="font-medium text-gray-300 mb-1">What you&apos;ll do:</p>
