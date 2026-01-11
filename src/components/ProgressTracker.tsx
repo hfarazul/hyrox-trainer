@@ -247,7 +247,7 @@ export default function ProgressTracker() {
             <div
               key={idx}
               className={`flex-1 rounded-t transition-all ${
-                isLowest ? 'bg-green-500' : 'bg-orange-500'
+                isLowest ? 'bg-[#ffed00]' : 'bg-[#ffed00]/60'
               }`}
               style={{ height: `${height}px` }}
               title={formatTime(value)}
@@ -271,8 +271,8 @@ export default function ProgressTracker() {
     }
 
     const config = {
-      improving: { color: 'text-green-400', bgColor: 'bg-green-500/20', label: 'Improving' },
-      stable: { color: 'text-blue-400', bgColor: 'bg-blue-500/20', label: 'Stable' },
+      improving: { color: 'text-[#ffed00]', bgColor: 'bg-[#ffed00]/20', label: 'Improving' },
+      stable: { color: 'text-gray-400', bgColor: 'bg-[#404040]/20', label: 'Stable' },
       declining: { color: 'text-red-400', bgColor: 'bg-red-500/20', label: 'Declining' }
     }[trendDir];
 
@@ -280,13 +280,13 @@ export default function ProgressTracker() {
       const iconClass = "w-5 h-5";
       if (trendDir === 'improving') {
         return (
-          <svg className={`${iconClass} text-green-400`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <svg className={`${iconClass} text-[#ffed00]`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
           </svg>
         );
       } else if (trendDir === 'stable') {
         return (
-          <svg className={`${iconClass} text-blue-400`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <svg className={`${iconClass} text-gray-400`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
           </svg>
         );
@@ -335,25 +335,25 @@ export default function ProgressTracker() {
         <>
           {/* Hero Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 mb-6">
-            <div className="p-3 sm:p-4 bg-gradient-to-br from-[#ffed00] to-orange-500 rounded-lg text-center">
+            <div className="p-3 sm:p-4 bg-[#ffed00] rounded-lg text-center">
               <div className="text-2xl sm:text-3xl font-black text-black">
                 {bestTotal > 0 ? formatTime(bestTotal) : '--:--'}
               </div>
               <div className="text-xs sm:text-sm text-black/70 font-medium">Personal Best</div>
             </div>
             <div className="p-3 sm:p-4 bg-[#1f1f1f] rounded-lg text-center border border-[#262626]">
-              <div className="text-2xl sm:text-3xl font-bold text-orange-400">{sessions.length}</div>
+              <div className="text-2xl sm:text-3xl font-bold text-[#ffed00]">{sessions.length}</div>
               <div className="text-xs sm:text-sm text-gray-400">Total Sessions</div>
             </div>
             <div className="p-3 sm:p-4 bg-[#1f1f1f] rounded-lg text-center border border-[#262626]">
-              <div className="text-2xl sm:text-3xl font-bold text-purple-400">{workoutStats.thisWeek}</div>
+              <div className="text-2xl sm:text-3xl font-bold text-[#ffed00]">{workoutStats.thisWeek}</div>
               <div className="text-xs sm:text-sm text-gray-400">This Week</div>
             </div>
             <div className="p-3 sm:p-4 bg-[#1f1f1f] rounded-lg text-center border border-[#262626]">
               <div className="flex items-center justify-center gap-1">
-                <span className="text-2xl sm:text-3xl font-bold text-red-400">{workoutStats.streak}</span>
+                <span className="text-2xl sm:text-3xl font-bold text-[#ffed00]">{workoutStats.streak}</span>
                 {workoutStats.streak > 0 && (
-                  <svg className="w-5 h-5 text-orange-400" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-[#ffed00]" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12.75 3.03v.568c0 .334.148.65.405.864l1.068.89c.442.369.535 1.01.216 1.49l-.51.766a2.25 2.25 0 01-1.161.886l-.143.048a1.107 1.107 0 00-.57 1.664c.369.555.169 1.307-.427 1.605L9 13.125l.423 1.059a.956.956 0 01-1.652.928l-.679-.906a1.125 1.125 0 00-1.906.172L4.5 15.75l-.612.153M12.75 3.031a9 9 0 00-8.862 12.872M12.75 3.031a9 9 0 016.69 14.036m0 0l-.177-.529A2.25 2.25 0 0017.128 15H16.5l-.324-.324a1.453 1.453 0 00-2.328.377l-.036.073a1.586 1.586 0 01-.982.816l-.99.282c-.55.157-.894.702-.8 1.267l.073.438c.08.474.49.821.97.821.846 0 1.598.542 1.865 1.345l.215.643m5.276-3.67a9.012 9.012 0 01-5.276 3.67m0 0a9 9 0 01-10.275-4.835M15.75 9c0 .896-.393 1.7-1.016 2.25" />
                   </svg>
                 )}
@@ -410,7 +410,7 @@ export default function ProgressTracker() {
                 <div key={station.id} className="p-2 sm:p-3 bg-[#1f1f1f] rounded-lg">
                   <div className="text-xs sm:text-sm text-gray-400 mb-1 truncate">{station.name}</div>
                   <div className="flex flex-col sm:flex-row sm:items-end sm:gap-2">
-                    <span className="text-lg sm:text-xl font-bold text-orange-400">
+                    <span className="text-lg sm:text-xl font-bold text-[#ffed00]">
                       {stationBests[station.id] ? formatTime(stationBests[station.id]) : '--:--'}
                     </span>
                     {averages[station.id] && stationBests[station.id] && (
@@ -432,11 +432,11 @@ export default function ProgressTracker() {
           {/* Monthly Stats */}
           <div className="grid grid-cols-3 gap-3 mb-6">
             <div className="p-3 bg-[#1f1f1f] rounded-lg text-center">
-              <div className="text-xl sm:text-2xl font-bold text-green-400">{workoutStats.thisMonth}</div>
+              <div className="text-xl sm:text-2xl font-bold text-[#ffed00]">{workoutStats.thisMonth}</div>
               <div className="text-xs text-gray-400">This Month</div>
             </div>
             <div className="p-3 bg-[#1f1f1f] rounded-lg text-center">
-              <div className="text-xl sm:text-2xl font-bold text-blue-400">
+              <div className="text-xl sm:text-2xl font-bold text-gray-300">
                 {sessions.length > 0
                   ? formatTime(Math.round(sessions.filter(s => !s.partial).reduce((a, s) => a + s.totalTime, 0) / Math.max(1, sessions.filter(s => !s.partial).length)))
                   : '--:--'}
@@ -444,7 +444,7 @@ export default function ProgressTracker() {
               <div className="text-xs text-gray-400">Avg Time</div>
             </div>
             <div className="p-3 bg-[#1f1f1f] rounded-lg text-center">
-              <div className="text-xl sm:text-2xl font-bold text-purple-400">
+              <div className="text-xl sm:text-2xl font-bold text-[#ffed00]">
                 {sessions.filter(s => s.isPR).length}
               </div>
               <div className="text-xs text-gray-400">PRs Set</div>
@@ -468,7 +468,7 @@ export default function ProgressTracker() {
                 <MiniBarChart data={recentTimes} maxHeight={80} />
                 <div className="flex justify-between mt-2 text-xs text-gray-500">
                   <span>Oldest</span>
-                  <span className="text-green-400">Green = Best</span>
+                  <span className="text-[#ffed00]">Yellow = Best</span>
                   <span>Recent</span>
                 </div>
               </>
@@ -493,14 +493,14 @@ export default function ProgressTracker() {
                   <div key={station.id} className="flex items-center justify-between">
                     <span className="text-sm text-gray-300 flex-1">{station.name}</span>
                     <div className="flex items-center gap-3">
-                      <span className="text-sm text-orange-400 font-medium">
+                      <span className="text-sm text-[#ffed00] font-medium">
                         {formatTime(best)}
                       </span>
                       <span className="text-xs text-gray-500">
                         (avg {formatTime(avg)})
                       </span>
                       {diff > 0 && (
-                        <span className="text-xs text-green-400">
+                        <span className="text-xs text-[#ffed00]">
                           -{diffPercent}%
                         </span>
                       )}
@@ -547,7 +547,7 @@ export default function ProgressTracker() {
                        session.type === 'station_practice' ? 'Station Practice' : 'Custom'}
                     </span>
                     {session.partial && (
-                      <span className="text-xs px-1.5 py-0.5 bg-yellow-600/30 text-yellow-400 rounded">
+                      <span className="text-xs px-1.5 py-0.5 bg-[#ffed00]/20 text-[#ffed00] rounded">
                         Partial
                       </span>
                     )}
@@ -566,7 +566,7 @@ export default function ProgressTracker() {
                       </span>
                     )}
                   </div>
-                  <div className="text-xl sm:text-2xl font-bold text-orange-400">
+                  <div className="text-xl sm:text-2xl font-bold text-[#ffed00]">
                     {formatTime(session.totalTime)}
                   </div>
                 </div>
@@ -582,7 +582,7 @@ export default function ProgressTracker() {
                         key={result.stationId}
                         className={`text-xs px-1.5 sm:px-2 py-1 rounded ${
                           result.timeSeconds === stationBests[result.stationId]
-                            ? 'bg-yellow-600 text-yellow-100'
+                            ? 'bg-[#ffed00] text-black'
                             : 'bg-gray-700 text-gray-400'
                         }`}
                       >

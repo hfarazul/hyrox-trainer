@@ -353,13 +353,13 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Header */}
-      <header className="bg-[#0a0a0a] border-b border-[#262626]">
+      {/* Header - Dark with Yellow Accents */}
+      <header className="bg-black border-b border-[#262626]">
         <div className="max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-2">
             <div className="min-w-0">
-              <h1 className="text-xl sm:text-2xl font-black tracking-wider">
-                <span className="text-[#ffed00]">HY</span><span className="text-white">TRAIN</span>
+              <h1 className="text-2xl sm:text-3xl font-black tracking-wider text-[#ffed00]">
+                HYTRAIN
               </h1>
               <p className="text-xs sm:text-sm text-gray-400 hidden sm:block">Train Anywhere, Race Ready</p>
             </div>
@@ -367,26 +367,26 @@ export default function Home() {
               {/* Equipment quick access - clickable */}
               <button
                 onClick={() => setActiveTab('equipment')}
-                className="text-right px-2 py-1 -mx-2 rounded-lg hover:bg-[#1a1a1a] transition-colors"
+                className="text-right px-2 py-1 -mx-2 rounded-lg hover:bg-white/10 transition-colors"
                 title="Edit equipment"
               >
                 <div className="text-xs sm:text-sm text-gray-400 hidden sm:block">Equipment</div>
-                <div className="text-[#ffed00] font-semibold flex items-center gap-1">
+                <div className="text-white font-bold flex items-center gap-1">
                   <span className="text-sm sm:text-base">{equipment.filter(e => e.available).length}</span>
-                  <span className="text-xs text-gray-500">items</span>
-                  <svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <span className="text-xs text-gray-400">items</span>
+                  <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                   </svg>
                 </div>
               </button>
               {status === 'loading' ? (
-                <div className="w-16 sm:w-20 h-9 sm:h-10 bg-[#1f1f1f] rounded-lg animate-pulse" />
+                <div className="w-16 sm:w-20 h-9 sm:h-10 bg-white/10 rounded-lg animate-pulse" />
               ) : session ? (
                 <div className="flex items-center gap-2 sm:gap-3">
-                  <span className="text-xs sm:text-sm text-gray-300 hidden sm:inline max-w-[120px] truncate">{session.user.name || session.user.email}</span>
+                  <span className="text-xs sm:text-sm text-gray-400 hidden sm:inline max-w-[120px] truncate">{session.user.name || session.user.email}</span>
                   <button
                     onClick={() => signOut()}
-                    className="px-3 sm:px-4 py-2 bg-[#1f1f1f] hover:bg-[#262626] rounded-lg text-xs sm:text-sm text-gray-300 whitespace-nowrap border border-[#262626]"
+                    className="px-3 sm:px-4 py-2 bg-[#ffed00] hover:bg-[#e6d600] rounded-lg text-xs sm:text-sm text-black whitespace-nowrap font-bold uppercase tracking-wide"
                   >
                     Sign Out
                   </button>
@@ -395,13 +395,13 @@ export default function Home() {
                 <div className="flex items-center gap-1 sm:gap-2">
                   <Link
                     href="/auth/signin"
-                    className="px-3 sm:px-4 py-2 bg-[#1f1f1f] hover:bg-[#262626] rounded-lg text-xs sm:text-sm text-gray-300 border border-[#262626]"
+                    className="px-3 sm:px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-xs sm:text-sm text-white font-bold uppercase tracking-wide"
                   >
                     Sign In
                   </Link>
                   <Link
                     href="/auth/signup"
-                    className="px-3 sm:px-4 py-2 bg-[#ffed00] hover:bg-[#e6d600] rounded-lg text-xs sm:text-sm text-black font-semibold"
+                    className="px-3 sm:px-4 py-2 bg-[#ffed00] hover:bg-[#e6d600] rounded-lg text-xs sm:text-sm text-black font-bold uppercase tracking-wide"
                   >
                     Sign Up
                   </Link>
@@ -412,18 +412,18 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Navigation */}
-      <nav className="bg-[#0a0a0a]/90 border-b border-[#262626] sticky top-0 z-50 backdrop-blur-md">
+      {/* Navigation - HYROX Yellow */}
+      <nav className="bg-[#ffed00] border-b-2 border-black sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-2 sm:px-4">
           <div className="flex justify-between sm:justify-start overflow-x-auto scrollbar-hide">
             {tabs.map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-3 font-medium whitespace-nowrap border-b-2 transition-colors min-w-0 flex-1 sm:flex-none ${
+                className={`flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-3 font-bold uppercase tracking-wide whitespace-nowrap border-b-4 transition-colors min-w-0 flex-1 sm:flex-none ${
                   activeTab === tab.id
-                    ? 'text-[#ffed00] border-[#ffed00]'
-                    : 'text-gray-400 border-transparent hover:text-white'
+                    ? 'text-black border-black bg-white/20'
+                    : 'text-black/60 border-transparent hover:text-black hover:border-black/30'
                 }`}
               >
                 {tab.icon}
@@ -440,7 +440,9 @@ export default function Home() {
           <div className="space-y-4 sm:space-y-6">
             {/* Workout Generator Controls */}
             <div className="bg-[#141414] rounded-xl p-4 sm:p-6">
-              <h2 className="text-lg sm:text-xl font-black tracking-wide uppercase text-white mb-3 sm:mb-4">Generate Workout</h2>
+              <div className="inline-block bg-[#ffed00] px-4 py-2 mb-4">
+                <h2 className="text-black font-black tracking-wider uppercase text-lg sm:text-xl">Generate Workout</h2>
+              </div>
 
               {/* Workout Type */}
               <div className="mb-4">
@@ -457,7 +459,7 @@ export default function Home() {
                       onClick={() => setWorkoutType(type.id as typeof workoutType)}
                       className={`px-2 sm:px-4 py-3 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
                         workoutType === type.id
-                          ? 'bg-orange-500 text-white'
+                          ? 'bg-[#ffed00] text-black'
                           : 'bg-[#1f1f1f] text-gray-300 hover:bg-[#262626] border border-[#262626]'
                       }`}
                     >
@@ -478,7 +480,7 @@ export default function Home() {
                       onClick={() => setDivision(key)}
                       className={`px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
                         division === key
-                          ? 'bg-orange-500 text-white'
+                          ? 'bg-[#ffed00] text-black'
                           : 'bg-[#1f1f1f] text-gray-300 hover:bg-[#262626] border border-[#262626]'
                       }`}
                     >
@@ -502,7 +504,7 @@ export default function Home() {
                         const clamped = Math.min(90, Math.max(15, val));
                         setQuickDuration(String(clamped));
                       }}
-                      className="w-full px-3 sm:px-4 py-3 bg-[#1f1f1f] border border-[#262626] rounded-lg text-white text-base focus:border-orange-500 focus:outline-none transition-colors"
+                      className="w-full px-3 sm:px-4 py-3 bg-[#1f1f1f] border border-[#262626] rounded-lg text-white text-base focus:border-[#ffed00] focus:outline-none transition-colors"
                       min={15}
                       max={90}
                     />
@@ -512,7 +514,7 @@ export default function Home() {
                     <select
                       value={quickFocus}
                       onChange={e => setQuickFocus(e.target.value as typeof quickFocus)}
-                      className="w-full px-3 sm:px-4 py-3 bg-[#1f1f1f] border border-[#262626] rounded-lg text-white text-base focus:border-orange-500 focus:outline-none transition-colors"
+                      className="w-full px-3 sm:px-4 py-3 bg-[#1f1f1f] border border-[#262626] rounded-lg text-white text-base focus:border-[#ffed00] focus:outline-none transition-colors"
                     >
                       <option value="mixed">Mixed</option>
                       <option value="cardio">Cardio</option>
@@ -533,7 +535,7 @@ export default function Home() {
                         onClick={() => toggleStation(station.id)}
                         className={`px-3 py-3 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
                           selectedStations.includes(station.id)
-                            ? 'bg-orange-500 text-white'
+                            ? 'bg-[#ffed00] text-black'
                             : 'bg-[#1f1f1f] text-gray-300 hover:bg-[#262626] border border-[#262626]'
                         }`}
                       >
@@ -550,7 +552,7 @@ export default function Home() {
                   <label className="block text-sm text-gray-400 mb-2">Race Coverage</label>
                   <div className="mb-4">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-2xl font-bold text-orange-400">{coveragePercent}%</span>
+                      <span className="text-2xl font-bold text-[#ffed00]">{coveragePercent}%</span>
                       <span className="text-xs text-gray-500">
                         {coveragePercent < 50 ? 'Light' : coveragePercent < 80 ? 'Moderate' : coveragePercent <= 100 ? 'Full Race' : 'Beyond Race'}
                       </span>
@@ -562,7 +564,7 @@ export default function Home() {
                       step="10"
                       value={coveragePercent}
                       onChange={(e) => setCoveragePercent(Number(e.target.value))}
-                      className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-orange-500"
+                      className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-[#ffed00]"
                     />
                     <div className="flex justify-between text-xs text-gray-500 mt-1">
                       <span>30%</span>
@@ -647,7 +649,7 @@ export default function Home() {
 
               <button
                 onClick={handleGenerateWorkout}
-                className="w-full py-3 sm:py-4 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 rounded-lg font-bold text-white text-base sm:text-lg"
+                className="w-full py-3 sm:py-4 bg-[#ffed00] hover:bg-[#e6d600] rounded-lg font-black text-black text-base sm:text-lg uppercase tracking-wide transition-colors"
               >
                 Generate Workout
               </button>

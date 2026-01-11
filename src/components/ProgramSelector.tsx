@@ -43,13 +43,13 @@ export default function ProgramSelector({ onStartProgram, currentProgramId }: Pr
               key={program.id}
               className={`relative p-4 sm:p-6 rounded-xl border-2 transition-all ${
                 isCurrent
-                  ? 'border-orange-500 bg-orange-500/10'
+                  ? 'border-[#ffed00] bg-[#ffed00]/10'
                   : 'border-[#262626] bg-[#1f1f1f] hover:border-gray-600'
               }`}
             >
               {/* Current badge */}
               {isCurrent && (
-                <div className="absolute -top-3 left-4 px-3 py-1 bg-orange-500 rounded-full text-xs font-bold text-white">
+                <div className="absolute -top-3 left-4 px-3 py-1 bg-[#ffed00] rounded-full text-xs font-bold text-black">
                   CURRENT PROGRAM
                 </div>
               )}
@@ -73,7 +73,7 @@ export default function ProgramSelector({ onStartProgram, currentProgramId }: Pr
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
                     </svg>
                   ) : (
-                    <svg className="w-8 h-8 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <svg className="w-8 h-8 text-[#ffed00]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                       <circle cx="12" cy="12" r="10" />
                       <circle cx="12" cy="12" r="6" />
                       <circle cx="12" cy="12" r="2" />
@@ -90,11 +90,11 @@ export default function ProgramSelector({ onStartProgram, currentProgramId }: Pr
               {/* Stats */}
               <div className="grid grid-cols-2 gap-3 mb-4">
                 <div className="p-3 bg-[#141414]/50 rounded-lg text-center">
-                  <div className="text-xl font-bold text-orange-400">{program.workoutsPerWeek}</div>
+                  <div className="text-xl font-bold text-[#ffed00]">{program.workoutsPerWeek}</div>
                   <div className="text-xs text-gray-500">workouts/week</div>
                 </div>
                 <div className="p-3 bg-[#141414]/50 rounded-lg text-center">
-                  <div className="text-xl font-bold text-orange-400">{program.weeks * program.workoutsPerWeek}</div>
+                  <div className="text-xl font-bold text-[#ffed00]">{program.weeks * program.workoutsPerWeek}</div>
                   <div className="text-xs text-gray-500">total workouts</div>
                 </div>
               </div>
@@ -110,7 +110,7 @@ export default function ProgramSelector({ onStartProgram, currentProgramId }: Pr
               ) : (
                 <button
                   onClick={() => onStartProgram(program.id)}
-                  className="w-full py-3 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 rounded-lg font-semibold text-white transition-all"
+                  className="w-full py-3 bg-[#ffed00] hover:bg-[#e6d600] text-black rounded-lg font-semibold text-white transition-all"
                 >
                   Start Program
                 </button>

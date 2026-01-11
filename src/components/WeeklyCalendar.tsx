@@ -144,11 +144,11 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
       <div className="mb-6">
         <div className="flex items-center justify-between text-sm mb-1">
           <span className="text-gray-400">Overall Progress</span>
-          <span className="text-orange-400 font-medium">{completedCount}/{totalWorkouts} workouts</span>
+          <span className="text-[#ffed00] font-medium">{completedCount}/{totalWorkouts} workouts</span>
         </div>
         <div className="h-2 bg-[#1f1f1f] rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-orange-500 to-red-500 transition-all duration-500"
+            className="h-full bg-[#ffed00] transition-all duration-500"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
@@ -168,7 +168,7 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
         <div className="flex items-center gap-2">
           <span className="text-white font-medium">Week {selectedWeek}</span>
           {selectedWeek === currentWeek && (
-            <span className="px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded-full">
+            <span className="px-2 py-0.5 bg-[#ffed00]/20 text-[#ffed00] text-xs rounded-full">
               Current
             </span>
           )}
@@ -191,14 +191,14 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
             key={day.index}
             className={`relative p-2 sm:p-3 rounded-lg text-center transition-all ${
               day.isToday
-                ? 'bg-orange-500/20 border-2 border-orange-500'
+                ? 'bg-[#ffed00]/20 border-2 border-[#ffed00]'
                 : day.workout
                 ? 'bg-[#1f1f1f]'
                 : 'bg-[#1f1f1f]/50'
             }`}
           >
             {/* Day name */}
-            <div className={`text-xs font-medium mb-1 ${day.isToday ? 'text-orange-400' : 'text-gray-500'}`}>
+            <div className={`text-xs font-medium mb-1 ${day.isToday ? 'text-[#ffed00]' : 'text-gray-500'}`}>
               {day.name}
             </div>
 
@@ -207,12 +207,12 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
               <>
                 <div className="flex justify-center mb-1">
                   {day.isCompleted ? (
-                    <CheckmarkIcon className="w-6 h-6 sm:w-7 sm:h-7 text-green-400" />
+                    <CheckmarkIcon className="w-6 h-6 sm:w-7 sm:h-7 text-[#ffed00]" />
                   ) : (
                     <WorkoutTypeIconSVG icon={getWorkoutTypeIcon(day.workout.type)} className="w-6 h-6 sm:w-7 sm:h-7" />
                   )}
                 </div>
-                <div className={`text-xs ${day.isCompleted ? 'text-green-400' : 'text-gray-400'}`}>
+                <div className={`text-xs ${day.isCompleted ? 'text-[#ffed00]' : 'text-gray-400'}`}>
                   {day.workout.type === 'rest' ? 'Rest' : `${day.workout.estimatedMinutes}m`}
                 </div>
               </>
@@ -238,7 +238,7 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
                 key={idx}
                 className={`p-4 rounded-lg border ${
                   completed
-                    ? 'bg-green-500/10 border-green-500/30'
+                    ? 'bg-[#ffed00]/10 border-[#ffed00]/30'
                     : isRestDay
                     ? 'bg-[#1f1f1f]/50 border-[#262626]'
                     : 'bg-[#1f1f1f] border-[#262626]'
@@ -247,7 +247,7 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     {completed ? (
-                      <CheckmarkIcon className="w-7 h-7 text-green-400" />
+                      <CheckmarkIcon className="w-7 h-7 text-[#ffed00]" />
                     ) : (
                       <WorkoutTypeIconSVG icon={getWorkoutTypeIcon(workout.type)} className="w-7 h-7" />
                     )}
@@ -255,7 +255,7 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-white">{workout.dayName}</span>
                         {completed && (
-                          <span className="text-xs px-1.5 py-0.5 bg-green-500/20 text-green-400 rounded">
+                          <span className="text-xs px-1.5 py-0.5 bg-[#ffed00]/20 text-[#ffed00] rounded">
                             Completed
                           </span>
                         )}
@@ -266,17 +266,17 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
                       </div>
                       {/* Workout params */}
                       {workout.params.coverage && (
-                        <div className="text-xs text-orange-400 mt-1">
+                        <div className="text-xs text-[#ffed00] mt-1">
                           {workout.params.coverage}% Race Coverage
                         </div>
                       )}
                       {workout.params.focus && (
-                        <div className="text-xs text-purple-400 mt-1">
+                        <div className="text-xs text-gray-400 mt-1">
                           Focus: {workout.params.focus}
                         </div>
                       )}
                       {workout.params.stations && workout.params.stations.length > 0 && (
-                        <div className="text-xs text-blue-400 mt-1">
+                        <div className="text-xs text-gray-400 mt-1">
                           {workout.params.stations.length} stations
                         </div>
                       )}
@@ -287,7 +287,7 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
                   {!isRestDay && !completed && (
                     <button
                       onClick={() => onStartWorkout(selectedWeek, workout)}
-                      className="px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded-lg text-sm font-medium text-white transition-colors"
+                      className="px-4 py-2 bg-[#ffed00] hover:bg-[#e6d600] text-black rounded-lg text-sm font-medium text-white transition-colors"
                     >
                       Start
                     </button>

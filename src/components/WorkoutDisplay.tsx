@@ -15,7 +15,7 @@ function ExerciseVideoLink({ videoUrl, exerciseName }: { videoUrl?: string; exer
       href={videoUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-1 mt-2 text-xs text-orange-400 hover:text-orange-300 transition-colors"
+      className="inline-flex items-center gap-1 mt-2 text-xs text-[#ffed00] hover:text-[#e6d600] transition-colors"
     >
       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
         <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
@@ -108,7 +108,7 @@ export default function WorkoutDisplay({ workout, onStartSimulation, division = 
         {onStartSimulation && (
           <button
             onClick={onStartSimulation}
-            className="hidden sm:block px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded-lg font-semibold text-white text-base"
+            className="hidden sm:block px-4 py-2 bg-[#ffed00] hover:bg-[#e6d600] rounded-lg font-black text-black text-base uppercase tracking-wide"
           >
             Start Timer
           </button>
@@ -120,7 +120,7 @@ export default function WorkoutDisplay({ workout, onStartSimulation, division = 
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black via-black to-transparent sm:hidden z-40">
           <button
             onClick={onStartSimulation}
-            className="w-full py-4 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 rounded-xl font-bold text-white text-lg shadow-lg"
+            className="w-full py-4 bg-[#ffed00] hover:bg-[#e6d600] rounded-xl font-black text-black text-lg shadow-lg uppercase tracking-wide transition-colors"
           >
             Start Timer
           </button>
@@ -129,7 +129,9 @@ export default function WorkoutDisplay({ workout, onStartSimulation, division = 
 
       {/* Warmup */}
       <div className="mb-4 sm:mb-6">
-        <h3 className="text-base sm:text-lg font-bold text-[#ffed00] mb-2 sm:mb-3 uppercase tracking-wide">Warm-up</h3>
+        <div className="inline-block bg-[#ffed00] px-3 py-1.5 mb-2 sm:mb-3">
+          <h3 className="text-black font-black tracking-wider uppercase text-sm sm:text-base">Warm-up</h3>
+        </div>
         <div className="space-y-2">
           {workout.warmup.map((exercise, idx) => (
             <div key={idx} className="flex items-center gap-2 sm:gap-3 text-gray-300 text-sm sm:text-base">
@@ -146,7 +148,9 @@ export default function WorkoutDisplay({ workout, onStartSimulation, division = 
 
       {/* Main Workout */}
       <div className="mb-4 sm:mb-6">
-        <h3 className="text-base sm:text-lg font-bold text-[#ffed00] mb-2 sm:mb-3 uppercase tracking-wide">Main Workout</h3>
+        <div className="inline-block bg-[#ffed00] px-3 py-1.5 mb-2 sm:mb-3">
+          <h3 className="text-black font-black tracking-wider uppercase text-sm sm:text-base">Main Workout</h3>
+        </div>
         <div className="space-y-2 sm:space-y-3">
           {workout.mainWorkout.map((block, idx) => {
             const station = block.stationId ? getStationInfo(block.stationId) : null;
@@ -155,9 +159,9 @@ export default function WorkoutDisplay({ workout, onStartSimulation, division = 
                 key={idx}
                 className={`p-3 sm:p-4 rounded-lg ${
                   block.type === 'run'
-                    ? 'bg-[#1e3a5f]/50 border border-[#1d4ed8]'
+                    ? 'bg-[#1f1f1f]/50 border border-[#404040]'
                     : block.type === 'station'
-                    ? 'bg-[#431407]/50 border border-[#c2410c]'
+                    ? 'bg-[#ffed00]/10 border border-[#ffed00]/60'
                     : 'bg-[#1f1f1f] border border-[#262626]'
                 }`}
               >
@@ -174,7 +178,7 @@ export default function WorkoutDisplay({ workout, onStartSimulation, division = 
                           <select
                             value={block.alternativeName || station?.name || ''}
                             onChange={(e) => onChangeExercise(idx, e.target.value)}
-                            className="font-semibold text-white text-sm sm:text-base bg-[#1f1f1f] border border-[#404040] rounded px-2 py-1 cursor-pointer hover:border-orange-500 focus:border-orange-500 focus:outline-none transition-colors"
+                            className="font-semibold text-white text-sm sm:text-base bg-[#1f1f1f] border border-[#404040] rounded px-2 py-1 cursor-pointer hover:border-[#ffed00] focus:border-[#ffed00] focus:outline-none transition-colors"
                           >
                             {block.allAlternatives.map(alt => (
                               <option key={alt.name} value={alt.name}>
@@ -233,7 +237,9 @@ export default function WorkoutDisplay({ workout, onStartSimulation, division = 
 
       {/* Cooldown */}
       <div>
-        <h3 className="text-base sm:text-lg font-bold text-[#ffed00] mb-2 sm:mb-3 uppercase tracking-wide">Cool-down</h3>
+        <div className="inline-block bg-[#ffed00] px-3 py-1.5 mb-2 sm:mb-3">
+          <h3 className="text-black font-black tracking-wider uppercase text-sm sm:text-base">Cool-down</h3>
+        </div>
         <div className="space-y-2">
           {workout.cooldown.map((exercise, idx) => (
             <div key={idx} className="flex items-center gap-2 sm:gap-3 text-gray-300 text-sm sm:text-base">

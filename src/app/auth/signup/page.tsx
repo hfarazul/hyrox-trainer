@@ -110,7 +110,7 @@ export default function SignUpPage() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#ffed00]"
               />
             </div>
 
@@ -123,7 +123,7 @@ export default function SignUpPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#ffed00]"
                 required
               />
             </div>
@@ -137,7 +137,7 @@ export default function SignUpPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#ffed00]"
                 required
                 minLength={8}
               />
@@ -152,7 +152,7 @@ export default function SignUpPage() {
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#ffed00]"
                 required
               />
             </div>
@@ -160,7 +160,7 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-semibold text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+              className="w-full py-3 bg-[#ffed00] hover:bg-[#e6d600] disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-black text-black uppercase tracking-wide focus:outline-none focus:ring-2 focus:ring-[#ffed00]"
             >
               {loading ? 'Creating account...' : 'Sign Up'}
             </button>
@@ -168,7 +168,7 @@ export default function SignUpPage() {
 
           <p className="mt-6 text-center text-gray-400">
             Already have an account?{' '}
-            <Link href="/auth/signin" className="text-orange-400 hover:text-orange-300">
+            <Link href="/auth/signin" className="text-[#ffed00] hover:text-[#e6d600]">
               Sign in
             </Link>
           </p>

@@ -1,22 +1,34 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bebas_Neue, Barlow_Condensed, Geist_Mono } from "next/font/google";
 import Providers from "@/components/Providers";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Bebas Neue - Bold condensed font for headings (HYROX style)
+const bebasNeue = Bebas_Neue({
+  weight: "400",
+  variable: "--font-bebas",
   subsets: ["latin"],
+  display: "swap",
 });
 
+// Barlow Condensed - Athletic body font
+const barlowCondensed = Barlow_Condensed({
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-barlow",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+// Keep Geist Mono for timers and numbers
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "HYROX Trainer - Train Anywhere, Race Ready",
+  title: "HYTRAIN - Train Anywhere, Race Ready",
   description: "Equipment-adaptive HYROX training app with race simulations, pacing calculator, and progress tracking. Train for HYROX with whatever equipment you have.",
-  keywords: ["HYROX", "fitness", "training", "race simulation", "workout generator"],
+  keywords: ["HYROX", "fitness", "training", "race simulation", "workout generator", "HYTRAIN"],
 };
 
 export default function RootLayout({
@@ -27,7 +39,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-950 text-white`}
+        className={`${bebasNeue.variable} ${barlowCondensed.variable} ${geistMono.variable} antialiased bg-black text-white`}
       >
         <Providers>{children}</Providers>
       </body>

@@ -60,7 +60,7 @@ export default function OnboardingPage() {
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-orange-500 mb-2">Welcome to HYROX Trainer!</h1>
+          <h1 className="text-3xl font-bold text-[#ffed00] mb-2">Welcome to HYROX Trainer!</h1>
           <p className="text-gray-400">
             Let&apos;s set up your equipment so we can generate personalized workouts.
           </p>
@@ -72,7 +72,7 @@ export default function OnboardingPage() {
             <h2 className="text-lg font-semibold text-white">What equipment do you have?</h2>
             <button
               onClick={selectAll}
-              className="text-sm text-orange-400 hover:text-orange-300"
+              className="text-sm text-[#ffed00] hover:text-[#e6d600]"
             >
               Select All
             </button>
@@ -92,7 +92,7 @@ export default function OnboardingPage() {
                       onClick={() => toggleEquipment(eq.id)}
                       className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                         isSelected
-                          ? 'bg-orange-500 text-white'
+                          ? 'bg-[#ffed00] text-black'
                           : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
                       }`}
                     >
@@ -106,14 +106,14 @@ export default function OnboardingPage() {
 
           <div className="mt-4 pt-4 border-t border-gray-800">
             <p className="text-sm text-gray-400">
-              <span className="text-orange-400 font-semibold">{selectedCount}</span> of {AVAILABLE_EQUIPMENT.length} items selected
+              <span className="text-[#ffed00] font-semibold">{selectedCount}</span> of {AVAILABLE_EQUIPMENT.length} items selected
             </p>
           </div>
         </div>
 
         {/* Info Card */}
-        <div className="bg-blue-900/30 border border-blue-700 rounded-xl p-4 mb-6">
-          <p className="text-blue-300 text-sm">
+        <div className="bg-[#1f1f1f]/50 border border-[#404040] rounded-xl p-4 mb-6">
+          <p className="text-gray-300 text-sm">
             <strong>Don&apos;t worry!</strong> We&apos;ll suggest alternatives for any equipment you don&apos;t have.
             You can always update this later in the Equipment tab.
           </p>
@@ -130,7 +130,7 @@ export default function OnboardingPage() {
           <button
             onClick={handleContinue}
             disabled={saving}
-            className="flex-1 py-3 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 rounded-lg font-semibold text-white"
+            className="flex-1 py-3 bg-[#ffed00] hover:bg-[#e6d600] disabled:opacity-50 rounded-lg font-black text-black uppercase tracking-wide"
           >
             {saving ? 'Saving...' : 'Continue'}
           </button>

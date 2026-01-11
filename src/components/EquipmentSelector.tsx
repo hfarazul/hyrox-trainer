@@ -103,7 +103,7 @@ export default function EquipmentSelector({ onEquipmentChange, isAuthenticated =
           <button
             onClick={selectAll}
             disabled={saving}
-            className="flex-1 sm:flex-none px-3 py-2 sm:py-1.5 text-sm bg-green-600 hover:bg-green-700 disabled:opacity-50 rounded text-white"
+            className="flex-1 sm:flex-none px-3 py-2 sm:py-1.5 text-sm bg-[#ffed00] hover:bg-[#e6d600] disabled:opacity-50 rounded text-black font-semibold"
           >
             Select All
           </button>
@@ -141,7 +141,7 @@ export default function EquipmentSelector({ onEquipmentChange, isAuthenticated =
                   disabled={saving}
                   className={`px-3 py-3 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${
                     isSelected
-                      ? 'bg-orange-500 text-white'
+                      ? 'bg-[#ffed00] text-black'
                       : 'bg-[#1f1f1f] text-gray-300 hover:bg-[#262626]'
                   } ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
@@ -155,7 +155,7 @@ export default function EquipmentSelector({ onEquipmentChange, isAuthenticated =
 
       <div className="mt-4 p-3 bg-[#1f1f1f] rounded-lg">
         <p className="text-xs sm:text-sm text-gray-300">
-          <span className="text-orange-400 font-semibold">
+          <span className="text-[#ffed00] font-semibold">
             {equipment.filter(e => e.available).length}
           </span>{' '}
           of {AVAILABLE_EQUIPMENT.length} items selected
