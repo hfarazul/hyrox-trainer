@@ -97,6 +97,21 @@ export function addSession(session: WorkoutSession): void {
   saveSessions(sessions);
 }
 
+export function updateSession(session: WorkoutSession): void {
+  const sessions = loadSessions();
+  const index = sessions.findIndex(s => s.id === session.id);
+  if (index !== -1) {
+    sessions[index] = session;
+  } else {
+    // If not found, add as new session
+    sessions.unshift(session);
+    if (sessions.length > MAX_SESSIONS) {
+      sessions.length = MAX_SESSIONS;
+    }
+  }
+  saveSessions(sessions);
+}
+
 export function saveRaceGoal(goal: RaceGoal): void {
   if (typeof window !== 'undefined') {
     localStorage.setItem(STORAGE_KEYS.RACE_GOAL, JSON.stringify(goal));

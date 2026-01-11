@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { HYROX_STATIONS } from '@/lib/hyrox-data';
 import { WorkoutSession, StationResult, UserEquipment, RaceSimulatorConfig, WorkoutBlock, PerformanceRanking } from '@/lib/types';
 import { getBestAlternative, calculateRanking, getRankingInfo } from '@/lib/workout-generator';
-import { addSession, generateId, formatTime, loadEquipment, loadSessions } from '@/lib/storage';
+import { addSession, updateSession, generateId, formatTime, loadEquipment, loadSessions } from '@/lib/storage';
 
 type SimulationPhase = 'not_started' | 'running' | 'station' | 'rest' | 'completed';
 
@@ -38,6 +38,8 @@ export default function RaceSimulator({ config, onComplete }: Props) {
   const lastSessionIdRef = useRef<string | undefined>(undefined);
   const lastTickTimeRef = useRef<number>(0);
   const activityElapsedRef = useRef<number>(0);
+  const isSavingRef = useRef<boolean>(false);
+  const skipAutoSaveRef = useRef<boolean>(false);
 
   // Get workout blocks from config or use default full simulation
   const workoutBlocks = useMemo(() => {
@@ -73,6 +75,17 @@ export default function RaceSimulator({ config, onComplete }: Props) {
   useEffect(() => {
     if (!isPaused && phase !== 'not_started' && phase !== 'completed') {
       lastTickTimeRef.current = Date.now();
+    }
+  }, [isPaused, phase]);
+
+  // Auto-save when workout is paused (skip if triggered by stopAndSave)
+  useEffect(() => {
+    if (isPaused && phase !== 'not_started' && phase !== 'completed' && !skipAutoSaveRef.current) {
+      // Delay slightly to ensure state is updated
+      const timeoutId = setTimeout(() => {
+        saveSession(true);
+      }, 100);
+      return () => clearTimeout(timeoutId);
     }
   }, [isPaused, phase]);
 
@@ -120,6 +133,7 @@ export default function RaceSimulator({ config, onComplete }: Props) {
     const now = Date.now();
     lastTickTimeRef.current = now;
     activityElapsedRef.current = 0;
+    lastSessionIdRef.current = undefined; // Reset session ID for new workout
     setElapsedTime(0);
 
     // Start with first block
@@ -201,7 +215,12 @@ export default function RaceSimulator({ config, onComplete }: Props) {
   };
 
   const saveSession = (isPartial = false) => {
-    const sessionId = generateId();
+    // Prevent duplicate saves from rapid clicks
+    if (isSavingRef.current) return;
+    isSavingRef.current = true;
+
+    const isUpdate = !!lastSessionIdRef.current;
+    const sessionId = lastSessionIdRef.current || generateId();
     const session: WorkoutSession = {
       id: sessionId,
       date: new Date().toISOString(),
@@ -213,16 +232,28 @@ export default function RaceSimulator({ config, onComplete }: Props) {
       isPR: isPartial ? undefined : isPR,
       estimatedDuration: config?.workout?.duration
     };
-    addSession(session);
-    lastSessionIdRef.current = sessionId;
-    showNotification(isPartial ? 'Partial session saved!' : 'Session saved successfully!');
+
+    if (isUpdate) {
+      updateSession(session);
+    } else {
+      addSession(session);
+      lastSessionIdRef.current = sessionId;
+    }
+    showNotification(isPartial ? 'Progress auto-saved!' : 'Session saved successfully!');
+
+    // Reset saving flag after short delay
+    setTimeout(() => {
+      isSavingRef.current = false;
+    }, 500);
   };
 
   const stopAndSave = () => {
     setShowStopConfirm(false);
+    skipAutoSaveRef.current = true; // Prevent auto-save from triggering
     setIsPaused(true);
     saveSession(true);
     setTimeout(() => {
+      skipAutoSaveRef.current = false;
       resetSimulation();
     }, 1500);
   };
@@ -282,7 +313,7 @@ export default function RaceSimulator({ config, onComplete }: Props) {
     <div className="bg-gray-900 rounded-xl p-4 sm:p-6 relative">
       {/* Toast Notification */}
       {notification && (
-        <div className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-green-500 text-white px-3 sm:px-4 py-2 rounded-lg shadow-lg animate-pulse z-50 text-sm">
+        <div className="fixed top-4 right-4 sm:top-6 sm:right-6 bg-green-500 text-white px-4 py-3 rounded-lg shadow-xl z-50 text-sm font-medium animate-bounce">
           {notification}
         </div>
       )}

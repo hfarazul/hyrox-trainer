@@ -22,7 +22,7 @@ export interface Alternative {
   name: string;
   description: string;
   equipmentNeeded: string[];
-  intensity: 'low' | 'medium' | 'high';
+  intensity: 'beginner' | 'intermediate' | 'advanced';
   conversionFactor: number;
   videoUrl?: string; // YouTube video URL for exercise demo
   baseValue?: number; // Base value at 100% coverage (e.g., 100 for "100 reps")

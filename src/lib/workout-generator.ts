@@ -97,7 +97,7 @@ export function getBestAlternative(
 
   // Sort alternatives by intensity (prefer high) and conversion factor
   const sortedAlts = [...altsToUse].sort((a, b) => {
-    const intensityOrder = { high: 3, medium: 2, low: 1 };
+    const intensityOrder = { advanced: 3, intermediate: 2, beginner: 1 };
     return (intensityOrder[b.intensity] * b.conversionFactor) -
            (intensityOrder[a.intensity] * a.conversionFactor);
   });
