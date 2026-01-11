@@ -168,7 +168,7 @@ export default function WorkoutDisplay({ workout, onStartSimulation, division = 
                 <div className="flex items-start gap-2 sm:gap-3">
                   <span className="flex-shrink-0 text-gray-400">{getBlockIcon(block)}</span>
                   <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+                    <div className="flex flex-wrap items-center gap-1 sm:gap-2 overflow-hidden">
                       {block.type === 'run' ? (
                         <span className="font-semibold text-white text-sm sm:text-base">
                           Run {block.distance}m
@@ -178,7 +178,7 @@ export default function WorkoutDisplay({ workout, onStartSimulation, division = 
                           <select
                             value={block.alternativeName || station?.name || ''}
                             onChange={(e) => onChangeExercise(idx, e.target.value)}
-                            className="font-semibold text-white text-sm sm:text-base bg-[#1f1f1f] border border-[#404040] rounded px-2 py-1 cursor-pointer hover:border-[#ffed00] focus:border-[#ffed00] focus:outline-none transition-colors"
+                            className="font-semibold text-white text-sm sm:text-base bg-[#1f1f1f] border border-[#404040] rounded px-2 py-1 cursor-pointer hover:border-[#ffed00] focus:border-[#ffed00] focus:outline-none transition-colors max-w-full truncate"
                           >
                             {block.allAlternatives.map(alt => (
                               <option key={alt.name} value={alt.name}>
