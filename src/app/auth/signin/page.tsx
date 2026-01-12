@@ -27,7 +27,7 @@ export default function SignInPage() {
       if (result?.error) {
         setError('Invalid email or password');
       } else {
-        router.push('/');
+        router.push('/app');
         router.refresh();
       }
     } catch {
@@ -41,7 +41,7 @@ export default function SignInPage() {
     <div className="min-h-screen flex items-center justify-center bg-black px-4">
       <div className="w-full max-w-md">
         <div className="bg-gray-900 rounded-xl p-8">
-          <h1 className="text-3xl font-bold text-white text-center mb-2">HYROX Trainer</h1>
+          <h1 className="text-3xl font-bold text-white text-center mb-2"><span className="text-[#ffed00]">HY</span>TRAIN</h1>
           <p className="text-gray-400 text-center mb-8">Sign in to your account</p>
 
           {error && (
@@ -53,7 +53,7 @@ export default function SignInPage() {
           {/* Google Sign In */}
           <button
             type="button"
-            onClick={() => signIn('google', { callbackUrl: '/' })}
+            onClick={() => signIn('google', { callbackUrl: '/app' })}
             className="w-full py-3 bg-white hover:bg-gray-100 rounded-lg font-semibold text-gray-800 flex items-center justify-center gap-3 focus:outline-none focus:ring-2 focus:ring-gray-400"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">

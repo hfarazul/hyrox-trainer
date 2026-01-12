@@ -41,15 +41,15 @@ export default function OnboardingPage() {
         await saveEquipmentAPI(equipment);
       }
 
-      router.push('/');
+      router.push('/app');
     } catch (error) {
       console.error('Failed to save equipment:', error);
-      router.push('/');
+      router.push('/app');
     }
   };
 
   const handleSkip = () => {
-    router.push('/');
+    router.push('/app');
   };
 
   const categories = ['cardio', 'weights', 'bodyweight', 'resistance', 'other'] as const;
