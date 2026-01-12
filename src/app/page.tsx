@@ -1,7 +1,9 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 
 // Dynamically import Spline to avoid SSR issues
@@ -54,8 +56,16 @@ function ChevronDownIcon({ className = "w-6 h-6" }: { className?: string }) {
 }
 
 export default function LandingPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const ctaLink = session ? '/app' : '/auth/signin';
+
+  // Redirect logged-in users directly to app
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.push('/app');
+    }
+  }, [status, router]);
 
   return (
     <div className="min-h-screen bg-black">
