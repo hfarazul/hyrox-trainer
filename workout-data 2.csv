@@ -1,0 +1,70 @@
+Station Order,Station ID,Station Name,Exercise Type,Exercise Name,Description,Official Requirement,Base Value,Unit,Intensity,Conversion Factor,Equipment Needed,Muscle Groups,Men Open Weight,Men Pro Weight,Women Open Weight,Women Pro Weight,Video URL
+1,skierg,SkiErg,Official,SkiErg,Vertical pulling movement simulating cross-country skiing,1000m,1000,m,,,,"lats, shoulders, triceps, core",N/A,N/A,N/A,N/A,https://www.youtube.com/watch?v=dU-gLHDPOj4
+1,skierg,SkiErg,Alternative,Medicine Ball Slams,100 reps of explosive ball slams,,100,reps,high,1,medicine_ball,"lats, shoulders, core",,,,,https://www.youtube.com/watch?v=N7t9BX-DExI
+1,skierg,SkiErg,Alternative,Battle Rope Slams,3 min of alternating slams,,180,s,high,1,battle_ropes,"shoulders, core, cardio",,,,,
+1,skierg,SkiErg,Alternative,Dumbbell Pullovers,50 reps lying pullovers - less specific due to lying position,,50,reps,medium,0.7,dumbbells,"lats, triceps, chest",,,,,
+1,skierg,SkiErg,Alternative,Explosive Lat Pulldowns,75 reps fast concentric pull - mimics SkiErg downward pull pattern,,75,reps,high,1.1,cable_machine,"lats, triceps, core",,,,,
+1,skierg,SkiErg,Alternative,Straight-Arm Cable Pulldowns,75 reps - nearly identical movement pattern to SkiErg,,75,reps,high,1.1,cable_machine,"lats, triceps, core",,,,,
+1,skierg,SkiErg,Alternative,Dead Ball Slams,80 reps with heavy non-bouncing ball,,80,reps,high,1.1,dead_ball,"lats, shoulders, core",,,,,
+1,skierg,SkiErg,Alternative,Kettlebell Swings,75 explosive hip hinge with arm drive down,,75,reps,high,1,kettlebell,"lats, glutes, core",,,,,
+1,skierg,SkiErg,Alternative,Band Pull-Aparts + Tricep Pushdowns,50 each in superset,,100,reps,medium,0.9,resistance_bands,"shoulders, triceps",,,,,
+2,sled_push,Sled Push,Official,Sled Push,Push a weighted sled across the floor,50m,50,m,,,,"quads, glutes, calves, core",152kg,202kg,102kg,152kg,https://www.youtube.com/watch?v=DeTUDPo6_YM
+2,sled_push,Sled Push,Alternative,Weighted Hill Sprints,4x50m uphill with vest,,200,m,high,1,weighted_vest,"quads, glutes, calves",,,,,
+2,sled_push,Sled Push,Alternative,Bear Crawls,100m forward bear crawl - conditioning but different pattern,,100,m,high,0.7,,"core, shoulders, quads",,,,,
+2,sled_push,Sled Push,Alternative,Stair Climbs with Weight,5 floors with heavy backpack,,5,floors,high,1,backpack,"quads, glutes, calves",,,,,
+2,sled_push,Sled Push,Alternative,Incline Treadmill Sprint,3 min at 15% max incline - best gym alternative,,180,s,high,1.1,treadmill,"quads, glutes, calves",,,,,
+2,sled_push,Sled Push,Alternative,Plate Push on Floor,50m pushing 20kg plate on towel on smooth floor,,50,m,high,1.1,"weight_plate, towel","quads, glutes, core",,,,,
+2,sled_push,Sled Push,Alternative,Leg Press Sprints,60 fast tempo reps at moderate weight,,60,reps,high,0.9,leg_press,"quads, glutes",,,,,
+3,sled_pull,Sled Pull,Official,Sled Pull,Pull a weighted sled using a rope,50m,50,m,,,,"back, biceps, grip, core",103kg,153kg,78kg,103kg,https://www.youtube.com/watch?v=Wgi3b40uDEY
+3,sled_pull,Sled Pull,Alternative,Rope Pulls with Weight,Pull weighted bag 50m with rope,,50,m,high,1,"rope, backpack","back, biceps, grip",,,,,
+3,sled_pull,Sled Pull,Alternative,Towel Rows,60 inverted rows using towel over bar,,60,reps,medium,0.9,"towel, pull_up_bar","back, biceps, grip",,,,,
+3,sled_pull,Sled Pull,Alternative,Heavy Bent Over Rows,60 heavy dumbbell rows,,60,reps,high,0.9,dumbbells,"back, biceps",,,,,
+3,sled_pull,Sled Pull,Alternative,Backwards Drags,Drag heavy bag backwards 100m,,100,m,high,1,backpack,"quads, glutes, grip",,,,,
+3,sled_pull,Sled Pull,Alternative,Seated Cable Row Ladder,100 reps increasing weight every 20 - best gym alternative,,100,reps,high,1.1,cable_machine,"back, biceps, grip",,,,,
+3,sled_pull,Sled Pull,Alternative,TRX/Ring Inverted Rows,60 reps with controlled tempo,,60,reps,high,0.95,"trx, rings","back, biceps, grip, core",,,,,
+3,sled_pull,Sled Pull,Alternative,Battle Rope Hand-Over-Hand Pulls,Anchor rope and pull yourself toward anchor point,,50,m,high,1,battle_ropes,"back, biceps, grip",,,,,
+4,burpee_broad_jump,Burpee Broad Jumps,Official,Burpee Broad Jumps,Burpee followed by a forward broad jump,80m,80,m,,,,"full_body, legs, core, cardio",N/A,N/A,N/A,N/A,https://www.youtube.com/watch?v=_yN-Lp7bfzM
+4,burpee_broad_jump,Burpee Broad Jumps,Alternative,Burpee Broad Jumps,Same as official - no equipment needed!,,80,m,high,1,,full_body,,,,,https://www.youtube.com/watch?v=_yN-Lp7bfzM
+4,burpee_broad_jump,Burpee Broad Jumps,Alternative,Burpee Box Jumps,40 burpee to box jump,,40,reps,high,1.1,plyo_box,"full_body, legs",,,,,
+4,burpee_broad_jump,Burpee Broad Jumps,Alternative,Burpee Tuck Jumps,50 burpee to tuck jump,,50,reps,high,0.9,,"full_body, legs",,,,,
+4,burpee_broad_jump,Burpee Broad Jumps,Alternative,Squat Jump Burpees,60 burpee to squat jump,,60,reps,medium,0.8,,"full_body, legs",,,,,
+4,burpee_broad_jump,Burpee Broad Jumps,Alternative,Devil Press,30 reps with 15-20kg dumbbells - burpee + DB snatch,,30,reps,high,1.2,dumbbells,"full_body, shoulders",,,,,
+4,burpee_broad_jump,Burpee Broad Jumps,Alternative,Burpee Hurdle Jumps,40 burpee to low hurdle jump,,40,reps,high,1,hurdles,"full_body, legs",,,,,
+5,rowing,Rowing,Official,Rowing,Row 1000m on a Concept2 rowing machine,1000m,1000,m,,,,"back, legs, core, arms",N/A,N/A,N/A,N/A,https://www.youtube.com/watch?v=6jXyP0ZuqUI
+5,rowing,Rowing,Alternative,Assault Bike,50 calories on assault bike,,50,cal,high,1,assault_bike,"legs, arms, cardio",,,,,
+5,rowing,Rowing,Alternative,Kettlebell Swings + Deadlifts,50 swings + 30 deadlifts,,80,reps,high,0.9,kettlebell,"back, glutes, hamstrings",,,,,
+5,rowing,Rowing,Alternative,Resistance Band Rows + Squats,60 rows + 40 squats superset,,100,reps,medium,0.8,resistance_bands,"back, legs",,,,,
+5,rowing,Rowing,Alternative,Bent Over Rows + Jump Squats,40 rows + 40 jump squats,,80,reps,high,0.9,dumbbells,"back, legs",,,,,
+5,rowing,Rowing,Alternative,Renegade Rows + Air Squats,40 renegade rows + 40 air squats - best no-machine option,,80,reps,high,1,dumbbells,"back, core, legs",,,,,
+5,rowing,Rowing,Alternative,Kettlebell Sumo Deadlift High Pull,75 reps mimics row pull pattern,,75,reps,high,1,kettlebell,"back, traps, legs",,,,,
+5,rowing,Rowing,Alternative,Deadlift + Bent Over Row Complex,50 reps - one deadlift into one row,,50,reps,high,1,"barbell, dumbbells","back, legs, grip",,,,,
+5,rowing,Rowing,Alternative,Bike Sprints,3 min all-out on any stationary bike,,180,s,high,0.9,stationary_bike,"legs, cardio",,,,,
+6,farmers_carry,Farmers Carry,Official,Farmers Carry,Carry heavy kettlebells for distance,200m,200,m,,,,"grip, traps, core, forearms",2x24kg,2x32kg,2x16kg,2x24kg,https://www.youtube.com/watch?v=32vmZmkuQO4
+6,farmers_carry,Farmers Carry,Alternative,Dumbbell Farmers Carry,200m with heavy dumbbells,,200,m,high,1,dumbbells,"grip, traps, core",,,,,https://www.youtube.com/watch?v=j8c9uNjr7nQ
+6,farmers_carry,Farmers Carry,Alternative,Bucket/Jug Carry,200m carrying water jugs,,200,m,medium,0.9,water_jugs,"grip, traps, core",,,,,
+6,farmers_carry,Farmers Carry,Alternative,Heavy Backpack Carry,200m with loaded backpack + weights in hands,,200,m,high,1,"backpack, dumbbells","grip, traps, core",,,,,
+6,farmers_carry,Farmers Carry,Alternative,Suitcase Carry,200m each side with heavy bag,,400,m,medium,0.8,backpack,"grip, obliques, core",,,,,
+6,farmers_carry,Farmers Carry,Alternative,Trap Bar Carry,200m with trap bar for more weight capacity,,200,m,high,1.1,trap_bar,"grip, traps, core",,,,,
+6,farmers_carry,Farmers Carry,Alternative,Mixed Carry,100m farmers + 100m overhead - tests shoulder stability,,200,m,high,1,dumbbells,"grip, traps, shoulders",,,,,
+6,farmers_carry,Farmers Carry,Alternative,Sandbag Bear Hug Carry,200m hugging sandbag or heavy bag,,200,m,high,1,sandbag,"core, grip, back",,,,,
+6,farmers_carry,Farmers Carry,Alternative,Kettlebell Rack Carry,200m with KBs in front rack - more core engagement,,200,m,high,1,kettlebells,"core, grip, shoulders",,,,,
+7,sandbag_lunges,Sandbag Lunges,Official,Sandbag Lunges,Walking lunges while holding a sandbag,100m,100,m,,,,"quads, glutes, core, shoulders",20kg,30kg,10kg,20kg,https://www.youtube.com/watch?v=L4OMLuZKpyw
+7,sandbag_lunges,Sandbag Lunges,Alternative,Dumbbell Lunges,100m with dumbbells at sides,,100,m,high,0.9,dumbbells,"quads, glutes",,,,,
+7,sandbag_lunges,Sandbag Lunges,Alternative,Backpack Lunges,100m with weighted backpack,,100,m,high,1,backpack,"quads, glutes, core",,,,,
+7,sandbag_lunges,Sandbag Lunges,Alternative,Goblet Lunges,100m holding kettlebell at chest,,100,m,high,0.95,kettlebell,"quads, glutes, core",,,,,
+7,sandbag_lunges,Sandbag Lunges,Alternative,Bodyweight Lunges,150m bodyweight walking lunges,,150,m,medium,0.7,,"quads, glutes",,,,,
+7,sandbag_lunges,Sandbag Lunges,Alternative,Bulgarian Split Squats,30 each leg with weight,,60,reps,high,0.9,dumbbells,"quads, glutes",,,,,
+7,sandbag_lunges,Sandbag Lunges,Alternative,Front Rack Barbell Lunges,100m with barbell in front rack - best gym alternative,,100,m,high,1.1,barbell,"quads, glutes, core",,,,,
+7,sandbag_lunges,Sandbag Lunges,Alternative,Zercher Lunges,100m with barbell in elbow crooks - mimics sandbag bear hug,,100,m,high,1.1,barbell,"quads, glutes, core, biceps",,,,,
+7,sandbag_lunges,Sandbag Lunges,Alternative,Weighted Vest Lunges,100m with vest + hold DBs for distributed load,,100,m,high,1,"weighted_vest, dumbbells","quads, glutes, core",,,,,
+7,sandbag_lunges,Sandbag Lunges,Alternative,Bear Hug Plate Lunges,100m hugging a 20kg weight plate,,100,m,high,1,weight_plate,"quads, glutes, core",,,,,
+8,wall_balls,Wall Balls,Official,Wall Balls,Throw medicine ball to target on wall,100 reps (75 women),100,reps,,,,"quads, glutes, shoulders, core",6kg/3m target,9kg/3m target,4kg/2.7m target,6kg/3m target,https://www.youtube.com/watch?v=lSNZGkPoLk4
+8,wall_balls,Wall Balls,Alternative,Wall Balls,Same as official with medicine ball,,100,reps,high,1,"medicine_ball, wall","quads, glutes, shoulders",,,,,https://www.youtube.com/watch?v=EqjGKsiIMCE
+8,wall_balls,Wall Balls,Alternative,Thrusters,75 dumbbell thrusters,,75,reps,high,1,dumbbells,"quads, glutes, shoulders",,,,,https://www.youtube.com/watch?v=JQnNas11CQo
+8,wall_balls,Wall Balls,Alternative,Goblet Squat to Press,75 goblet squat + press,,75,reps,high,0.95,kettlebell,"quads, glutes, shoulders",,,,,
+8,wall_balls,Wall Balls,Alternative,Jump Squats + Push Press,50 jump squats + 50 push press,,100,reps,high,0.9,dumbbells,"quads, glutes, shoulders",,,,,
+8,wall_balls,Wall Balls,Alternative,Squat + Overhead Reach,100 bodyweight squat with jump reach - no resistance limits transfer,,100,reps,low,0.5,,"quads, glutes, shoulders",,,,,
+8,wall_balls,Wall Balls,Alternative,Barbell Thrusters,75 reps at 20-30kg - best gym alternative,,75,reps,high,1.1,barbell,"quads, glutes, shoulders",,,,,
+8,wall_balls,Wall Balls,Alternative,Landmine Squat to Press,75 reps angled pressing pattern,,75,reps,high,1,"barbell, landmine","quads, glutes, shoulders",,,,,
+8,wall_balls,Wall Balls,Alternative,Single DB Thruster,50 each arm for unilateral strength,,100,reps,high,1,dumbbell,"quads, glutes, shoulders",,,,,
+8,wall_balls,Wall Balls,Alternative,Clean and Press,60 full body explosive reps,,60,reps,high,1,"barbell, dumbbells","full_body, shoulders",,,,,

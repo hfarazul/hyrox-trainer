@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__playwright__browser_take_screenshot",
+      "Bash(pkill:*)",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_close",
+      "WebSearch",
+      "Bash(curl:*)",
+      "Bash(npm install:*)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_fill_form",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_resize",
+      "WebFetch(domain:hybridathleteclub.com)",
+      "WebFetch(domain:www.muscleandstrength.com)",
+      "Bash(xargs basename:*)"
+    ]
+  }
+}
