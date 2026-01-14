@@ -70,6 +70,15 @@ export async function addSessionAPI(session: Omit<WorkoutSession, 'id'>): Promis
   return response.json();
 }
 
+export async function deleteSessionAPI(sessionId: string): Promise<void> {
+  const response = await fetch(`/api/sessions?id=${encodeURIComponent(sessionId)}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok && response.status !== 401) {
+    throw new Error('Failed to delete session');
+  }
+}
+
 // Race Goal API
 export async function fetchRaceGoal(): Promise<RaceGoal> {
   const response = await fetch('/api/race-goal');

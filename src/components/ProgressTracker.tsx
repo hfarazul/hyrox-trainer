@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import { WorkoutSession, PerformanceRanking } from '@/lib/types';
 import { HYROX_STATIONS } from '@/lib/hyrox-data';
 import { loadSessions, deleteSession, formatTime } from '@/lib/storage';
+import { fetchSessions, deleteSessionAPI } from '@/lib/api';
 import { getRankingInfo, RankingIcon } from '@/lib/workout-generator';
 
 // SVG icon component for rankings
@@ -45,17 +47,58 @@ function RankingIconSVG({ icon, className = "w-4 h-4" }: { icon: RankingIcon; cl
 type TabType = 'overview' | 'trends' | 'history';
 
 export default function ProgressTracker() {
+  const { data: authSession } = useSession();
   const [sessions, setSessions] = useState<WorkoutSession[]>([]);
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setSessions(loadSessions());
-  }, []);
+    async function loadData() {
+      setIsLoading(true);
+      try {
+        if (authSession?.user?.id) {
+          // Load from database for authenticated users
+          const apiSessions = await fetchSessions();
+          if (apiSessions.length > 0) {
+            setSessions(apiSessions);
+          } else {
+            // Fallback to localStorage if no DB sessions
+            setSessions(loadSessions());
+          }
+        } else {
+          // Load from localStorage for guests
+          setSessions(loadSessions());
+        }
+      } catch (error) {
+        console.error('Failed to load sessions:', error);
+        setSessions(loadSessions());
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadData();
+  }, [authSession]);
 
-  const handleDeleteSession = (sessionId: string) => {
-    deleteSession(sessionId);
-    setSessions(loadSessions());
+  const handleDeleteSession = async (sessionId: string) => {
+    try {
+      if (authSession?.user?.id) {
+        // Delete from database for authenticated users
+        await deleteSessionAPI(sessionId);
+        // Refresh sessions from database
+        const apiSessions = await fetchSessions();
+        setSessions(apiSessions.length > 0 ? apiSessions : loadSessions());
+      } else {
+        // Delete from localStorage for guests
+        deleteSession(sessionId);
+        setSessions(loadSessions());
+      }
+    } catch (error) {
+      console.error('Failed to delete session:', error);
+      // Fallback to localStorage delete
+      deleteSession(sessionId);
+      setSessions(loadSessions());
+    }
     setDeleteConfirmId(null);
   };
 
@@ -212,6 +255,23 @@ export default function ProgressTracker() {
       day: 'numeric'
     });
   };
+
+  if (isLoading) {
+    return (
+      <div className="bg-[#141414] rounded-xl p-4 sm:p-6">
+        <h2 className="text-lg sm:text-2xl font-black tracking-wide uppercase text-white mb-4 sm:mb-6">Progress Tracker</h2>
+        <div className="text-center py-8 sm:py-12">
+          <div className="flex justify-center mb-3 sm:mb-4">
+            <svg className="w-10 h-10 text-[#ffed00] animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </div>
+          <p className="text-gray-400 text-sm sm:text-base">Loading sessions...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (sessions.length === 0) {
     return (

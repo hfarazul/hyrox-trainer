@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useSession } from 'next-auth/react';
 import { RaceGoal } from '@/lib/types';
 import { HYROX_STATIONS, DIVISION_INFO, ROX_ZONE_TRANSITION_TIME_SECONDS } from '@/lib/hyrox-data';
 import { saveRaceGoal, loadRaceGoal, formatTime } from '@/lib/storage';
+import { fetchRaceGoal, saveRaceGoalAPI } from '@/lib/api';
 import { calculatePacingPlan } from '@/lib/workout-generator';
 
 const DEFAULT_GOAL: RaceGoal = {
@@ -14,9 +16,11 @@ const DEFAULT_GOAL: RaceGoal = {
 };
 
 export default function PacingCalculator() {
+  const { data: authSession } = useSession();
   const [goal, setGoal] = useState<RaceGoal>(DEFAULT_GOAL);
   const [pacingPlan, setPacingPlan] = useState<ReturnType<typeof calculatePacingPlan>>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Local string state for inputs (allows free typing)
   const [targetTimeInput, setTargetTimeInput] = useState(String(DEFAULT_GOAL.targetTime));
@@ -24,14 +28,37 @@ export default function PacingCalculator() {
 
   // Load saved goal on mount
   useEffect(() => {
-    const saved = loadRaceGoal();
-    if (saved) {
-      setGoal(saved);
-      setTargetTimeInput(String(saved.targetTime));
-      setFiveKTimeInput(String(saved.fiveKTime));
+    async function loadData() {
+      try {
+        if (authSession?.user?.id) {
+          // Load from database for authenticated users
+          const apiGoal = await fetchRaceGoal();
+          setGoal(apiGoal);
+          setTargetTimeInput(String(apiGoal.targetTime));
+          setFiveKTimeInput(String(apiGoal.fiveKTime));
+        } else {
+          // Load from localStorage for guests
+          const saved = loadRaceGoal();
+          if (saved) {
+            setGoal(saved);
+            setTargetTimeInput(String(saved.targetTime));
+            setFiveKTimeInput(String(saved.fiveKTime));
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load race goal:', error);
+        // Fallback to localStorage
+        const saved = loadRaceGoal();
+        if (saved) {
+          setGoal(saved);
+          setTargetTimeInput(String(saved.targetTime));
+          setFiveKTimeInput(String(saved.fiveKTime));
+        }
+      }
+      setIsLoaded(true);
     }
-    setIsLoaded(true);
-  }, []);
+    loadData();
+  }, [authSession]);
 
   // Calculate pacing plan and save goal (only after initial load)
   useEffect(() => {
@@ -40,9 +67,24 @@ export default function PacingCalculator() {
 
     // Only save after initial load to prevent race condition
     if (isLoaded) {
+      // Always save to localStorage as backup
       saveRaceGoal(goal);
+
+      // Debounce database save for authenticated users
+      if (authSession?.user?.id) {
+        if (saveTimeoutRef.current) {
+          clearTimeout(saveTimeoutRef.current);
+        }
+        saveTimeoutRef.current = setTimeout(async () => {
+          try {
+            await saveRaceGoalAPI(goal);
+          } catch (error) {
+            console.error('Failed to save race goal to database:', error);
+          }
+        }, 500);
+      }
     }
-  }, [goal, isLoaded]);
+  }, [goal, isLoaded, authSession]);
 
   // Blur handlers - validate and update goal
   const handleTargetTimeBlur = useCallback(() => {

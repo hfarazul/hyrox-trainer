@@ -27,6 +27,41 @@ export async function GET() {
   }
 }
 
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const sessionId = searchParams.get('id');
+
+    if (!sessionId) {
+      return NextResponse.json({ error: 'Session ID required' }, { status: 400 });
+    }
+
+    // Verify the session belongs to the user
+    const workoutSession = await prisma.workoutSession.findFirst({
+      where: { id: sessionId, userId: session.user.id },
+    });
+
+    if (!workoutSession) {
+      return NextResponse.json({ error: 'Session not found' }, { status: 404 });
+    }
+
+    await prisma.workoutSession.delete({
+      where: { id: sessionId },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting session:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
