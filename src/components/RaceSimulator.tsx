@@ -5,6 +5,8 @@ import { HYROX_STATIONS } from '@/lib/hyrox-data';
 import { WorkoutSession, StationResult, UserEquipment, RaceSimulatorConfig, WorkoutBlock, PerformanceRanking } from '@/lib/types';
 import { getBestAlternative, calculateRanking, getRankingInfo, RankingIcon } from '@/lib/workout-generator';
 import { addSession, updateSession, generateId, formatTime, loadEquipment, loadSessions } from '@/lib/storage';
+import { addSessionAPI } from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 // SVG icon component for rankings
 function RankingIconSVG({ icon, className = "w-6 h-6" }: { icon: RankingIcon; className?: string }) {
@@ -56,6 +58,7 @@ interface Props {
 }
 
 export default function RaceSimulator({ config, onComplete }: Props) {
+  const { data: authSession } = useSession();
   const [phase, setPhase] = useState<SimulationPhase>('not_started');
   const [currentActivity, setCurrentActivity] = useState<CurrentActivity | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -250,7 +253,7 @@ export default function RaceSimulator({ config, onComplete }: Props) {
     setTimeout(() => setNotification(null), 3000);
   };
 
-  const saveSession = (isPartial = false) => {
+  const saveSession = async (isPartial = false) => {
     // Prevent duplicate saves from rapid clicks
     if (isSavingRef.current) return;
     isSavingRef.current = true;
@@ -269,12 +272,38 @@ export default function RaceSimulator({ config, onComplete }: Props) {
       estimatedDuration: config?.workout?.duration
     };
 
-    if (isUpdate) {
+    // Save to database for authenticated users, localStorage for guests
+    if (authSession?.user?.id && !isUpdate) {
+      try {
+        const savedSession = await addSessionAPI({
+          date: session.date,
+          type: session.type,
+          totalTime: session.totalTime,
+          notes: session.partial ? 'Partial workout' : undefined,
+          stations: session.stations.map(s => ({
+            stationId: s.stationId,
+            alternativeUsed: s.alternativeUsed,
+            timeSeconds: s.timeSeconds,
+            completed: s.completed ?? true,
+            notes: s.notes,
+          })),
+        });
+        lastSessionIdRef.current = savedSession.id;
+        // Also save to localStorage as backup
+        session.id = savedSession.id;
+        addSession(session);
+      } catch (error) {
+        console.error('Failed to save to database, using localStorage:', error);
+        addSession(session);
+        lastSessionIdRef.current = sessionId;
+      }
+    } else if (isUpdate) {
       updateSession(session);
     } else {
       addSession(session);
       lastSessionIdRef.current = sessionId;
     }
+
     showNotification(isPartial ? 'Progress auto-saved!' : 'Session saved successfully!');
 
     // Reset saving flag after short delay
