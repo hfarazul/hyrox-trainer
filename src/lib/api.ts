@@ -36,6 +36,7 @@ export async function fetchSessions(): Promise<WorkoutSession[]> {
     type: string;
     totalTime: number;
     notes?: string;
+    gymMode?: boolean;
     stations: Array<{
       stationId: string;
       alternativeUsed?: string;
@@ -48,6 +49,7 @@ export async function fetchSessions(): Promise<WorkoutSession[]> {
     date: session.date,
     type: session.type,
     totalTime: session.totalTime,
+    gymMode: session.gymMode,
     stations: session.stations.map(s => ({
       stationId: s.stationId,
       alternativeUsed: s.alternativeUsed,

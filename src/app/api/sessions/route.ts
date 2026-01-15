@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { type, totalTime, notes, stations } = body;
+    const { type, totalTime, notes, stations, gymMode } = body;
 
     if (!type || typeof totalTime !== 'number') {
       return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
@@ -102,6 +102,7 @@ export async function POST(request: NextRequest) {
         type,
         totalTime,
         notes,
+        gymMode: gymMode ?? false,
         stations: stations ? {
           create: stations.map((s: { stationId: string; alternativeUsed?: string; timeSeconds: number; completed?: boolean; notes?: string }) => ({
             stationId: s.stationId,

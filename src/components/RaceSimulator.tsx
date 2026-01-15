@@ -281,6 +281,7 @@ export default function RaceSimulator({ config, onComplete }: Props) {
           type: session.type,
           totalTime: session.totalTime,
           notes: session.partial ? 'Partial workout' : undefined,
+          gymMode: session.gymMode,
           stations: session.stations.map(s => ({
             stationId: s.stationId,
             alternativeUsed: s.alternativeUsed,

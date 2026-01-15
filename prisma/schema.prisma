@@ -84,6 +84,7 @@ model WorkoutSession {
   type      String   // 'full_simulation', 'quick_workout', 'station_practice'
   totalTime Int      // in seconds
   notes     String?
+  gymMode   Boolean  @default(false) // true if workout was done without runs
 
   user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   stations StationResult[]
