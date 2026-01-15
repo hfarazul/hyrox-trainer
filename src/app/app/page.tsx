@@ -33,6 +33,7 @@ export default function Home() {
   const [simulatorConfig, setSimulatorConfig] = useState<RaceSimulatorConfig | null>(null);
   const [excludedExercises, setExcludedExercises] = useState<string[]>([]);
   const [showExcludePanel, setShowExcludePanel] = useState(false);
+  const [includeRuns, setIncludeRuns] = useState(true);
   const [division, setDivision] = useState<Division>('men_open');
   const [userProgram, setUserProgram] = useState<UserProgram | null>(null);
   const [programWorkoutContext, setProgramWorkoutContext] = useState<{ week: number; dayOfWeek: number } | null>(null);
@@ -122,24 +123,25 @@ export default function Home() {
 
     switch (workoutType) {
       case 'full':
-        workout = generateFullSimulation(equipment, true, excludedExercises);
+        workout = generateFullSimulation(equipment, includeRuns, excludedExercises);
         break;
       case 'quick':
-        workout = generateQuickWorkout(equipment, parseInt(quickDuration) || 30, quickFocus, excludedExercises);
+        workout = generateQuickWorkout(equipment, parseInt(quickDuration) || 30, quickFocus, excludedExercises, includeRuns);
         break;
       case 'station':
         workout = generateStationPractice(
           selectedStations.length > 0 ? selectedStations : ['skierg', 'wall_balls'],
           equipment,
           3,
-          excludedExercises
+          excludedExercises,
+          includeRuns
         );
         break;
       case 'coverage':
-        workout = generateRaceCoverageWorkout(equipment, coveragePercent, false, excludedExercises);
+        workout = generateRaceCoverageWorkout(equipment, coveragePercent, false, excludedExercises, includeRuns);
         break;
       default:
-        workout = generateFullSimulation(equipment, true, excludedExercises);
+        workout = generateFullSimulation(equipment, includeRuns, excludedExercises);
     }
 
     setCurrentWorkout(workout);
@@ -234,7 +236,8 @@ export default function Home() {
           equipment,
           scheduledWorkout.params.duration || 30,
           scheduledWorkout.params.focus || 'mixed',
-          excludedExercises
+          excludedExercises,
+          includeRuns
         );
         break;
       case 'station':
@@ -242,7 +245,8 @@ export default function Home() {
           scheduledWorkout.params.stations || ['skierg', 'wall_balls'],
           equipment,
           scheduledWorkout.params.sets || 2,
-          excludedExercises
+          excludedExercises,
+          includeRuns
         );
         break;
       case 'coverage':
@@ -250,11 +254,12 @@ export default function Home() {
           equipment,
           scheduledWorkout.params.coverage || 50,
           division.startsWith('women'),
-          excludedExercises
+          excludedExercises,
+          includeRuns
         );
         break;
       case 'full':
-        workout = generateFullSimulation(equipment, true, excludedExercises);
+        workout = generateFullSimulation(equipment, includeRuns, excludedExercises);
         break;
       default:
         return; // Rest day, do nothing
@@ -644,6 +649,33 @@ export default function Home() {
                       </button>
                     )}
                   </div>
+                )}
+              </div>
+
+              {/* Include Running Toggle */}
+              <div className="mb-4 p-3 bg-[#1f1f1f] rounded-lg border border-[#262626]">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="text-white font-medium text-sm">Include Running</h4>
+                    <p className="text-gray-500 text-xs">Add run segments between stations</p>
+                  </div>
+                  <button
+                    onClick={() => setIncludeRuns(!includeRuns)}
+                    className={`relative w-11 h-6 rounded-full transition-colors ${
+                      includeRuns ? 'bg-[#ffed00]' : 'bg-gray-600'
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
+                        includeRuns ? 'left-6' : 'left-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+                {!includeRuns && (
+                  <p className="mt-2 text-xs text-[#ffed00]">
+                    Gym mode: Stations only, no running
+                  </p>
                 )}
               </div>
 

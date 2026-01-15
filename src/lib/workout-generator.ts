@@ -170,7 +170,8 @@ export function generateStationPractice(
   stationIds: string[],
   userEquipment: UserEquipment[],
   sets: number = 3,
-  excludedExercises: string[] = []
+  excludedExercises: string[] = [],
+  includeRuns: boolean = true
 ): GeneratedWorkout {
   const availableIds = userEquipment.filter(e => e.available).map(e => e.equipmentId);
   const mainWorkout: WorkoutBlock[] = [];
@@ -180,11 +181,13 @@ export function generateStationPractice(
       const station = HYROX_STATIONS.find(s => s.id === stationId);
       if (!station) continue;
 
-      mainWorkout.push({
-        type: 'run',
-        distance: 400,
-        notes: '400m run (recovery between stations)'
-      });
+      if (includeRuns) {
+        mainWorkout.push({
+          type: 'run',
+          distance: 400,
+          notes: '400m run (recovery between stations)'
+        });
+      }
 
       const alternative = getBestAlternative(stationId, availableIds, excludedExercises);
       mainWorkout.push({
@@ -223,7 +226,8 @@ export function generateQuickWorkout(
   userEquipment: UserEquipment[],
   durationMinutes: number = 30,
   focus: 'cardio' | 'strength' | 'mixed' = 'mixed',
-  excludedExercises: string[] = []
+  excludedExercises: string[] = [],
+  includeRuns: boolean = true
 ): GeneratedWorkout {
   const availableIds = userEquipment.filter(e => e.available).map(e => e.equipmentId);
   const mainWorkout: WorkoutBlock[] = [];
@@ -241,11 +245,13 @@ export function generateQuickWorkout(
   const selectedStations = shuffleArray(stations).slice(0, numStations);
 
   for (const station of selectedStations) {
-    mainWorkout.push({
-      type: 'run',
-      distance: 500,
-      notes: '500m run'
-    });
+    if (includeRuns) {
+      mainWorkout.push({
+        type: 'run',
+        distance: 500,
+        notes: '500m run'
+      });
+    }
 
     const alternative = getBestAlternative(station.id, availableIds, excludedExercises);
     mainWorkout.push({
@@ -273,7 +279,8 @@ export function generateRaceCoverageWorkout(
   userEquipment: UserEquipment[],
   coveragePercent: number = 50,
   isWomen: boolean = false,
-  excludedExercises: string[] = []
+  excludedExercises: string[] = [],
+  includeRuns: boolean = true
 ): GeneratedWorkout {
   const availableIds = userEquipment.filter(e => e.available).map(e => e.equipmentId);
   const mainWorkout: WorkoutBlock[] = [];
@@ -284,11 +291,13 @@ export function generateRaceCoverageWorkout(
 
   for (const station of HYROX_STATIONS) {
     // Add scaled run
-    mainWorkout.push({
-      type: 'run',
-      distance: runDistance,
-      notes: `${runDistance}m run (${coveragePercent}% of race distance)`
-    });
+    if (includeRuns) {
+      mainWorkout.push({
+        type: 'run',
+        distance: runDistance,
+        notes: `${runDistance}m run (${coveragePercent}% of race distance)`
+      });
+    }
 
     // Get official work for this station
     const work = OFFICIAL_WORK[station.id as keyof typeof OFFICIAL_WORK];
