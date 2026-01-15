@@ -158,7 +158,7 @@ export function generateFullSimulation(
   return {
     id: generateId(),
     name: 'Full HYROX Simulation',
-    duration: 75,
+    duration: includeRuns ? 75 : 35,  // ~40 min for 8x1km runs removed
     difficulty: 'hard',
     warmup: getWarmup(),
     mainWorkout,
@@ -209,12 +209,15 @@ export function generateStationPractice(
     }
   }
 
+  // 5 min per station-set with runs, 3 min without (400m run ≈ 2 min)
+  const timePerStationSet = includeRuns ? 5 : 3;
+
   return {
     id: generateId(),
     name: `Station Practice: ${stationIds.map(id =>
       HYROX_STATIONS.find(s => s.id === id)?.name
     ).join(', ')}`,
-    duration: 30 + (stationIds.length * sets * 5),
+    duration: 30 + (stationIds.length * sets * timePerStationSet),
     difficulty: 'medium',
     warmup: getWarmup(),
     mainWorkout,
@@ -264,10 +267,14 @@ export function generateQuickWorkout(
     });
   }
 
+  // 500m run ≈ 2.5 min per station, adjust duration when runs excluded
+  const runTimeDeduction = includeRuns ? 0 : numStations * 2.5;
+  const adjustedDuration = Math.round(durationMinutes - runTimeDeduction);
+
   return {
     id: generateId(),
     name: `${durationMinutes} Min ${focus.charAt(0).toUpperCase() + focus.slice(1)} Workout`,
-    duration: durationMinutes,
+    duration: Math.max(adjustedDuration, Math.round(durationMinutes * 0.6)),  // Floor at 60%
     difficulty: durationMinutes > 45 ? 'hard' : durationMinutes > 25 ? 'medium' : 'easy',
     warmup: getShortWarmup(),
     mainWorkout,
@@ -341,8 +348,8 @@ export function generateRaceCoverageWorkout(
     });
   }
 
-  // Estimate duration based on coverage
-  const baseDuration = 75; // Full race ~75 min
+  // Estimate duration based on coverage (35 min without runs, 75 min with)
+  const baseDuration = includeRuns ? 75 : 35;
   const estimatedDuration = Math.round(baseDuration * scale);
 
   return {

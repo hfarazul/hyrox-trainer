@@ -163,6 +163,7 @@ export default function Home() {
     setSimulatorConfig({
       workout,
       type: typeMap[workoutType],
+      gymMode: !includeRuns,
     });
     setActiveTab('simulator');
   };
@@ -278,6 +279,7 @@ export default function Home() {
       workout,
       type: scheduledWorkout.type === 'full' ? 'full_simulation' :
             scheduledWorkout.type === 'station' ? 'station_practice' : 'quick_workout',
+      gymMode: !includeRuns,
     });
     setActiveTab('simulator');
   };

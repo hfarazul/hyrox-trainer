@@ -611,6 +611,11 @@ export default function ProgressTracker() {
                         Partial
                       </span>
                     )}
+                    {session.gymMode && (
+                      <span className="text-xs px-1.5 py-0.5 bg-gray-700 text-gray-300 rounded">
+                        GYM
+                      </span>
+                    )}
                     {session.ranking && (
                       <span className={`text-xs px-1.5 py-0.5 rounded inline-flex items-center gap-1 ${getRankingInfo(session.ranking).bgColor}`}>
                         <RankingIconSVG icon={getRankingInfo(session.ranking).icon} className="w-3 h-3" />

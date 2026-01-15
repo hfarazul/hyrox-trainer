@@ -54,11 +54,13 @@ export interface WorkoutSession {
   ranking?: PerformanceRanking;
   isPR?: boolean; // true if this was a personal record
   estimatedDuration?: number; // expected workout duration in minutes
+  gymMode?: boolean; // true if workout was generated without runs
 }
 
 export interface RaceSimulatorConfig {
   workout: GeneratedWorkout;
   type: 'full_simulation' | 'station_practice' | 'quick_workout';
+  gymMode?: boolean; // true if workout was generated without runs
 }
 
 export interface StationResult {

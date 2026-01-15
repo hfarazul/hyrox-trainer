@@ -269,7 +269,8 @@ export default function RaceSimulator({ config, onComplete }: Props) {
       partial: isPartial,
       ranking: isPartial ? undefined : ranking || undefined,
       isPR: isPartial ? undefined : isPR,
-      estimatedDuration: config?.workout?.duration
+      estimatedDuration: config?.workout?.duration,
+      gymMode: config?.gymMode,
     };
 
     // Save to database for authenticated users, localStorage for guests
