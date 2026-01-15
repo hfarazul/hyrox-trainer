@@ -11,7 +11,7 @@ import ProgressTracker from '@/components/ProgressTracker';
 import ProgramSelector from '@/components/ProgramSelector';
 import WeeklyCalendar from '@/components/WeeklyCalendar';
 import { UserEquipment, GeneratedWorkout, RaceSimulatorConfig, UserProgram, ScheduledWorkout } from '@/lib/types';
-import { loadEquipment, loadExcludedExercises, saveExcludedExercises, loadUserProgram, saveUserProgram, clearUserProgram, generateId, addCompletedProgramWorkout } from '@/lib/storage';
+import { loadEquipment, loadExcludedExercises, saveExcludedExercises, loadUserProgram, saveUserProgram, clearUserProgram, generateId, addCompletedProgramWorkout, saveIncludeRuns, loadIncludeRuns } from '@/lib/storage';
 import { fetchEquipment, fetchUserProgram, startProgramAPI, quitProgramAPI, completeWorkoutAPI } from '@/lib/api';
 import { generateFullSimulation, generateQuickWorkout, generateStationPractice, generateRaceCoverageWorkout, getAllExerciseNames } from '@/lib/workout-generator';
 import { HYROX_STATIONS, DIVISION_INFO } from '@/lib/hyrox-data';
@@ -77,6 +77,11 @@ export default function Home() {
     if (saved.length > 0) {
       setExcludedExercises(saved);
     }
+  }, []);
+
+  // Load include runs preference (gym mode toggle)
+  useEffect(() => {
+    setIncludeRuns(loadIncludeRuns());
   }, []);
 
   // Load user program
@@ -660,7 +665,11 @@ export default function Home() {
                     <p className="text-gray-500 text-xs">Add run segments between stations</p>
                   </div>
                   <button
-                    onClick={() => setIncludeRuns(!includeRuns)}
+                    onClick={() => {
+                      const newValue = !includeRuns;
+                      setIncludeRuns(newValue);
+                      saveIncludeRuns(newValue);
+                    }}
                     className={`relative w-11 h-6 rounded-full transition-colors ${
                       includeRuns ? 'bg-[#ffed00]' : 'bg-gray-600'
                     }`}

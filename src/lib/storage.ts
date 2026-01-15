@@ -8,6 +8,7 @@ const STORAGE_KEYS = {
   RACE_GOAL: 'hyrox_race_goal',
   EXCLUDED_EXERCISES: 'hyrox_excluded_exercises',
   USER_PROGRAM: 'hyrox_user_program',
+  INCLUDE_RUNS: 'hyrox_include_runs',
 };
 
 const MAX_SESSIONS = 100;
@@ -150,6 +151,24 @@ export function loadExcludedExercises(): string[] {
     console.error('Failed to parse excluded exercises');
   }
   return [];
+}
+
+// Include runs preference (gym mode toggle)
+export function saveIncludeRuns(includeRuns: boolean): void {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(STORAGE_KEYS.INCLUDE_RUNS, JSON.stringify(includeRuns));
+  }
+}
+
+export function loadIncludeRuns(): boolean {
+  if (typeof window === 'undefined') return true;
+  const data = localStorage.getItem(STORAGE_KEYS.INCLUDE_RUNS);
+  if (!data) return true; // Default to true (include runs)
+  try {
+    return JSON.parse(data) === false ? false : true;
+  } catch {
+    return true;
+  }
 }
 
 export function generateId(): string {
