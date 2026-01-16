@@ -1,0 +1,24 @@
+<svg width="2400" height="600" viewBox="0 0 2400 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- HYTRAIN Tagline - Print Ready (3x resolution) -->
+  <!-- Recommended print size: 12-14 inches wide, upper back -->
+  <!-- Colors: Yellow #FACC15, White #FFFFFF -->
+  <!-- Background: Transparent (for black shirt) -->
+
+  <defs>
+    <style>
+      .tagline-text {
+        font-family: 'Arial Black', 'Helvetica Neue', Impact, sans-serif;
+        font-weight: 900;
+        font-size: 168px;
+        letter-spacing: -3px;
+        text-anchor: middle;
+      }
+    </style>
+  </defs>
+
+  <!-- TRAIN FOR HYROX. in White -->
+  <text x="1200" y="240" class="tagline-text" fill="#FFFFFF">TRAIN FOR HYROX.</text>
+
+  <!-- ANYWHERE. in Yellow -->
+  <text x="1200" y="450" class="tagline-text" fill="#FACC15">ANYWHERE.</text>
+</svg>

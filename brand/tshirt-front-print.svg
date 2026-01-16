@@ -1,0 +1,23 @@
+<svg width="1500" height="360" viewBox="0 0 1500 360" xmlns="http://www.w3.org/2000/svg">
+  <!-- HYTRAIN Logo - Print Ready (3x resolution) -->
+  <!-- Recommended print size: 10-12 inches wide, centered on chest -->
+  <!-- Colors: Yellow #FACC15, White #FFFFFF -->
+  <!-- Background: Transparent (for black shirt) -->
+
+  <defs>
+    <style>
+      .logo-text {
+        font-family: 'Arial Black', 'Helvetica Neue', Impact, sans-serif;
+        font-weight: 900;
+        font-size: 240px;
+        letter-spacing: -6px;
+      }
+    </style>
+  </defs>
+
+  <!-- HY in Yellow -->
+  <text x="30" y="255" class="logo-text" fill="#FACC15">HY</text>
+
+  <!-- TRAIN in White -->
+  <text x="384" y="255" class="logo-text" fill="#FFFFFF">TRAIN</text>
+</svg>

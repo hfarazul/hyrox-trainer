@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hytrain T-shirt Design Preview</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #1a1a1a;
+      color: white;
+      font-family: system-ui, sans-serif;
+      padding: 40px;
+      min-height: 100vh;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 24px;
+      color: #888;
+    }
+    .container {
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      flex-wrap: wrap;
+    }
+    .tshirt {
+      text-align: center;
+    }
+    .tshirt h2 {
+      margin-bottom: 20px;
+      color: #666;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    .tshirt-preview {
+      width: 350px;
+      height: 420px;
+      background: #111;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #333;
+      position: relative;
+    }
+    .tshirt-preview::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 40px;
+      background: #111;
+      border-radius: 0 0 40px 40px;
+      border: 1px solid #333;
+      border-top: none;
+    }
+    .front-design {
+      font-family: 'Inter', 'Arial Black', sans-serif;
+      font-weight: 900;
+      font-size: 48px;
+      letter-spacing: -2px;
+    }
+    .front-design .hy {
+      color: #FACC15;
+    }
+    .front-design .train {
+      color: #FFFFFF;
+    }
+    .back-design {
+      font-family: 'Inter', 'Arial Black', sans-serif;
+      font-weight: 900;
+      font-size: 28px;
+      letter-spacing: -1px;
+      text-align: center;
+      line-height: 1.4;
+    }
+    .back-design .line1 {
+      color: #FFFFFF;
+    }
+    .back-design .line2 {
+      color: #FACC15;
+    }
+    .specs {
+      margin-top: 60px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      background: #222;
+      padding: 30px;
+      border-radius: 12px;
+    }
+    .specs h3 {
+      margin-bottom: 20px;
+      color: #FACC15;
+    }
+    .specs ul {
+      list-style: none;
+      color: #aaa;
+      line-height: 2;
+    }
+    .specs code {
+      background: #333;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Hytrain T-shirt Design Preview</h1>
+
+  <div class="container">
+    <div class="tshirt">
+      <h2>Front</h2>
+      <div class="tshirt-preview">
+        <div class="front-design">
+          <span class="hy">HY</span><span class="train">TRAIN</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tshirt">
+      <h2>Back</h2>
+      <div class="tshirt-preview">
+        <div class="back-design">
+          <div class="line1">TRAIN FOR HYROX.</div>
+          <div class="line2">ANYWHERE.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="specs">
+    <h3>Print Specifications</h3>
+    <ul>
+      <li><strong>Shirt Color:</strong> Black</li>
+      <li><strong>Yellow:</strong> <code>#FACC15</code> (Pantone 7405 C)</li>
+      <li><strong>White:</strong> <code>#FFFFFF</code></li>
+      <li><strong>Font:</strong> Inter Black (or Arial Black)</li>
+      <li><strong>Front Size:</strong> 10-12" wide, centered on chest</li>
+      <li><strong>Back Size:</strong> 12-14" wide, upper back</li>
+      <li><strong>Recommended Blank:</strong> Bella+Canvas 3001 or AS Colour 5001</li>
+    </ul>
+  </div>
+</body>
+</html>

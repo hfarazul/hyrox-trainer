@@ -1,0 +1,22 @@
+<svg width="500" height="120" viewBox="0 0 500 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- HYTRAIN Logo - Front of T-shirt -->
+  <!-- Print at approximately 10-12 inches wide for chest placement -->
+
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@900&amp;display=swap');
+      .logo-text {
+        font-family: 'Inter', 'Arial Black', sans-serif;
+        font-weight: 900;
+        font-size: 80px;
+        letter-spacing: -2px;
+      }
+    </style>
+  </defs>
+
+  <!-- HY in Yellow -->
+  <text x="10" y="85" class="logo-text" fill="#FACC15">HY</text>
+
+  <!-- TRAIN in White -->
+  <text x="128" y="85" class="logo-text" fill="#FFFFFF">TRAIN</text>
+</svg>

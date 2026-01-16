@@ -1,0 +1,23 @@
+<svg width="800" height="200" viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- HYTRAIN Tagline - Back of T-shirt -->
+  <!-- Print at approximately 12-14 inches wide for back placement -->
+
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@900&amp;display=swap');
+      .tagline-text {
+        font-family: 'Inter', 'Arial Black', sans-serif;
+        font-weight: 900;
+        font-size: 56px;
+        letter-spacing: -1px;
+        text-anchor: middle;
+      }
+    </style>
+  </defs>
+
+  <!-- TRAIN FOR HYROX. in White -->
+  <text x="400" y="80" class="tagline-text" fill="#FFFFFF">TRAIN FOR HYROX.</text>
+
+  <!-- ANYWHERE. in Yellow -->
+  <text x="400" y="150" class="tagline-text" fill="#FACC15">ANYWHERE.</text>
+</svg>
