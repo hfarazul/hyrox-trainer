@@ -32,6 +32,10 @@ export async function GET() {
   }
 }
 
+// Valid enum values for validation
+const VALID_DIVISIONS = ['men_open', 'men_pro', 'women_open', 'women_pro'] as const;
+const VALID_EXPERIENCES = ['beginner', 'intermediate', 'advanced'] as const;
+
 export async function PUT(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -43,6 +47,7 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     const { targetTime, division, fiveKTime, experience } = body;
 
+    // Type validation
     if (
       typeof targetTime !== 'number' ||
       typeof division !== 'string' ||
@@ -50,6 +55,24 @@ export async function PUT(request: NextRequest) {
       typeof experience !== 'string'
     ) {
       return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+    }
+
+    // Enum validation for division and experience
+    if (!VALID_DIVISIONS.includes(division as typeof VALID_DIVISIONS[number])) {
+      return NextResponse.json({ error: 'Invalid division value' }, { status: 400 });
+    }
+
+    if (!VALID_EXPERIENCES.includes(experience as typeof VALID_EXPERIENCES[number])) {
+      return NextResponse.json({ error: 'Invalid experience value' }, { status: 400 });
+    }
+
+    // Numeric bounds validation
+    if (targetTime < 30 || targetTime > 300) {
+      return NextResponse.json({ error: 'Target time must be between 30 and 300 minutes' }, { status: 400 });
+    }
+
+    if (fiveKTime < 10 || fiveKTime > 60) {
+      return NextResponse.json({ error: '5K time must be between 10 and 60 minutes' }, { status: 400 });
     }
 
     const raceGoal = await prisma.raceGoal.upsert({

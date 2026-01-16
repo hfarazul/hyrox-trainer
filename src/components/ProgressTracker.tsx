@@ -59,19 +59,16 @@ export default function ProgressTracker() {
       try {
         if (authSession?.user?.id) {
           // Load from database for authenticated users
+          // Trust the API response even if empty (user may have deleted sessions)
           const apiSessions = await fetchSessions();
-          if (apiSessions.length > 0) {
-            setSessions(apiSessions);
-          } else {
-            // Fallback to localStorage if no DB sessions
-            setSessions(loadSessions());
-          }
+          setSessions(apiSessions);
         } else {
           // Load from localStorage for guests
           setSessions(loadSessions());
         }
       } catch (error) {
         console.error('Failed to load sessions:', error);
+        // Only fallback to localStorage on actual API errors
         setSessions(loadSessions());
       } finally {
         setIsLoading(false);
@@ -85,9 +82,9 @@ export default function ProgressTracker() {
       if (authSession?.user?.id) {
         // Delete from database for authenticated users
         await deleteSessionAPI(sessionId);
-        // Refresh sessions from database
+        // Refresh sessions from database (trust empty response)
         const apiSessions = await fetchSessions();
-        setSessions(apiSessions.length > 0 ? apiSessions : loadSessions());
+        setSessions(apiSessions);
       } else {
         // Delete from localStorage for guests
         deleteSession(sessionId);
@@ -95,7 +92,7 @@ export default function ProgressTracker() {
       }
     } catch (error) {
       console.error('Failed to delete session:', error);
-      // Fallback to localStorage delete
+      // Fallback to localStorage delete on API error
       deleteSession(sessionId);
       setSessions(loadSessions());
     }

@@ -117,17 +117,6 @@ export default function RaceSimulator({ config, onComplete }: Props) {
     }
   }, [isPaused, phase]);
 
-  // Auto-save when workout is paused (skip if triggered by stopAndSave)
-  useEffect(() => {
-    if (isPaused && phase !== 'not_started' && phase !== 'completed' && !skipAutoSaveRef.current) {
-      // Delay slightly to ensure state is updated
-      const timeoutId = setTimeout(() => {
-        saveSession(true);
-      }, 100);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [isPaused, phase]);
-
   // Timer effect with accumulator pattern
   useEffect(() => {
     let animationFrameId: number;
@@ -253,66 +242,77 @@ export default function RaceSimulator({ config, onComplete }: Props) {
     setTimeout(() => setNotification(null), 3000);
   };
 
-  const saveSession = async (isPartial = false) => {
+  const saveSession = useCallback(async (isPartial = false) => {
     // Prevent duplicate saves from rapid clicks
     if (isSavingRef.current) return;
     isSavingRef.current = true;
 
-    const isUpdate = !!lastSessionIdRef.current;
-    const sessionId = lastSessionIdRef.current || generateId();
-    const session: WorkoutSession = {
-      id: sessionId,
-      date: new Date().toISOString(),
-      type: workoutType,
-      stations: stationResults,
-      totalTime: Math.round(elapsedTime / 1000),
-      partial: isPartial,
-      ranking: isPartial ? undefined : ranking || undefined,
-      isPR: isPartial ? undefined : isPR,
-      estimatedDuration: config?.workout?.duration,
-      gymMode: config?.gymMode,
-    };
+    try {
+      const isUpdate = !!lastSessionIdRef.current;
+      const sessionId = lastSessionIdRef.current || generateId();
+      const session: WorkoutSession = {
+        id: sessionId,
+        date: new Date().toISOString(),
+        type: workoutType,
+        stations: stationResults,
+        totalTime: Math.round(elapsedTime / 1000),
+        partial: isPartial,
+        ranking: isPartial ? undefined : ranking || undefined,
+        isPR: isPartial ? undefined : isPR,
+        estimatedDuration: config?.workout?.duration,
+        gymMode: config?.gymMode,
+      };
 
-    // Save to database for authenticated users, localStorage for guests
-    if (authSession?.user?.id && !isUpdate) {
-      try {
-        const savedSession = await addSessionAPI({
-          date: session.date,
-          type: session.type,
-          totalTime: session.totalTime,
-          notes: session.partial ? 'Partial workout' : undefined,
-          gymMode: session.gymMode,
-          stations: session.stations.map(s => ({
-            stationId: s.stationId,
-            alternativeUsed: s.alternativeUsed,
-            timeSeconds: s.timeSeconds,
-            completed: s.completed ?? true,
-            notes: s.notes,
-          })),
-        });
-        lastSessionIdRef.current = savedSession.id;
-        // Also save to localStorage as backup
-        session.id = savedSession.id;
-        addSession(session);
-      } catch (error) {
-        console.error('Failed to save to database, using localStorage:', error);
+      // Save to database for authenticated users, localStorage for guests
+      if (authSession?.user?.id && !isUpdate) {
+        try {
+          const savedSession = await addSessionAPI({
+            date: session.date,
+            type: session.type,
+            totalTime: session.totalTime,
+            notes: session.partial ? 'Partial workout' : undefined,
+            gymMode: session.gymMode,
+            stations: session.stations.map(s => ({
+              stationId: s.stationId,
+              alternativeUsed: s.alternativeUsed,
+              timeSeconds: s.timeSeconds,
+              completed: s.completed ?? true,
+              notes: s.notes,
+            })),
+          });
+          lastSessionIdRef.current = savedSession.id;
+          // Also save to localStorage as backup
+          session.id = savedSession.id;
+          addSession(session);
+        } catch (error) {
+          console.error('Failed to save to database, using localStorage:', error);
+          addSession(session);
+          lastSessionIdRef.current = sessionId;
+        }
+      } else if (isUpdate) {
+        updateSession(session);
+      } else {
         addSession(session);
         lastSessionIdRef.current = sessionId;
       }
-    } else if (isUpdate) {
-      updateSession(session);
-    } else {
-      addSession(session);
-      lastSessionIdRef.current = sessionId;
-    }
 
-    showNotification(isPartial ? 'Progress auto-saved!' : 'Session saved successfully!');
-
-    // Reset saving flag after short delay
-    setTimeout(() => {
+      showNotification(isPartial ? 'Progress auto-saved!' : 'Session saved successfully!');
+    } finally {
+      // Reset saving flag after operation completes
       isSavingRef.current = false;
-    }, 500);
-  };
+    }
+  }, [workoutType, stationResults, elapsedTime, ranking, isPR, config, authSession]);
+
+  // Auto-save when workout is paused (skip if triggered by stopAndSave)
+  useEffect(() => {
+    if (isPaused && phase !== 'not_started' && phase !== 'completed' && !skipAutoSaveRef.current) {
+      // Delay slightly to ensure state is updated
+      const timeoutId = setTimeout(() => {
+        saveSession(true);
+      }, 100);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isPaused, phase, saveSession]);
 
   const stopAndSave = () => {
     setShowStopConfirm(false);
