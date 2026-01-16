@@ -27,6 +27,7 @@ export const HYROX_STATIONS: HyroxStation[] = [
     muscleGroups: ['lats', 'shoulders', 'triceps', 'core'],
     tips: ['Use your whole body', 'Hinge at hips', 'Pull through with core'],
     alternatives: [
+      { name: 'SkiErg', description: '1000m on SkiErg machine', equipmentNeeded: ['skierg'], intensity: 'advanced', conversionFactor: 1.2, videoUrl: 'https://www.youtube.com/watch?v=dU-gLHDPOj4', baseValue: 1000, unit: 'm' },
       { name: 'Medicine Ball Slams', description: '100 reps of explosive ball slams', equipmentNeeded: ['medicine_ball'], intensity: 'advanced', conversionFactor: 1.0, videoUrl: 'https://www.youtube.com/watch?v=N7t9BX-DExI', baseValue: 100, unit: 'reps' },
       { name: 'Battle Rope Slams', description: '3 min of alternating slams', equipmentNeeded: ['battle_ropes'], intensity: 'advanced', conversionFactor: 1.0, baseValue: 180, unit: 's' },
       { name: 'Dumbbell Pullovers', description: '50 reps lying pullovers - less specific due to lying position', equipmentNeeded: ['dumbbells'], intensity: 'intermediate', conversionFactor: 0.7, baseValue: 50, unit: 'reps' },
@@ -48,6 +49,7 @@ export const HYROX_STATIONS: HyroxStation[] = [
     muscleGroups: ['quads', 'glutes', 'calves', 'core'],
     tips: ['Stay low', 'Drive through legs', 'Keep arms extended'],
     alternatives: [
+      { name: 'Sled Push', description: '50m weighted sled push', equipmentNeeded: ['sled'], intensity: 'advanced', conversionFactor: 1.2, videoUrl: 'https://www.youtube.com/watch?v=DeTUDPo6_YM', baseValue: 50, unit: 'm' },
       { name: 'Weighted Hill Sprints', description: '4x50m uphill with vest', equipmentNeeded: ['weighted_vest'], intensity: 'advanced', conversionFactor: 1.0, baseValue: 200, unit: 'm' },
       { name: 'Bear Crawls', description: '100m forward bear crawl - conditioning but different pattern', equipmentNeeded: [], intensity: 'advanced', conversionFactor: 0.7, baseValue: 100, unit: 'm' },
       { name: 'Stair Climbs with Weight', description: '5 floors with heavy backpack', equipmentNeeded: ['backpack'], intensity: 'advanced', conversionFactor: 1.0, baseValue: 5, unit: 'floors' },
@@ -67,6 +69,7 @@ export const HYROX_STATIONS: HyroxStation[] = [
     muscleGroups: ['back', 'biceps', 'grip', 'core'],
     tips: ['Sit back into it', 'Hand over hand technique', 'Stay low'],
     alternatives: [
+      { name: 'Sled Pull', description: '50m weighted sled pull with rope', equipmentNeeded: ['sled'], intensity: 'advanced', conversionFactor: 1.2, videoUrl: 'https://www.youtube.com/watch?v=Wgi3b40uDEY', baseValue: 50, unit: 'm' },
       { name: 'Rope Pulls with Weight', description: 'Pull weighted bag 50m with rope', equipmentNeeded: ['rope', 'backpack'], intensity: 'advanced', conversionFactor: 1.0, baseValue: 50, unit: 'm' },
       { name: 'Towel Rows', description: '60 inverted rows using towel over bar', equipmentNeeded: ['towel', 'pull_up_bar'], intensity: 'intermediate', conversionFactor: 0.9, baseValue: 60, unit: 'reps' },
       { name: 'Heavy Bent Over Rows', description: '60 heavy dumbbell rows', equipmentNeeded: ['dumbbells'], intensity: 'advanced', conversionFactor: 0.9, baseValue: 60, unit: 'reps' },
@@ -87,11 +90,11 @@ export const HYROX_STATIONS: HyroxStation[] = [
     muscleGroups: ['full_body', 'legs', 'core', 'cardio'],
     tips: ['Pace yourself', 'Controlled jumps', 'Breathe on the way up'],
     alternatives: [
-      { name: 'Burpee Broad Jumps', description: 'Same as official - no equipment needed!', equipmentNeeded: [], intensity: 'advanced', conversionFactor: 1.0, videoUrl: 'https://www.youtube.com/watch?v=_yN-Lp7bfzM', baseValue: 80, unit: 'm' },
-      { name: 'Burpee Box Jumps', description: '40 burpee to box jump', equipmentNeeded: ['plyo_box'], intensity: 'advanced', conversionFactor: 1.1, baseValue: 40, unit: 'reps' },
+      { name: 'Burpee Broad Jumps', description: '80m of burpee broad jumps - the official HYROX exercise!', equipmentNeeded: [], intensity: 'advanced', conversionFactor: 1.2, videoUrl: 'https://www.youtube.com/watch?v=_yN-Lp7bfzM', baseValue: 80, unit: 'm' },
+      { name: 'Burpee Box Jumps', description: '40 burpee to box jump', equipmentNeeded: ['plyo_box'], intensity: 'advanced', conversionFactor: 1.0, baseValue: 40, unit: 'reps' },
       { name: 'Burpee Tuck Jumps', description: '50 burpee to tuck jump', equipmentNeeded: [], intensity: 'advanced', conversionFactor: 0.9, baseValue: 50, unit: 'reps' },
       { name: 'Squat Jump Burpees', description: '60 burpee to squat jump', equipmentNeeded: [], intensity: 'intermediate', conversionFactor: 0.8, baseValue: 60, unit: 'reps' },
-      { name: 'Devil Press', description: '30 reps with 15-20kg dumbbells - burpee + DB snatch', equipmentNeeded: ['dumbbells'], intensity: 'advanced', conversionFactor: 1.2, baseValue: 30, unit: 'reps' },
+      { name: 'Devil Press', description: '30 reps with 15-20kg dumbbells - burpee + DB snatch', equipmentNeeded: ['dumbbells'], intensity: 'advanced', conversionFactor: 1.0, baseValue: 30, unit: 'reps' },
       { name: 'Burpee Hurdle Jumps', description: '40 burpee to low hurdle jump', equipmentNeeded: ['hurdles'], intensity: 'advanced', conversionFactor: 1.0, baseValue: 40, unit: 'reps' }
     ]
   },
@@ -106,6 +109,7 @@ export const HYROX_STATIONS: HyroxStation[] = [
     muscleGroups: ['back', 'legs', 'core', 'arms'],
     tips: ['Legs first', 'Keep back straight', 'Drive through heels'],
     alternatives: [
+      { name: 'Rowing', description: '1000m on rowing machine', equipmentNeeded: ['rowing_machine'], intensity: 'advanced', conversionFactor: 1.2, videoUrl: 'https://www.youtube.com/watch?v=6jXyP0ZuqUI', baseValue: 1000, unit: 'm' },
       { name: 'Assault Bike', description: '50 calories on assault bike', equipmentNeeded: ['assault_bike'], intensity: 'advanced', conversionFactor: 1.0, baseValue: 50, unit: 'cal' },
       { name: 'Kettlebell Swings + Deadlifts', description: '50 swings + 30 deadlifts', equipmentNeeded: ['kettlebell'], intensity: 'advanced', conversionFactor: 0.9, baseValue: 80, unit: 'reps' },
       { name: 'Resistance Band Rows + Squats', description: '60 rows + 40 squats superset', equipmentNeeded: ['resistance_bands'], intensity: 'intermediate', conversionFactor: 0.8, baseValue: 100, unit: 'reps' },
@@ -170,7 +174,7 @@ export const HYROX_STATIONS: HyroxStation[] = [
     muscleGroups: ['quads', 'glutes', 'shoulders', 'core'],
     tips: ['Full squat depth', 'Use leg drive', 'Catch and descend smoothly'],
     alternatives: [
-      { name: 'Wall Balls', description: 'Same as official with medicine ball', equipmentNeeded: ['medicine_ball', 'wall'], intensity: 'advanced', conversionFactor: 1.0, videoUrl: 'https://www.youtube.com/watch?v=EqjGKsiIMCE', baseValue: 100, unit: 'reps' },
+      { name: 'Wall Balls', description: '100 reps (75 women) - the official HYROX exercise!', equipmentNeeded: ['medicine_ball', 'wall'], intensity: 'advanced', conversionFactor: 1.2, videoUrl: 'https://www.youtube.com/watch?v=EqjGKsiIMCE', baseValue: 100, unit: 'reps' },
       { name: 'Thrusters', description: '75 dumbbell thrusters', equipmentNeeded: ['dumbbells'], intensity: 'advanced', conversionFactor: 1.0, videoUrl: 'https://www.youtube.com/watch?v=JQnNas11CQo', baseValue: 75, unit: 'reps' },
       { name: 'Goblet Squat to Press', description: '75 goblet squat + press', equipmentNeeded: ['kettlebell'], intensity: 'advanced', conversionFactor: 0.95, baseValue: 75, unit: 'reps' },
       { name: 'Jump Squats + Push Press', description: '50 jump squats + 50 push press', equipmentNeeded: ['dumbbells'], intensity: 'advanced', conversionFactor: 0.9, baseValue: 100, unit: 'reps' },
