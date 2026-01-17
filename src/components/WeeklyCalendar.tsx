@@ -115,6 +115,15 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
   const [selectedWeek, setSelectedWeek] = useState(getCurrentWeek);
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
 
+  // Calculate days until race (if race date is set)
+  const daysUntilRace = useMemo(() => {
+    if (!programData?.personalization?.raceDate) return null;
+    const race = new Date(programData.personalization.raceDate);
+    const now = new Date();
+    const diffMs = race.getTime() - now.getTime();
+    return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  }, [programData?.personalization?.raceDate]);
+
   if (!program) {
     return (
       <div className="bg-[#141414] rounded-xl p-6 text-center">
@@ -168,12 +177,25 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
             Week {selectedWeek} of {program.weeks} - {weekData?.theme || 'Training'}
           </p>
         </div>
-        <button
-          onClick={() => setShowQuitConfirm(true)}
-          className="text-sm text-gray-400 hover:text-red-400 transition-colors"
-        >
-          Quit Program
-        </button>
+        <div className="flex items-center gap-4">
+          {/* Race countdown */}
+          {daysUntilRace !== null && daysUntilRace > 0 && (
+            <div className={`text-center px-4 py-2 rounded-lg ${
+              daysUntilRace <= 28 ? 'bg-[#ffed00]/20 border border-[#ffed00]/50' : 'bg-[#1f1f1f]'
+            }`}>
+              <div className={`text-2xl font-black ${daysUntilRace <= 28 ? 'text-[#ffed00]' : 'text-white'}`}>
+                {daysUntilRace}
+              </div>
+              <div className="text-xs text-gray-400 uppercase tracking-wide">days to race</div>
+            </div>
+          )}
+          <button
+            onClick={() => setShowQuitConfirm(true)}
+            className="text-sm text-gray-400 hover:text-red-400 transition-colors"
+          >
+            Quit Program
+          </button>
+        </div>
       </div>
 
       {/* Progress bar */}

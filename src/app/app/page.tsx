@@ -848,6 +848,7 @@ export default function Home() {
                 hrZone={activeRunWorkout.params.hrZone}
                 intervals={activeRunWorkout.params.intervals}
                 onComplete={handleCompleteRunWorkout}
+                onBack={() => setActiveRunWorkout(null)}
               />
             )}
 

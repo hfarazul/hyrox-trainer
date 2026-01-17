@@ -134,9 +134,21 @@ export default function ProgramOnboarding({ onComplete, onCancel }: ProgramOnboa
                   className="w-full p-4 bg-[#1f1f1f] border-2 border-[#333] rounded-lg text-white focus:border-[#ffed00] focus:outline-none"
                 />
                 {raceDate && (
-                  <p className="text-sm text-gray-500 mt-2">
-                    {getWeeksUntilRace()} weeks until race day
-                  </p>
+                  <>
+                    <p className="text-sm text-gray-500 mt-2">
+                      {getWeeksUntilRace()} weeks until race day
+                    </p>
+                    {getWeeksUntilRace() !== null && getWeeksUntilRace()! < 4 && (
+                      <div className="mt-3 p-3 bg-orange-500/20 border border-orange-500/50 rounded-lg">
+                        <p className="text-orange-400 text-sm font-medium">
+                          Warning: Less than 4 weeks to race!
+                        </p>
+                        <p className="text-gray-400 text-sm mt-1">
+                          This is a short timeframe for a full program. We&apos;ll focus on race-specific preparation and tapering.
+                        </p>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             )}
