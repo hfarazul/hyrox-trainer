@@ -154,6 +154,7 @@ export interface UserProgram {
   programId: string;
   startDate: string;
   completedWorkouts: CompletedProgramWorkout[];
+  programData?: string | unknown;  // JSON string or parsed object for personalized programs
 }
 
 export interface CompletedProgramWorkout {

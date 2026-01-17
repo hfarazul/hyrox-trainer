@@ -1,4 +1,4 @@
-import { UserEquipment, WorkoutSession, RaceGoal, UserProgram } from './types';
+import { UserEquipment, WorkoutSession, RaceGoal, UserProgram, ProgramPersonalization } from './types';
 
 // Equipment API
 export async function fetchEquipment(): Promise<UserEquipment[]> {
@@ -153,4 +153,19 @@ export async function completeWorkoutAPI(
   if (!response.ok && response.status !== 401) {
     throw new Error('Failed to complete workout');
   }
+}
+
+export async function createPersonalizedProgramAPI(
+  personalization: ProgramPersonalization
+): Promise<UserProgram & { programData: unknown }> {
+  const response = await fetch('/api/user-program', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ personalization }),
+  });
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.error || 'Failed to create personalized program');
+  }
+  return response.json();
 }

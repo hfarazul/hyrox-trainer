@@ -10,9 +10,12 @@ import PacingCalculator from '@/components/PacingCalculator';
 import ProgressTracker from '@/components/ProgressTracker';
 import ProgramSelector from '@/components/ProgramSelector';
 import WeeklyCalendar from '@/components/WeeklyCalendar';
-import { UserEquipment, GeneratedWorkout, RaceSimulatorConfig, UserProgram, ScheduledWorkout } from '@/lib/types';
+import RunningWorkout from '@/components/RunningWorkout';
+import StrengthWorkout from '@/components/StrengthWorkout';
+import { UserEquipment, GeneratedWorkout, RaceSimulatorConfig, UserProgram, ScheduledWorkout, ScheduledWorkoutExtended, ProgramPersonalization } from '@/lib/types';
 import { loadEquipment, loadExcludedExercises, saveExcludedExercises, loadUserProgram, saveUserProgram, clearUserProgram, generateId, addCompletedProgramWorkout, saveIncludeRuns, loadIncludeRuns } from '@/lib/storage';
-import { fetchEquipment, fetchUserProgram, startProgramAPI, quitProgramAPI, completeWorkoutAPI } from '@/lib/api';
+import { fetchEquipment, fetchUserProgram, startProgramAPI, quitProgramAPI, completeWorkoutAPI, createPersonalizedProgramAPI } from '@/lib/api';
+import { GeneratedProgram } from '@/lib/program-generator';
 import { generateFullSimulation, generateQuickWorkout, generateStationPractice, generateRaceCoverageWorkout, getAllExerciseNames } from '@/lib/workout-generator';
 import { HYROX_STATIONS, DIVISION_INFO } from '@/lib/hyrox-data';
 
@@ -37,6 +40,10 @@ export default function Home() {
   const [division, setDivision] = useState<Division>('men_open');
   const [userProgram, setUserProgram] = useState<UserProgram | null>(null);
   const [programWorkoutContext, setProgramWorkoutContext] = useState<{ week: number; dayOfWeek: number } | null>(null);
+  const [isCreatingProgram, setIsCreatingProgram] = useState(false);
+  const [programData, setProgramData] = useState<GeneratedProgram | null>(null);
+  const [activeRunWorkout, setActiveRunWorkout] = useState<ScheduledWorkoutExtended | null>(null);
+  const [activeStrengthWorkout, setActiveStrengthWorkout] = useState<ScheduledWorkoutExtended | null>(null);
 
   useEffect(() => {
     async function loadUserEquipment() {
@@ -92,6 +99,17 @@ export default function Home() {
         try {
           const apiProgram = await fetchUserProgram();
           setUserProgram(apiProgram);
+          // Load programData if it's a personalized program
+          if (apiProgram?.programData) {
+            try {
+              const parsed = typeof apiProgram.programData === 'string'
+                ? JSON.parse(apiProgram.programData)
+                : apiProgram.programData;
+              setProgramData(parsed);
+            } catch {
+              console.error('Failed to parse programData');
+            }
+          }
         } catch {
           // Fallback to localStorage on error
           const saved = loadUserProgram();
@@ -230,9 +248,95 @@ export default function Home() {
     }
     setUserProgram(null);
     setProgramWorkoutContext(null);
+    setProgramData(null);
   };
 
-  const handleStartProgramWorkout = (week: number, scheduledWorkout: ScheduledWorkout) => {
+  const handleCreatePersonalizedProgram = async (personalization: ProgramPersonalization) => {
+    if (!session?.user) {
+      // Personalized programs require authentication
+      return;
+    }
+
+    setIsCreatingProgram(true);
+    try {
+      const result = await createPersonalizedProgramAPI(personalization);
+      setUserProgram(result);
+      // Parse and store programData
+      if (result.programData) {
+        const parsed = typeof result.programData === 'string'
+          ? JSON.parse(result.programData)
+          : result.programData;
+        setProgramData(parsed);
+      }
+    } catch (error) {
+      console.error('Failed to create personalized program:', error);
+      throw error;
+    } finally {
+      setIsCreatingProgram(false);
+    }
+  };
+
+  const handleStartRunWorkout = (week: number, workout: ScheduledWorkoutExtended) => {
+    setProgramWorkoutContext({ week, dayOfWeek: workout.dayOfWeek });
+    setActiveRunWorkout(workout);
+  };
+
+  const handleStartStrengthWorkout = (week: number, workout: ScheduledWorkoutExtended) => {
+    setProgramWorkoutContext({ week, dayOfWeek: workout.dayOfWeek });
+    setActiveStrengthWorkout(workout);
+  };
+
+  const handleCompleteRunWorkout = async () => {
+    if (programWorkoutContext && userProgram && session?.user) {
+      try {
+        await completeWorkoutAPI(
+          programWorkoutContext.week,
+          programWorkoutContext.dayOfWeek
+        );
+        // Reload user program
+        const updated = await fetchUserProgram();
+        if (updated) {
+          setUserProgram(updated);
+        }
+      } catch (error) {
+        console.error('Failed to complete workout:', error);
+      }
+    }
+    setActiveRunWorkout(null);
+    setProgramWorkoutContext(null);
+  };
+
+  const handleCompleteStrengthWorkout = async () => {
+    if (programWorkoutContext && userProgram && session?.user) {
+      try {
+        await completeWorkoutAPI(
+          programWorkoutContext.week,
+          programWorkoutContext.dayOfWeek
+        );
+        // Reload user program
+        const updated = await fetchUserProgram();
+        if (updated) {
+          setUserProgram(updated);
+        }
+      } catch (error) {
+        console.error('Failed to complete workout:', error);
+      }
+    }
+    setActiveStrengthWorkout(null);
+    setProgramWorkoutContext(null);
+  };
+
+  const handleStartProgramWorkout = (week: number, scheduledWorkout: ScheduledWorkout | ScheduledWorkoutExtended) => {
+    // Handle new workout types
+    if (scheduledWorkout.type === 'run') {
+      handleStartRunWorkout(week, scheduledWorkout as ScheduledWorkoutExtended);
+      return;
+    }
+    if (scheduledWorkout.type === 'strength') {
+      handleStartStrengthWorkout(week, scheduledWorkout as ScheduledWorkoutExtended);
+      return;
+    }
+
     // Generate workout based on scheduled workout params
     let workout: GeneratedWorkout;
 
@@ -734,32 +838,48 @@ export default function Home() {
         {activeTab === 'progress' && <ProgressTracker />}
 
         {activeTab === 'programs' && (
-          <div className="bg-[#141414] rounded-xl p-6 sm:p-8">
-            <div className="text-center py-12">
-              <div className="flex justify-center mb-4">
-                <svg className="w-16 h-16 sm:w-20 sm:h-20 text-[#ffed00]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-black tracking-wide uppercase text-white mb-2">Coming Soon</h2>
-              <p className="text-gray-400 max-w-md mx-auto">
-                Training programs are being developed. Check back soon for structured workout plans!
-              </p>
-            </div>
-          </div>
-          /* Programs feature - preserved for later
-          userProgram ? (
-            <WeeklyCalendar
-              userProgram={userProgram}
-              onStartWorkout={handleStartProgramWorkout}
-              onQuitProgram={handleQuitProgram}
-            />
-          ) : (
-            <ProgramSelector
-              onStartProgram={handleStartProgram}
-            />
-          )
-          */
+          <>
+            {/* Running Workout Modal */}
+            {activeRunWorkout && 'runType' in activeRunWorkout.params && (
+              <RunningWorkout
+                runType={activeRunWorkout.params.runType || 'zone2'}
+                duration={activeRunWorkout.params.duration || 30}
+                targetPace={activeRunWorkout.params.targetPace}
+                hrZone={activeRunWorkout.params.hrZone}
+                intervals={activeRunWorkout.params.intervals}
+                onComplete={handleCompleteRunWorkout}
+              />
+            )}
+
+            {/* Strength Workout Modal */}
+            {activeStrengthWorkout && 'exercises' in activeStrengthWorkout.params && (
+              <StrengthWorkout
+                focus={activeStrengthWorkout.params.strengthFocus || 'full'}
+                exercises={activeStrengthWorkout.params.exercises || []}
+                stationWork={activeStrengthWorkout.params.stationWork}
+                onComplete={handleCompleteStrengthWorkout}
+                onBack={() => setActiveStrengthWorkout(null)}
+              />
+            )}
+
+            {/* Main Programs Content */}
+            {!activeRunWorkout && !activeStrengthWorkout && (
+              userProgram ? (
+                <WeeklyCalendar
+                  userProgram={userProgram}
+                  onStartWorkout={handleStartProgramWorkout}
+                  onQuitProgram={handleQuitProgram}
+                  programData={programData || undefined}
+                />
+              ) : (
+                <ProgramSelector
+                  onStartProgram={handleStartProgram}
+                  onCreatePersonalized={handleCreatePersonalizedProgram}
+                  isCreating={isCreatingProgram}
+                />
+              )
+            )}
+          </>
         )}
 
         {activeTab === 'equipment' && (
