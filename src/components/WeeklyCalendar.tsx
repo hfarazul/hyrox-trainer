@@ -1,11 +1,15 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { UserProgram, TrainingProgram, ScheduledWorkout } from '@/lib/types';
+import { UserProgram, ScheduledWorkout, ScheduledWorkoutExtended } from '@/lib/types';
 import { getProgramById, getWorkoutTypeIcon, getWorkoutTypeLabel, WorkoutTypeIconName } from '@/lib/training-programs';
+import { getExtendedWorkoutTypeIcon, getExtendedWorkoutTypeLabel, ExtendedWorkoutTypeIconName } from '@/lib/program-templates';
+import { GeneratedProgram } from '@/lib/program-generator';
 
 // SVG icon component for workout types
-function WorkoutTypeIconSVG({ icon, className = "w-5 h-5" }: { icon: WorkoutTypeIconName; className?: string }) {
+type AllIconNames = WorkoutTypeIconName | ExtendedWorkoutTypeIconName;
+
+function WorkoutTypeIconSVG({ icon, className = "w-5 h-5" }: { icon: AllIconNames; className?: string }) {
   switch (icon) {
     case 'bolt':
       return (
@@ -39,7 +43,20 @@ function WorkoutTypeIconSVG({ icon, className = "w-5 h-5" }: { icon: WorkoutType
           <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
         </svg>
       );
+    case 'runner':
+      return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+        </svg>
+      );
+    case 'dumbbell':
+      return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6.5 6.5h11M5 9h14M5 15h14M6.5 17.5h11M3 12h18" />
+        </svg>
+      );
     case 'muscle':
+    default:
       return (
         <svg className={className} fill="currentColor" viewBox="0 0 24 24">
           <path d="M7 11.5a4.5 4.5 0 01-3-1.13A4.5 4.5 0 012 7a4.5 4.5 0 018.85-1h2.3A4.5 4.5 0 0122 7a4.5 4.5 0 01-2 3.73A4.5 4.5 0 0117 11.5h-2v2h-6v-2H7z"/>
@@ -59,12 +76,31 @@ function CheckmarkIcon({ className = "w-5 h-5" }: { className?: string }) {
 
 interface Props {
   userProgram: UserProgram;
-  onStartWorkout: (week: number, workout: ScheduledWorkout) => void;
+  onStartWorkout: (week: number, workout: ScheduledWorkout | ScheduledWorkoutExtended) => void;
   onQuitProgram: () => void;
+  programData?: GeneratedProgram | null;
 }
 
-export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProgram }: Props) {
-  const program = getProgramById(userProgram.programId);
+export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProgram, programData }: Props) {
+  // Use personalized program data if available, otherwise fall back to template
+  const templateProgram = getProgramById(userProgram.programId);
+  const isPersonalized = !!programData;
+
+  // Create a unified program interface
+  const program = programData ? {
+    id: programData.id,
+    name: programData.name,
+    description: programData.description,
+    weeks: programData.weeks,
+    difficulty: programData.personalization.fitnessLevel,
+    workoutsPerWeek: programData.daysPerWeek,
+    schedule: programData.schedule.map(week => ({
+      week: week.week,
+      theme: week.theme,
+      phase: week.phase,
+      workouts: week.workouts,
+    })),
+  } : templateProgram;
 
   // Calculate current week based on start date
   const getCurrentWeek = (): number => {
@@ -209,7 +245,13 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
                   {day.isCompleted ? (
                     <CheckmarkIcon className="w-6 h-6 sm:w-7 sm:h-7 text-[#ffed00]" />
                   ) : (
-                    <WorkoutTypeIconSVG icon={getWorkoutTypeIcon(day.workout.type)} className="w-6 h-6 sm:w-7 sm:h-7" />
+                    <WorkoutTypeIconSVG
+                      icon={isPersonalized
+                        ? getExtendedWorkoutTypeIcon(day.workout.type)
+                        : getWorkoutTypeIcon(day.workout.type as ScheduledWorkout['type'])
+                      }
+                      className="w-6 h-6 sm:w-7 sm:h-7"
+                    />
                   )}
                 </div>
                 <div className={`text-xs ${day.isCompleted ? 'text-[#ffed00]' : 'text-gray-400'}`}>
@@ -249,7 +291,13 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
                     {completed ? (
                       <CheckmarkIcon className="w-7 h-7 text-[#ffed00]" />
                     ) : (
-                      <WorkoutTypeIconSVG icon={getWorkoutTypeIcon(workout.type)} className="w-7 h-7" />
+                      <WorkoutTypeIconSVG
+                        icon={isPersonalized
+                          ? getExtendedWorkoutTypeIcon(workout.type)
+                          : getWorkoutTypeIcon(workout.type as ScheduledWorkout['type'])
+                        }
+                        className="w-7 h-7"
+                      />
                     )}
                     <div>
                       <div className="flex items-center gap-2">
@@ -261,10 +309,25 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
                         )}
                       </div>
                       <div className="text-sm text-gray-400">
-                        {getWorkoutTypeLabel(workout.type)}
+                        {isPersonalized
+                          ? getExtendedWorkoutTypeLabel(workout.type)
+                          : getWorkoutTypeLabel(workout.type as ScheduledWorkout['type'])
+                        }
                         {workout.estimatedMinutes > 0 && ` - ~${workout.estimatedMinutes} min`}
                       </div>
-                      {/* Workout params */}
+                      {/* Workout params - extended types */}
+                      {'runType' in workout.params && workout.params.runType && (
+                        <div className="text-xs text-blue-400 mt-1 capitalize">
+                          {workout.params.runType === 'zone2' ? 'Zone 2 Easy' : workout.params.runType}
+                          {'hrZone' in workout.params && workout.params.hrZone && ` @ ${workout.params.hrZone}`}
+                        </div>
+                      )}
+                      {'strengthFocus' in workout.params && workout.params.strengthFocus && (
+                        <div className="text-xs text-orange-400 mt-1 capitalize">
+                          {workout.params.strengthFocus} body focus
+                        </div>
+                      )}
+                      {/* Original params */}
                       {workout.params.coverage && (
                         <div className="text-xs text-[#ffed00] mt-1">
                           {workout.params.coverage}% Race Coverage
