@@ -162,3 +162,84 @@ export interface CompletedProgramWorkout {
   sessionId: string;
   completedAt: string;
 }
+
+// Personalized Program Types
+
+export interface ProgramPersonalization {
+  raceDate?: string;  // ISO date string, optional
+  fitnessLevel: 'beginner' | 'intermediate' | 'advanced';
+  daysPerWeek: 3 | 4 | 5 | 6;
+  weakStations?: string[];  // Station IDs to focus on
+  targetTime?: number;  // Target race time in minutes
+}
+
+// New Workout Types for Programs
+
+export type ScheduledWorkoutTypeExtended =
+  | 'quick' | 'station' | 'coverage' | 'full' | 'rest'  // Existing
+  | 'run' | 'strength';  // New
+
+export interface RunWorkoutParams {
+  runType: 'zone2' | 'tempo' | 'intervals';
+  duration: number;  // minutes
+  targetPace?: string;  // e.g., "5:30-6:00/km"
+  hrZone?: string;  // e.g., "65-75% max HR"
+  intervals?: {
+    reps: number;
+    distance: number;  // meters
+    rest: number;  // seconds
+  };
+  notes?: string;
+}
+
+export interface StrengthExercise {
+  name: string;
+  sets: number;
+  reps: string;  // e.g., "8-10" or "5x5"
+  notes?: string;
+  videoUrl?: string;
+}
+
+export interface StrengthWorkoutParams {
+  focus: 'lower' | 'upper' | 'full';
+  exercises: StrengthExercise[];
+  stationWork?: string[];  // Station IDs for hybrid work
+  notes?: string;
+}
+
+// Extended ScheduledWorkout for new types
+export interface ScheduledWorkoutExtended {
+  dayOfWeek: number;
+  dayName: string;
+  type: ScheduledWorkoutTypeExtended;
+  estimatedMinutes: number;
+  params: {
+    // Existing params
+    duration?: number;
+    focus?: 'cardio' | 'strength' | 'mixed';
+    coverage?: number;
+    stations?: string[];
+    sets?: number;
+    // New params for run/strength
+    runType?: 'zone2' | 'tempo' | 'intervals';
+    targetPace?: string;
+    hrZone?: string;
+    intervals?: {
+      reps: number;
+      distance: number;
+      rest: number;
+    };
+    strengthFocus?: 'lower' | 'upper' | 'full';
+    exercises?: StrengthExercise[];
+    stationWork?: string[];
+  };
+}
+
+// Extended UserProgram with personalization
+export interface UserProgramExtended extends UserProgram {
+  raceDate?: string;
+  fitnessLevel?: 'beginner' | 'intermediate' | 'advanced';
+  daysPerWeek?: number;
+  weakStations?: string[];
+  programData?: string;  // JSON string of generated schedule
+}

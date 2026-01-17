@@ -120,10 +120,17 @@ model RaceGoal {
 model UserProgram {
   id                String   @id @default(cuid())
   userId            String   @unique
-  programId         String   // 'foundation-8-week' or 'race-prep-12-week'
+  programId         String   // 'foundation-8-week', 'race-prep-12-week', or 'personalized'
   startDate         DateTime @default(now())
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+
+  // Personalization fields
+  raceDate          DateTime?
+  fitnessLevel      String?   @default("intermediate") // 'beginner', 'intermediate', 'advanced'
+  daysPerWeek       Int?      @default(4)
+  weakStations      String?   // JSON array: ["burpee_broad_jump", "wall_balls", ...]
+  programData       String?   @db.Text // Generated schedule JSON (for personalized programs)
 
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   completedWorkouts CompletedProgramWorkout[]

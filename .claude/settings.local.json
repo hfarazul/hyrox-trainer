@@ -21,7 +21,12 @@
       "Bash(npm i:*)",
       "Bash(npm test:*)",
       "Bash(git add:*)",
-      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd testing infrastructure with vitest\n\n- Install vitest, @testing-library/react, @testing-library/jest-dom\n- Create vitest.config.ts with jsdom environment and path aliases\n- Create vitest.setup.ts with localStorage and crypto mocks\n- Add test scripts to package.json\n- Add initial formatTime\\(\\) unit tests \\(8 tests passing\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd testing infrastructure with vitest\n\n- Install vitest, @testing-library/react, @testing-library/jest-dom\n- Create vitest.config.ts with jsdom environment and path aliases\n- Create vitest.setup.ts with localStorage and crypto mocks\n- Add test scripts to package.json\n- Add initial formatTime\\(\\) unit tests \\(8 tests passing\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "WebFetch(domain:ninjathlete.com)",
+      "WebFetch(domain:www.puregym.com)",
+      "WebFetch(domain:roxlyfe.com)",
+      "WebFetch(domain:www.hyroxtrainingplans.com)",
+      "Bash(npm run test:run:*)"
     ]
   }
 }
