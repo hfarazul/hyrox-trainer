@@ -191,7 +191,7 @@ export default function ProgramSelector({
               ) : (
                 <button
                   onClick={() => onStartProgram(program.id)}
-                  className="w-full py-3 bg-[#ffed00] hover:bg-[#e6d600] text-black rounded-lg font-semibold text-white transition-all"
+                  className="w-full py-3 bg-[#ffed00] hover:bg-[#e6d600] text-black rounded-lg font-semibold transition-all"
                 >
                   Start Program
                 </button>

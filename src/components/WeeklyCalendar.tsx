@@ -372,7 +372,7 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
                   {!isRestDay && !completed && (
                     <button
                       onClick={() => onStartWorkout(selectedWeek, workout)}
-                      className="px-4 py-2 bg-[#ffed00] hover:bg-[#e6d600] text-black rounded-lg text-sm font-medium text-white transition-colors"
+                      className="px-4 py-2 bg-[#ffed00] hover:bg-[#e6d600] text-black rounded-lg text-sm font-medium transition-colors"
                     >
                       Start
                     </button>

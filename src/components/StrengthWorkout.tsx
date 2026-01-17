@@ -1,13 +1,15 @@
 'use client';
 
-import { useState } from 'react';
-import { StrengthExercise } from '@/lib/types';
+import { useState, useMemo } from 'react';
+import { StrengthExercise, UserEquipment } from '@/lib/types';
 import { HYROX_STATIONS } from '@/lib/hyrox-data';
+import { getExercisesForEquipment, StrengthExerciseDefinition } from '@/lib/strength-exercises';
 
 interface StrengthWorkoutProps {
   focus: 'lower' | 'upper' | 'full';
   exercises: StrengthExercise[];
   stationWork?: string[];
+  equipment?: UserEquipment[];
   onComplete: () => void;
   onBack?: () => void;
 }
@@ -16,13 +18,71 @@ export default function StrengthWorkout({
   focus,
   exercises,
   stationWork,
+  equipment = [],
   onComplete,
   onBack,
 }: StrengthWorkoutProps) {
+  // Get available equipment IDs
+  const availableEquipmentIds = useMemo(() =>
+    equipment.filter(e => e.available).map(e => e.equipmentId),
+    [equipment]
+  );
+
+  // Filter exercises based on available equipment
+  const filteredExercises = useMemo(() => {
+    if (availableEquipmentIds.length === 0) {
+      // No equipment info, show all exercises
+      return exercises;
+    }
+
+    // Get all exercises that can be done with available equipment
+    const possibleExercises = getExercisesForEquipment(availableEquipmentIds, focus);
+    const possibleExerciseNames = new Set(possibleExercises.map(e => e.name.toLowerCase()));
+
+    // Filter the workout's exercises to only those possible with equipment
+    // Also find replacements for exercises that can't be done
+    const result: StrengthExercise[] = [];
+    const usedNames = new Set<string>();
+
+    for (const exercise of exercises) {
+      if (possibleExerciseNames.has(exercise.name.toLowerCase())) {
+        // Exercise can be done with available equipment
+        result.push(exercise);
+        usedNames.add(exercise.name.toLowerCase());
+      } else {
+        // Find a replacement exercise from the same category
+        const replacement = possibleExercises.find(
+          (e: StrengthExerciseDefinition) => !usedNames.has(e.name.toLowerCase())
+        );
+        if (replacement) {
+          result.push({
+            name: replacement.name,
+            sets: exercise.sets,
+            reps: exercise.reps,
+            notes: replacement.notes || exercise.notes,
+          });
+          usedNames.add(replacement.name.toLowerCase());
+        }
+        // If no replacement found, skip this exercise
+      }
+    }
+
+    // If we filtered out all exercises, return bodyweight alternatives
+    if (result.length === 0) {
+      return getExercisesForEquipment([], focus).slice(0, 4).map(e => ({
+        name: e.name,
+        sets: e.sets,
+        reps: e.reps,
+        notes: e.notes,
+      }));
+    }
+
+    return result;
+  }, [exercises, availableEquipmentIds, focus]);
   const [completedExercises, setCompletedExercises] = useState<Set<string>>(new Set());
   const [completedStations, setCompletedStations] = useState<Set<string>>(new Set());
 
-  const totalItems = exercises.length + (stationWork?.length || 0);
+  const totalItems = filteredExercises.length + (stationWork?.length || 0);
   const completedCount = completedExercises.size + completedStations.size;
   const allComplete = completedCount === totalItems;
 
@@ -122,7 +182,7 @@ export default function StrengthWorkout({
           <h3 className="text-black font-black tracking-wider uppercase text-sm">Strength Exercises</h3>
         </div>
         <div className="space-y-2">
-          {exercises.map((exercise, idx) => {
+          {filteredExercises.map((exercise, idx) => {
             const exerciseId = `${exercise.name}-${idx}`;
             const isComplete = completedExercises.has(exerciseId);
             return (

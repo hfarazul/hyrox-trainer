@@ -858,6 +858,7 @@ export default function Home() {
                 focus={activeStrengthWorkout.params.strengthFocus || 'full'}
                 exercises={activeStrengthWorkout.params.exercises || []}
                 stationWork={activeStrengthWorkout.params.stationWork}
+                equipment={equipment}
                 onComplete={handleCompleteStrengthWorkout}
                 onBack={() => setActiveStrengthWorkout(null)}
               />
