@@ -1,0 +1,237 @@
+'use client';
+
+import { useState } from 'react';
+import { StrengthExercise } from '@/lib/types';
+import { HYROX_STATIONS } from '@/lib/hyrox-data';
+
+interface StrengthWorkoutProps {
+  focus: 'lower' | 'upper' | 'full';
+  exercises: StrengthExercise[];
+  stationWork?: string[];
+  onComplete: () => void;
+  onBack?: () => void;
+}
+
+export default function StrengthWorkout({
+  focus,
+  exercises,
+  stationWork,
+  onComplete,
+  onBack,
+}: StrengthWorkoutProps) {
+  const [completedExercises, setCompletedExercises] = useState<Set<string>>(new Set());
+  const [completedStations, setCompletedStations] = useState<Set<string>>(new Set());
+
+  const totalItems = exercises.length + (stationWork?.length || 0);
+  const completedCount = completedExercises.size + completedStations.size;
+  const allComplete = completedCount === totalItems;
+
+  const toggleExercise = (exerciseId: string) => {
+    const newSet = new Set(completedExercises);
+    if (newSet.has(exerciseId)) {
+      newSet.delete(exerciseId);
+    } else {
+      newSet.add(exerciseId);
+    }
+    setCompletedExercises(newSet);
+  };
+
+  const toggleStation = (stationId: string) => {
+    const newSet = new Set(completedStations);
+    if (newSet.has(stationId)) {
+      newSet.delete(stationId);
+    } else {
+      newSet.add(stationId);
+    }
+    setCompletedStations(newSet);
+  };
+
+  const getStationName = (stationId: string) => {
+    const station = HYROX_STATIONS.find(s => s.id === stationId);
+    return station?.name || stationId.replace(/_/g, ' ');
+  };
+
+  const getFocusLabel = () => {
+    switch (focus) {
+      case 'lower':
+        return 'Lower Body Power';
+      case 'upper':
+        return 'Upper Body Strength';
+      case 'full':
+        return 'Full Body Workout';
+    }
+  };
+
+  const getFocusIcon = () => {
+    const iconClass = 'w-8 h-8';
+    return (
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M4 8h4v12H4V8zm6-4h4v16h-4V4zm6 8h4v8h-4v-8z"
+        />
+      </svg>
+    );
+  };
+
+  return (
+    <div className="bg-[#141414] rounded-xl p-4 sm:p-6">
+      {/* Back button */}
+      {onBack && (
+        <button
+          onClick={onBack}
+          className="flex items-center gap-2 text-gray-400 hover:text-white mb-4 transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Back
+        </button>
+      )}
+
+      {/* Header */}
+      <div className="flex items-start gap-4 mb-6">
+        <div className="flex-shrink-0 w-14 h-14 rounded-full bg-[#ffed00]/20 text-[#ffed00] flex items-center justify-center">
+          {getFocusIcon()}
+        </div>
+        <div className="flex-1">
+          <h2 className="text-xl sm:text-2xl font-black tracking-wide uppercase text-white">
+            {getFocusLabel()}
+          </h2>
+          <p className="text-gray-400 text-sm mt-1">
+            Strength + Station Work
+          </p>
+          <div className="flex items-center gap-2 mt-2">
+            <div className="flex-1 h-2 bg-[#262626] rounded-full overflow-hidden">
+              <div
+                className="h-full bg-[#ffed00] transition-all duration-300"
+                style={{ width: `${(completedCount / totalItems) * 100}%` }}
+              />
+            </div>
+            <span className="text-gray-400 text-sm">
+              {completedCount}/{totalItems}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Exercises Section */}
+      <div className="mb-6">
+        <div className="inline-block bg-[#ffed00] px-3 py-1.5 mb-3">
+          <h3 className="text-black font-black tracking-wider uppercase text-sm">Strength Exercises</h3>
+        </div>
+        <div className="space-y-2">
+          {exercises.map((exercise, idx) => {
+            const exerciseId = `${exercise.name}-${idx}`;
+            const isComplete = completedExercises.has(exerciseId);
+            return (
+              <button
+                key={exerciseId}
+                onClick={() => toggleExercise(exerciseId)}
+                className={`w-full p-4 rounded-lg text-left transition-all ${
+                  isComplete
+                    ? 'bg-green-900/30 border border-green-600/50'
+                    : 'bg-[#1f1f1f] border border-[#333] hover:border-[#404040]'
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <div
+                    className={`flex-shrink-0 w-6 h-6 rounded border-2 flex items-center justify-center transition-colors ${
+                      isComplete
+                        ? 'bg-green-600 border-green-600'
+                        : 'border-[#404040]'
+                    }`}
+                  >
+                    {isComplete && (
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span
+                        className={`font-semibold ${isComplete ? 'text-gray-400 line-through' : 'text-white'}`}
+                      >
+                        {exercise.name}
+                      </span>
+                      <span className="text-[#ffed00] font-mono text-sm">
+                        {exercise.sets}x{exercise.reps}
+                      </span>
+                    </div>
+                    {exercise.notes && (
+                      <p className="text-gray-500 text-sm mt-1">{exercise.notes}</p>
+                    )}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Station Work Section */}
+      {stationWork && stationWork.length > 0 && (
+        <div className="mb-6">
+          <div className="inline-block bg-[#ffed00] px-3 py-1.5 mb-3">
+            <h3 className="text-black font-black tracking-wider uppercase text-sm">Station Work</h3>
+          </div>
+          <p className="text-gray-500 text-sm mb-3">
+            Practice HYROX-specific movements to build race-day strength
+          </p>
+          <div className="space-y-2">
+            {stationWork.map((stationId) => {
+              const isComplete = completedStations.has(stationId);
+              return (
+                <button
+                  key={stationId}
+                  onClick={() => toggleStation(stationId)}
+                  className={`w-full p-4 rounded-lg text-left transition-all ${
+                    isComplete
+                      ? 'bg-green-900/30 border border-green-600/50'
+                      : 'bg-[#ffed00]/10 border border-[#ffed00]/30 hover:border-[#ffed00]/60'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`flex-shrink-0 w-6 h-6 rounded border-2 flex items-center justify-center transition-colors ${
+                        isComplete
+                          ? 'bg-green-600 border-green-600'
+                          : 'border-[#ffed00]/50'
+                      }`}
+                    >
+                      {isComplete && (
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </div>
+                    <span
+                      className={`font-semibold ${isComplete ? 'text-gray-400 line-through' : 'text-white'}`}
+                    >
+                      {getStationName(stationId)}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Complete Button */}
+      <button
+        onClick={onComplete}
+        disabled={!allComplete}
+        className={`w-full py-4 rounded-xl font-black text-lg uppercase tracking-wide transition-colors ${
+          allComplete
+            ? 'bg-green-600 hover:bg-green-700 text-white'
+            : 'bg-[#262626] text-gray-500 cursor-not-allowed'
+        }`}
+      >
+        {allComplete ? 'Complete Workout' : `Complete all exercises (${totalItems - completedCount} left)`}
+      </button>
+    </div>
+  );
+}
