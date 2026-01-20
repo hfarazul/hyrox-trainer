@@ -87,7 +87,5 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: '/auth/signin',
   },
-  // Force non-secure cookie prefix to avoid __Secure- prefix issues on Railway
-  useSecureCookies: false,
   debug: true, // Temporarily enabled to debug OAuth issue
 };
