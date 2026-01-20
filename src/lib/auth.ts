@@ -58,23 +58,7 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt',
   },
   callbacks: {
-    async signIn({ user, account, profile }) {
-      console.log('[NextAuth] signIn callback:', {
-        userId: user?.id,
-        userEmail: user?.email,
-        provider: account?.provider,
-        profileEmail: profile?.email,
-      });
-      return true;
-    },
-    async jwt({ token, user, account }) {
-      console.log('[NextAuth] jwt callback:', {
-        hasUser: !!user,
-        userId: user?.id,
-        hasAccount: !!account,
-        provider: account?.provider,
-        tokenEmail: token?.email,
-      });
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
       }
@@ -91,5 +75,5 @@ export const authOptions: NextAuthOptions = {
     signIn: '/auth/signin',
   },
   // No custom cookie config needed - using nonce check which doesn't use cookies
-  debug: true, // Temporarily enabled to debug OAuth issue
+  debug: process.env.NODE_ENV === 'development',
 };
