@@ -16,6 +16,9 @@ export const authOptions: NextAuthOptions = {
           prompt: 'select_account',
         },
       },
+      // Use nonce instead of state/pkce - nonce is passed via ID token, not cookies
+      // This fixes Safari/iOS which blocks cross-site cookies
+      checks: ['nonce'],
     }),
     CredentialsProvider({
       name: 'credentials',
@@ -87,26 +90,6 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: '/auth/signin',
   },
-  // Safari/iOS requires sameSite: 'none' for cross-site OAuth cookies
-  cookies: {
-    pkceCodeVerifier: {
-      name: '__Secure-next-auth.pkce.code_verifier',
-      options: {
-        httpOnly: true,
-        sameSite: 'none',
-        path: '/',
-        secure: true,
-      },
-    },
-    state: {
-      name: '__Secure-next-auth.state',
-      options: {
-        httpOnly: true,
-        sameSite: 'none',
-        path: '/',
-        secure: true,
-      },
-    },
-  },
+  // No custom cookie config needed - using nonce check which doesn't use cookies
   debug: true, // Temporarily enabled to debug OAuth issue
 };
