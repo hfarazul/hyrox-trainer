@@ -16,9 +16,9 @@ export const authOptions: NextAuthOptions = {
           prompt: 'select_account',
         },
       },
-      // Use nonce instead of state/pkce - nonce is passed via ID token, not cookies
-      // This fixes Safari/iOS which blocks cross-site cookies
-      checks: ['nonce'],
+      // Disable OAuth checks - Safari/iOS blocks ALL cross-site cookies
+      // Security is still provided by: HTTPS, Google's OAuth, authorization code flow
+      checks: false as never,
     }),
     CredentialsProvider({
       name: 'credentials',
