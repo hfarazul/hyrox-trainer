@@ -16,6 +16,7 @@ export const authOptions: NextAuthOptions = {
           prompt: 'select_account',
         },
       },
+      checks: ['pkce'], // Use only PKCE, not state (PKCE is more secure anyway)
     }),
     CredentialsProvider({
       name: 'credentials',
