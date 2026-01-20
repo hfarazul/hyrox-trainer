@@ -87,29 +87,7 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: '/auth/signin',
   },
-  // Explicit cookie config for Railway proxy
-  useSecureCookies: process.env.NEXTAUTH_URL?.startsWith('https://'),
-  cookies: {
-    state: {
-      name: 'next-auth.state',
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NEXTAUTH_URL?.startsWith('https://'),
-        maxAge: 900,
-      },
-    },
-    pkceCodeVerifier: {
-      name: 'next-auth.pkce.code_verifier',
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NEXTAUTH_URL?.startsWith('https://'),
-        maxAge: 900,
-      },
-    },
-  },
+  // Force non-secure cookie prefix to avoid __Secure- prefix issues on Railway
+  useSecureCookies: false,
   debug: true, // Temporarily enabled to debug OAuth issue
 };
