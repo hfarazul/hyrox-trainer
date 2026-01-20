@@ -76,18 +76,18 @@ export const authOptions: NextAuthOptions = {
       name: 'next-auth.pkce.code_verifier',
       options: {
         httpOnly: true,
-        sameSite: 'lax',
+        sameSite: 'none',
         path: '/',
-        secure: process.env.NODE_ENV === 'production',
+        secure: true,
       },
     },
     state: {
       name: 'next-auth.state',
       options: {
         httpOnly: true,
-        sameSite: 'lax',
+        sameSite: 'none',
         path: '/',
-        secure: process.env.NODE_ENV === 'production',
+        secure: true,
         maxAge: 900, // 15 minutes
       },
     },
