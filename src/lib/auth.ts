@@ -18,7 +18,7 @@ export const authOptions: NextAuthOptions = {
       },
       // Disable OAuth checks - Safari/iOS blocks ALL cross-site cookies
       // Security is still provided by: HTTPS, Google's OAuth, authorization code flow
-      checks: false as never,
+      checks: [],
     }),
     CredentialsProvider({
       name: 'credentials',
