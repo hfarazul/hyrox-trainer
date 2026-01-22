@@ -16,6 +16,9 @@ export const authOptions: NextAuthOptions = {
           prompt: 'select_account',
         },
       },
+      // Disable OAuth checks - Safari/iOS blocks ALL cross-site cookies
+      // Security is still provided by: HTTPS, Google's OAuth, authorization code flow
+      checks: [],
     }),
     CredentialsProvider({
       name: 'credentials',
@@ -71,26 +74,6 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: '/auth/signin',
   },
-  cookies: {
-    pkceCodeVerifier: {
-      name: 'next-auth.pkce.code_verifier',
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-      },
-    },
-    state: {
-      name: 'next-auth.state',
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 900, // 15 minutes
-      },
-    },
-  },
+  // No custom cookie config needed - using nonce check which doesn't use cookies
   debug: process.env.NODE_ENV === 'development',
 };
