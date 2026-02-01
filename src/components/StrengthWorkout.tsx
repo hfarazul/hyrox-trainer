@@ -362,14 +362,13 @@ export default function StrengthWorkout({
       {/* Complete Button */}
       <button
         onClick={onComplete}
-        disabled={!allComplete}
         className={`w-full py-4 rounded-xl font-black text-lg uppercase tracking-wide transition-colors ${
           allComplete
             ? 'bg-green-600 hover:bg-green-700 text-white'
-            : 'bg-[#262626] text-gray-500 cursor-not-allowed'
+            : 'bg-[#ffed00] hover:bg-[#e6d600] text-black'
         }`}
       >
-        {allComplete ? 'Complete Workout' : `Complete all exercises (${totalItems - completedCount} left)`}
+        {allComplete ? 'Complete Workout' : `Complete Workout (${completedCount}/${totalItems})`}
       </button>
     </div>
   );
