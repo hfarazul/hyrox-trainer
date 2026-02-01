@@ -8,6 +8,8 @@ import {
   generatePersonalizedProgram,
   validatePersonalization,
   getProgramSummary,
+  scaleRepString,
+  scaleValue,
 } from '@/lib/program-generator';
 import { PROGRAM_TEMPLATES } from '@/lib/program-templates';
 
@@ -321,6 +323,410 @@ describe('Program Generator', () => {
       ];
       const result = adjustForFitnessLevel(lowCoverageSchedule, 'beginner');
       expect(result[0].workouts[0].params.coverage).toBe(25);
+    });
+
+    // NEW TESTS: Interval distance and rest scaling
+    it('scales interval distance for beginners', () => {
+      const result = adjustForFitnessLevel(mockSchedule, 'beginner');
+      expect(result[0].workouts[1].params.intervals?.distance).toBe(320); // 400 * 0.8
+    });
+
+    it('scales interval rest for beginners', () => {
+      const result = adjustForFitnessLevel(mockSchedule, 'beginner');
+      expect(result[0].workouts[1].params.intervals?.rest).toBe(113); // 90 * 1.25 rounded
+    });
+
+    it('scales interval distance for advanced', () => {
+      const result = adjustForFitnessLevel(mockSchedule, 'advanced');
+      expect(result[0].workouts[1].params.intervals?.distance).toBe(480); // 400 * 1.2
+    });
+
+    it('scales interval rest for advanced', () => {
+      const result = adjustForFitnessLevel(mockSchedule, 'advanced');
+      expect(result[0].workouts[1].params.intervals?.rest).toBe(72); // 90 * 0.8
+    });
+
+    // NEW TESTS: Zone2/Tempo run scaling
+    describe('zone2/tempo run scaling', () => {
+      const runSchedule = [
+        {
+          week: 1,
+          phase: 'Test',
+          theme: 'Test',
+          workouts: [
+            {
+              dayOfWeek: 1,
+              dayName: 'Monday',
+              type: 'run' as const,
+              estimatedMinutes: 30,
+              params: { runType: 'zone2' as const, duration: 30 },
+            },
+            {
+              dayOfWeek: 4,
+              dayName: 'Thursday',
+              type: 'run' as const,
+              estimatedMinutes: 35,
+              params: { runType: 'tempo' as const, duration: 35 },
+            },
+          ],
+        },
+      ];
+
+      it('reduces zone2 duration for beginners', () => {
+        const result = adjustForFitnessLevel(runSchedule, 'beginner');
+        expect(result[0].workouts[0].params.duration).toBe(24); // 30 * 0.8
+        expect(result[0].workouts[0].estimatedMinutes).toBe(24);
+      });
+
+      it('reduces tempo duration for beginners', () => {
+        const result = adjustForFitnessLevel(runSchedule, 'beginner');
+        expect(result[0].workouts[1].params.duration).toBe(28); // 35 * 0.8
+      });
+
+      it('increases zone2 duration for advanced', () => {
+        const result = adjustForFitnessLevel(runSchedule, 'advanced');
+        expect(result[0].workouts[0].params.duration).toBe(36); // 30 * 1.2
+      });
+
+      it('increases tempo duration for advanced', () => {
+        const result = adjustForFitnessLevel(runSchedule, 'advanced');
+        expect(result[0].workouts[1].params.duration).toBe(42); // 35 * 1.2
+      });
+
+      it('enforces minimum duration of 15 minutes', () => {
+        const shortRunSchedule = [
+          {
+            week: 1,
+            phase: 'Test',
+            theme: 'Test',
+            workouts: [
+              {
+                dayOfWeek: 1,
+                dayName: 'Monday',
+                type: 'run' as const,
+                estimatedMinutes: 15,
+                params: { runType: 'zone2' as const, duration: 15 },
+              },
+            ],
+          },
+        ];
+        const result = adjustForFitnessLevel(shortRunSchedule, 'beginner');
+        expect(result[0].workouts[0].params.duration).toBe(15); // Min 15, not 12
+      });
+    });
+
+    // NEW TESTS: Station practice scaling
+    describe('station practice scaling', () => {
+      const stationSchedule = [
+        {
+          week: 1,
+          phase: 'Test',
+          theme: 'Test',
+          workouts: [
+            {
+              dayOfWeek: 2,
+              dayName: 'Tuesday',
+              type: 'station' as const,
+              estimatedMinutes: 30,
+              params: { stations: ['skierg', 'rowing'], sets: 2 },
+            },
+          ],
+        },
+      ];
+
+      it('scales sets for beginners', () => {
+        const result = adjustForFitnessLevel(stationSchedule, 'beginner');
+        expect(result[0].workouts[0].params.sets).toBe(2); // 2 * 0.75 = 1.5 rounds to 2
+      });
+
+      it('scales sets for advanced', () => {
+        const result = adjustForFitnessLevel(stationSchedule, 'advanced');
+        expect(result[0].workouts[0].params.sets).toBe(3); // 2 * 1.25 = 2.5 rounds to 3
+      });
+
+      it('reduces duration for beginners', () => {
+        const result = adjustForFitnessLevel(stationSchedule, 'beginner');
+        expect(result[0].workouts[0].estimatedMinutes).toBe(24); // 30 * 0.8
+      });
+
+      it('increases duration for advanced', () => {
+        const result = adjustForFitnessLevel(stationSchedule, 'advanced');
+        expect(result[0].workouts[0].estimatedMinutes).toBe(35); // 30 * 1.15 rounded
+      });
+
+      it('enforces minimum 1 set', () => {
+        const singleSetSchedule = [
+          {
+            week: 1,
+            phase: 'Test',
+            theme: 'Test',
+            workouts: [
+              {
+                dayOfWeek: 2,
+                dayName: 'Tuesday',
+                type: 'station' as const,
+                estimatedMinutes: 20,
+                params: { stations: ['skierg'], sets: 1 },
+              },
+            ],
+          },
+        ];
+        const result = adjustForFitnessLevel(singleSetSchedule, 'beginner');
+        expect(result[0].workouts[0].params.sets).toBe(1); // Min 1
+      });
+
+      it('enforces maximum 3 sets', () => {
+        const multiSetSchedule = [
+          {
+            week: 1,
+            phase: 'Test',
+            theme: 'Test',
+            workouts: [
+              {
+                dayOfWeek: 2,
+                dayName: 'Tuesday',
+                type: 'station' as const,
+                estimatedMinutes: 45,
+                params: { stations: ['skierg'], sets: 3 },
+              },
+            ],
+          },
+        ];
+        const result = adjustForFitnessLevel(multiSetSchedule, 'advanced');
+        expect(result[0].workouts[0].params.sets).toBe(3); // Max 3, not 4
+      });
+    });
+
+    // NEW TESTS: Strength workout scaling
+    describe('strength workout scaling', () => {
+      const strengthSchedule = [
+        {
+          week: 1,
+          phase: 'Test',
+          theme: 'Test',
+          workouts: [
+            {
+              dayOfWeek: 1,
+              dayName: 'Monday',
+              type: 'strength' as const,
+              estimatedMinutes: 45,
+              params: {
+                strengthFocus: 'lower' as const,
+                exercises: [
+                  { name: 'Back Squat', sets: 4, reps: '8-10', notes: '' },
+                  { name: 'Pull-ups', sets: 3, reps: 'max', notes: '' },
+                  { name: 'Lunges', sets: 3, reps: '20 steps', notes: '' },
+                  { name: 'Single Leg', sets: 3, reps: '8 each side', notes: '' },
+                ],
+                stationWork: ['sled_push'],
+              },
+            },
+          ],
+        },
+      ];
+
+      it('reduces sets for beginners', () => {
+        const result = adjustForFitnessLevel(strengthSchedule, 'beginner');
+        const exercises = result[0].workouts[0].params.exercises!;
+        expect(exercises[0].sets).toBe(3); // 4 * 0.75 = 3
+        expect(exercises[1].sets).toBe(2); // 3 * 0.75 = 2.25 rounds to 2
+      });
+
+      it('increases sets for advanced', () => {
+        const result = adjustForFitnessLevel(strengthSchedule, 'advanced');
+        const exercises = result[0].workouts[0].params.exercises!;
+        expect(exercises[0].sets).toBe(5); // 4 * 1.25 = 5
+        expect(exercises[1].sets).toBe(4); // 3 * 1.25 = 3.75 rounds to 4
+      });
+
+      it('increases reps for beginners (range format)', () => {
+        const result = adjustForFitnessLevel(strengthSchedule, 'beginner');
+        const exercises = result[0].workouts[0].params.exercises!;
+        expect(exercises[0].reps).toBe('10-12'); // 8-10 + 2
+      });
+
+      it('decreases reps for advanced (range format)', () => {
+        const result = adjustForFitnessLevel(strengthSchedule, 'advanced');
+        const exercises = result[0].workouts[0].params.exercises!;
+        expect(exercises[0].reps).toBe('6-8'); // 8-10 - 2
+      });
+
+      it('preserves "max" reps unchanged', () => {
+        const result = adjustForFitnessLevel(strengthSchedule, 'beginner');
+        const exercises = result[0].workouts[0].params.exercises!;
+        expect(exercises[1].reps).toBe('max');
+      });
+
+      it('scales step patterns', () => {
+        const result = adjustForFitnessLevel(strengthSchedule, 'beginner');
+        const exercises = result[0].workouts[0].params.exercises!;
+        expect(exercises[2].reps).toBe('22 steps'); // 20 + 2
+      });
+
+      it('scales "each side" patterns', () => {
+        const result = adjustForFitnessLevel(strengthSchedule, 'beginner');
+        const exercises = result[0].workouts[0].params.exercises!;
+        expect(exercises[3].reps).toBe('10 each side'); // 8 + 2
+      });
+
+      it('reduces duration for beginners', () => {
+        const result = adjustForFitnessLevel(strengthSchedule, 'beginner');
+        expect(result[0].workouts[0].estimatedMinutes).toBe(38); // 45 * 0.85 rounded
+      });
+
+      it('increases duration for advanced', () => {
+        const result = adjustForFitnessLevel(strengthSchedule, 'advanced');
+        expect(result[0].workouts[0].estimatedMinutes).toBe(52); // 45 * 1.15 rounded
+      });
+
+      it('enforces minimum 2 sets', () => {
+        const lowSetSchedule = [
+          {
+            week: 1,
+            phase: 'Test',
+            theme: 'Test',
+            workouts: [
+              {
+                dayOfWeek: 1,
+                dayName: 'Monday',
+                type: 'strength' as const,
+                estimatedMinutes: 30,
+                params: {
+                  strengthFocus: 'lower' as const,
+                  exercises: [{ name: 'Squat', sets: 2, reps: '10', notes: '' }],
+                },
+              },
+            ],
+          },
+        ];
+        const result = adjustForFitnessLevel(lowSetSchedule, 'beginner');
+        expect(result[0].workouts[0].params.exercises![0].sets).toBe(2); // Min 2
+      });
+
+      it('enforces maximum 5 sets', () => {
+        const highSetSchedule = [
+          {
+            week: 1,
+            phase: 'Test',
+            theme: 'Test',
+            workouts: [
+              {
+                dayOfWeek: 1,
+                dayName: 'Monday',
+                type: 'strength' as const,
+                estimatedMinutes: 60,
+                params: {
+                  strengthFocus: 'lower' as const,
+                  exercises: [{ name: 'Squat', sets: 5, reps: '5', notes: '' }],
+                },
+              },
+            ],
+          },
+        ];
+        const result = adjustForFitnessLevel(highSetSchedule, 'advanced');
+        expect(result[0].workouts[0].params.exercises![0].sets).toBe(5); // Max 5, not 6
+      });
+    });
+  });
+
+  describe('scaleRepString', () => {
+    it('returns unchanged for intermediate', () => {
+      expect(scaleRepString('8-10', 'intermediate')).toBe('8-10');
+      expect(scaleRepString('max', 'intermediate')).toBe('max');
+      expect(scaleRepString('20 steps', 'intermediate')).toBe('20 steps');
+    });
+
+    describe('range format (X-Y)', () => {
+      it('increases reps for beginners', () => {
+        expect(scaleRepString('8-10', 'beginner')).toBe('10-12');
+        expect(scaleRepString('5-8', 'beginner')).toBe('7-10');
+      });
+
+      it('decreases reps for advanced', () => {
+        expect(scaleRepString('8-10', 'advanced')).toBe('6-8');
+        expect(scaleRepString('10-12', 'advanced')).toBe('8-10');
+      });
+
+      it('enforces minimum 4 reps', () => {
+        expect(scaleRepString('5-6', 'advanced')).toBe('4-6'); // 5-2=3 -> 4, 6-2=4
+      });
+    });
+
+    describe('single number format', () => {
+      it('increases for beginners', () => {
+        expect(scaleRepString('10', 'beginner')).toBe('12');
+        expect(scaleRepString('8', 'beginner')).toBe('10');
+      });
+
+      it('decreases for advanced', () => {
+        expect(scaleRepString('10', 'advanced')).toBe('8');
+        expect(scaleRepString('8', 'advanced')).toBe('6');
+      });
+
+      it('enforces minimum 4', () => {
+        expect(scaleRepString('5', 'advanced')).toBe('4'); // 5-2=3 -> 4
+      });
+    });
+
+    describe('special formats', () => {
+      it('preserves "max" unchanged', () => {
+        expect(scaleRepString('max', 'beginner')).toBe('max');
+        expect(scaleRepString('max', 'advanced')).toBe('max');
+        expect(scaleRepString('MAX', 'beginner')).toBe('MAX');
+      });
+
+      it('scales step patterns', () => {
+        expect(scaleRepString('20 steps', 'beginner')).toBe('22 steps');
+        expect(scaleRepString('20 steps', 'advanced')).toBe('18 steps');
+      });
+
+      it('scales "each side" patterns', () => {
+        expect(scaleRepString('8 each side', 'beginner')).toBe('10 each side');
+        expect(scaleRepString('8 each side', 'advanced')).toBe('6 each side');
+      });
+
+      it('enforces minimum 4 for step patterns', () => {
+        expect(scaleRepString('5 steps', 'advanced')).toBe('4 steps'); // 5-2=3 -> 4
+      });
+
+      it('returns unknown formats unchanged', () => {
+        expect(scaleRepString('AMRAP', 'beginner')).toBe('AMRAP');
+        expect(scaleRepString('to failure', 'advanced')).toBe('to failure');
+      });
+    });
+  });
+
+  describe('scaleValue', () => {
+    it('returns unchanged for intermediate', () => {
+      expect(scaleValue(100, 'intermediate', 0.8, 1.2)).toBe(100);
+    });
+
+    it('applies beginner multiplier', () => {
+      expect(scaleValue(100, 'beginner', 0.8, 1.2)).toBe(80);
+      expect(scaleValue(45, 'beginner', 0.75, 1.25)).toBe(34); // 33.75 rounds to 34
+    });
+
+    it('applies advanced multiplier', () => {
+      expect(scaleValue(100, 'advanced', 0.8, 1.2)).toBe(120);
+      expect(scaleValue(45, 'advanced', 0.75, 1.25)).toBe(56); // 56.25 rounds to 56
+    });
+
+    it('enforces minimum value', () => {
+      expect(scaleValue(10, 'beginner', 0.5, 1.5, 8)).toBe(8); // 5 < 8, use 8
+    });
+
+    it('enforces maximum value', () => {
+      expect(scaleValue(100, 'advanced', 0.8, 1.5, undefined, 120)).toBe(120); // 150 > 120, use 120
+    });
+
+    it('enforces both min and max', () => {
+      expect(scaleValue(100, 'beginner', 0.5, 1.5, 60, 80)).toBe(60); // 50 < 60, use 60
+      expect(scaleValue(100, 'advanced', 0.5, 1.5, 60, 120)).toBe(120); // 150 > 120, use 120
+    });
+
+    it('rounds to nearest integer', () => {
+      expect(scaleValue(33, 'beginner', 0.8, 1.2)).toBe(26); // 26.4 rounds to 26
+      expect(scaleValue(33, 'advanced', 0.8, 1.2)).toBe(40); // 39.6 rounds to 40
     });
   });
 
