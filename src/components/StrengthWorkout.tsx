@@ -79,10 +79,72 @@ export default function StrengthWorkout({
 
     return result;
   }, [exercises, availableEquipmentIds, focus]);
+
+  // Filter and transform station work based on available equipment
+  // Shows alternative names when user doesn't have official equipment
+  const filteredStationWork = useMemo(() => {
+    if (!stationWork || stationWork.length === 0) return [];
+
+    type StationWorkItem = {
+      stationId: string;
+      displayName: string | null;
+      volume: string | null;
+    };
+
+    if (availableEquipmentIds.length === 0) {
+      // No equipment info, show all with original names
+      return stationWork.map(id => ({ stationId: id, displayName: null, volume: null }));
+    }
+
+    const result: StationWorkItem[] = [];
+
+    for (const stationId of stationWork) {
+      const station = HYROX_STATIONS.find(s => s.id === stationId);
+      if (!station) {
+        // Unknown station, keep it with original name
+        result.push({ stationId, displayName: null, volume: null });
+        continue;
+      }
+
+      // Find the best available alternative
+      // First, check if user can do the official version (first alternative)
+      const officialAlt = station.alternatives[0];
+      const canDoOfficial = officialAlt && (
+        officialAlt.equipmentNeeded.length === 0 ||
+        officialAlt.equipmentNeeded.every(eq => availableEquipmentIds.includes(eq))
+      );
+
+      if (canDoOfficial) {
+        // User has official equipment, show station name with official volume
+        const volume = officialAlt.baseValue && officialAlt.unit
+          ? `${officialAlt.baseValue}${officialAlt.unit}`
+          : null;
+        result.push({ stationId, displayName: null, volume });
+      } else {
+        // Find the first alternative they CAN do
+        const availableAlt = station.alternatives.find(alt =>
+          alt.equipmentNeeded.length === 0 ||
+          alt.equipmentNeeded.every(eq => availableEquipmentIds.includes(eq))
+        );
+
+        if (availableAlt) {
+          // Show the alternative name with volume
+          const volume = availableAlt.baseValue && availableAlt.unit
+            ? `${availableAlt.baseValue}${availableAlt.unit}`
+            : null;
+          result.push({ stationId, displayName: availableAlt.name, volume });
+        }
+        // If no alternative available, don't include this station
+      }
+    }
+
+    return result;
+  }, [stationWork, availableEquipmentIds]);
+
   const [completedExercises, setCompletedExercises] = useState<Set<string>>(new Set());
   const [completedStations, setCompletedStations] = useState<Set<string>>(new Set());
 
-  const totalItems = filteredExercises.length + (stationWork?.length || 0);
+  const totalItems = filteredExercises.length + filteredStationWork.length;
   const completedCount = completedExercises.size + completedStations.size;
   const allComplete = completedCount === totalItems;
 
@@ -232,7 +294,7 @@ export default function StrengthWorkout({
       </div>
 
       {/* Station Work Section */}
-      {stationWork && stationWork.length > 0 && (
+      {filteredStationWork.length > 0 && (
         <div className="mb-6">
           <div className="inline-block bg-[#ffed00] px-3 py-1.5 mb-3">
             <h3 className="text-black font-black tracking-wider uppercase text-sm">Station Work</h3>
@@ -241,8 +303,11 @@ export default function StrengthWorkout({
             Practice HYROX-specific movements to build race-day strength
           </p>
           <div className="space-y-2">
-            {stationWork.map((stationId) => {
+            {filteredStationWork.map(({ stationId, displayName, volume }) => {
               const isComplete = completedStations.has(stationId);
+              const name = displayName || getStationName(stationId);
+              const originalStationName = getStationName(stationId);
+              const isAlternative = displayName !== null;
               return (
                 <button
                   key={stationId}
@@ -267,11 +332,25 @@ export default function StrengthWorkout({
                         </svg>
                       )}
                     </div>
-                    <span
-                      className={`font-semibold ${isComplete ? 'text-gray-400 line-through' : 'text-white'}`}
-                    >
-                      {getStationName(stationId)}
-                    </span>
+                    <div className="flex-1 flex flex-col">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`font-semibold ${isComplete ? 'text-gray-400 line-through' : 'text-white'}`}
+                        >
+                          {name}
+                        </span>
+                        {volume && (
+                          <span className="text-[#ffed00] font-mono text-sm">
+                            {volume}
+                          </span>
+                        )}
+                      </div>
+                      {isAlternative && (
+                        <span className="text-xs text-gray-500">
+                          for {originalStationName}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </button>
               );
