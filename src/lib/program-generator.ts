@@ -215,9 +215,73 @@ export function addWeakStationFocus(
 }
 
 /**
+ * Parse and scale a rep string based on fitness level
+ * Handles: "8-10", "8", "max", "20 steps", "8 each side"
+ * Beginners get +2 reps (lighter weight, more reps)
+ * Advanced get -2 reps (heavier weight, fewer reps)
+ */
+export function scaleRepString(
+  reps: string,
+  fitnessLevel: 'beginner' | 'intermediate' | 'advanced'
+): string {
+  if (fitnessLevel === 'intermediate') return reps;
+
+  const offset = fitnessLevel === 'beginner' ? 2 : -2;
+
+  // "max" - unchanged
+  if (reps.toLowerCase() === 'max') return reps;
+
+  // "X steps" or "X each side" patterns
+  const stepMatch = reps.match(/^(\d+)\s+(.+)$/);
+  if (stepMatch) {
+    const num = Math.max(4, parseInt(stepMatch[1], 10) + offset);
+    return `${num} ${stepMatch[2]}`;
+  }
+
+  // Range "X-Y"
+  const rangeMatch = reps.match(/^(\d+)-(\d+)$/);
+  if (rangeMatch) {
+    const low = Math.max(4, parseInt(rangeMatch[1], 10) + offset);
+    const high = Math.max(low + 2, parseInt(rangeMatch[2], 10) + offset);
+    return `${low}-${high}`;
+  }
+
+  // Single number "X"
+  const singleMatch = reps.match(/^(\d+)$/);
+  if (singleMatch) {
+    return String(Math.max(4, parseInt(singleMatch[1], 10) + offset));
+  }
+
+  // Unknown format, return unchanged
+  return reps;
+}
+
+/**
+ * Scale a numeric value by fitness level with optional min/max bounds
+ */
+export function scaleValue(
+  value: number,
+  fitnessLevel: 'beginner' | 'intermediate' | 'advanced',
+  beginnerMult: number,
+  advancedMult: number,
+  min?: number,
+  max?: number
+): number {
+  if (fitnessLevel === 'intermediate') return value;
+
+  const mult = fitnessLevel === 'beginner' ? beginnerMult : advancedMult;
+  let scaled = Math.round(value * mult);
+
+  if (min !== undefined) scaled = Math.max(min, scaled);
+  if (max !== undefined) scaled = Math.min(max, scaled);
+
+  return scaled;
+}
+
+/**
  * Adjust program for fitness level
- * - Beginner: Reduce intensity, more rest
- * - Advanced: Increase intensity, less rest
+ * - Beginner: Reduce intensity (fewer sets, more reps, shorter durations, more rest)
+ * - Advanced: Increase intensity (more sets, fewer reps, longer durations, less rest)
  */
 export function adjustForFitnessLevel(
   schedule: GeneratedProgramWeek[],
@@ -227,60 +291,81 @@ export function adjustForFitnessLevel(
 
   return schedule.map(week => {
     const modifiedWorkouts = week.workouts.map(workout => {
-      if (fitnessLevel === 'beginner') {
-        // Reduce coverage percentages for beginners
-        if (workout.type === 'coverage' && workout.params.coverage) {
-          return {
-            ...workout,
-            params: {
-              ...workout.params,
-              coverage: Math.max(25, workout.params.coverage - 25),
-            },
-            estimatedMinutes: Math.round(workout.estimatedMinutes * 0.8),
-          };
-        }
-
-        // Reduce interval reps for beginners
-        if (workout.type === 'run' && workout.params.intervals) {
-          return {
-            ...workout,
-            params: {
-              ...workout.params,
-              intervals: {
-                ...workout.params.intervals,
-                reps: Math.max(3, workout.params.intervals.reps - 2),
-              },
-            },
-          };
-        }
+      // 1. Coverage workouts - scale percentage and duration
+      if (workout.type === 'coverage' && workout.params.coverage) {
+        const coverageOffset = fitnessLevel === 'beginner' ? -25 : 25;
+        const durationMult = fitnessLevel === 'beginner' ? 0.8 : 1.2;
+        return {
+          ...workout,
+          params: {
+            ...workout.params,
+            coverage: Math.max(25, Math.min(150, workout.params.coverage + coverageOffset)),
+          },
+          estimatedMinutes: Math.round(workout.estimatedMinutes * durationMult),
+        };
       }
 
-      if (fitnessLevel === 'advanced') {
-        // Increase coverage percentages for advanced
-        if (workout.type === 'coverage' && workout.params.coverage) {
-          return {
-            ...workout,
-            params: {
-              ...workout.params,
-              coverage: Math.min(150, workout.params.coverage + 25),
+      // 2. Interval runs - scale reps, distance, and rest
+      if (workout.type === 'run' && workout.params.intervals) {
+        const intervals = workout.params.intervals;
+        const repsOffset = fitnessLevel === 'beginner' ? -2 : 2;
+        return {
+          ...workout,
+          params: {
+            ...workout.params,
+            intervals: {
+              reps: Math.max(3, intervals.reps + repsOffset),
+              distance: scaleValue(intervals.distance, fitnessLevel, 0.8, 1.2, 200),
+              rest: scaleValue(intervals.rest, fitnessLevel, 1.25, 0.8, 60, 180),
             },
-            estimatedMinutes: Math.round(workout.estimatedMinutes * 1.2),
-          };
-        }
+          },
+        };
+      }
 
-        // Increase interval reps for advanced
-        if (workout.type === 'run' && workout.params.intervals) {
-          return {
-            ...workout,
-            params: {
-              ...workout.params,
-              intervals: {
-                ...workout.params.intervals,
-                reps: workout.params.intervals.reps + 2,
-              },
-            },
-          };
-        }
+      // 3. Zone2/Tempo runs - scale duration
+      if (workout.type === 'run' && workout.params.duration &&
+          (workout.params.runType === 'zone2' || workout.params.runType === 'tempo')) {
+        const newDuration = scaleValue(workout.params.duration, fitnessLevel, 0.8, 1.2, 15);
+        return {
+          ...workout,
+          params: {
+            ...workout.params,
+            duration: newDuration,
+          },
+          estimatedMinutes: newDuration,
+        };
+      }
+
+      // 4. Station practice - scale sets and duration
+      if (workout.type === 'station' && workout.params.sets !== undefined) {
+        const newSets = scaleValue(workout.params.sets, fitnessLevel, 0.75, 1.25, 1, 3);
+        const durationMult = fitnessLevel === 'beginner' ? 0.8 : 1.15;
+        return {
+          ...workout,
+          params: {
+            ...workout.params,
+            sets: newSets,
+          },
+          estimatedMinutes: Math.max(15, Math.round(workout.estimatedMinutes * durationMult)),
+        };
+      }
+
+      // 5. Strength workouts - scale sets, reps, and duration
+      if (workout.type === 'strength' && workout.params.exercises) {
+        const scaledExercises = workout.params.exercises.map(exercise => ({
+          ...exercise,
+          sets: scaleValue(exercise.sets, fitnessLevel, 0.75, 1.25, 2, 5),
+          reps: scaleRepString(exercise.reps, fitnessLevel),
+        }));
+        const durationMult = fitnessLevel === 'beginner' ? 0.85 : 1.15;
+        return {
+          ...workout,
+          params: {
+            ...workout.params,
+            exercises: scaledExercises,
+          },
+          estimatedMinutes: Math.max(30, Math.round(workout.estimatedMinutes * durationMult)),
+        };
       }
 
       return workout;
