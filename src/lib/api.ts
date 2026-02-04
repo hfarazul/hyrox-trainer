@@ -140,15 +140,24 @@ export async function quitProgramAPI(): Promise<void> {
   }
 }
 
+export interface CompleteWorkoutOptions {
+  week: number;
+  dayOfWeek: number;
+  sessionId?: string;
+  actualDuration?: number;
+  rpe?: number;
+  completionStatus?: 'full' | 'partial' | 'skipped';
+  percentComplete?: number;
+  performanceData?: Record<string, unknown>;
+}
+
 export async function completeWorkoutAPI(
-  week: number,
-  dayOfWeek: number,
-  sessionId?: string
+  options: CompleteWorkoutOptions
 ): Promise<void> {
   const response = await fetch('/api/user-program/complete-workout', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ week, dayOfWeek, sessionId }),
+    body: JSON.stringify(options),
   });
   if (!response.ok && response.status !== 401) {
     throw new Error('Failed to complete workout');
