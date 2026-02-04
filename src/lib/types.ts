@@ -238,6 +238,11 @@ export interface ScheduledWorkoutExtended {
     strengthFocus?: 'lower' | 'upper' | 'full';
     exercises?: StrengthExercise[];
     stationWork?: string[];
+    // Makeup workout params
+    isMakeup?: boolean;
+    originalWeek?: number;
+    originalDayOfWeek?: number;
+    condenseFactor?: number;
   };
 }
 

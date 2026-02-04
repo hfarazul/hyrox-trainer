@@ -106,8 +106,28 @@ export async function POST(request: NextRequest) {
         percentComplete: cw.percentComplete,
       }));
 
+      // Calculate total scheduled workouts and weeks in program
+      let totalScheduledWorkouts = 32; // Default fallback
+      if (userProgram.programData) {
+        try {
+          const programData = JSON.parse(userProgram.programData);
+          totalScheduledWorkouts = programData.schedule?.reduce(
+            (sum: number, week: { workouts: Array<{ type: string }> }) =>
+              sum + week.workouts.filter((w: { type: string }) => w.type !== 'rest').length,
+            0
+          ) || 32;
+        } catch {
+          // Use default if parsing fails
+        }
+      }
+
+      // Calculate weeks in program
+      const startDate = new Date(userProgram.startDate);
+      const now = new Date();
+      const weeksInProgram = Math.max(1, Math.ceil((now.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000)));
+
       // Analyze recent performance
-      const analysis = analyzeRecentPerformance(completionLogs);
+      const analysis = analyzeRecentPerformance(completionLogs, totalScheduledWorkouts, weeksInProgram);
       const newModifier = suggestIntensityModifier(analysis);
 
       // Update UserProgram if modifier changed significantly (±0.05)
