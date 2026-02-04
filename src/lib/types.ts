@@ -162,6 +162,11 @@ export interface CompletedProgramWorkout {
   dayOfWeek: number;
   sessionId: string;
   completedAt: string;
+  // Performance tracking fields
+  actualDuration?: number | null;
+  rpe?: number | null;
+  completionStatus?: string; // 'full' | 'partial' | 'skipped'
+  percentComplete?: number;
 }
 
 // Personalized Program Types

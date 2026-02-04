@@ -62,6 +62,10 @@ export async function GET() {
         dayOfWeek: cw.dayOfWeek,
         sessionId: cw.sessionId || '',
         completedAt: cw.completedAt.toISOString(),
+        actualDuration: cw.actualDuration,
+        rpe: cw.rpe,
+        completionStatus: cw.completionStatus,
+        percentComplete: cw.percentComplete,
       })),
     });
   } catch (error) {

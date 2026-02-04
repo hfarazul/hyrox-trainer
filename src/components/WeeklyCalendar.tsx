@@ -74,6 +74,31 @@ function CheckmarkIcon({ className = "w-5 h-5" }: { className?: string }) {
   );
 }
 
+// Partial completion icon
+function PartialIcon({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+      <circle cx="12" cy="12" r="10" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2" />
+    </svg>
+  );
+}
+
+// RPE Badge component
+function RPEBadge({ rpe }: { rpe: number }) {
+  const getColor = () => {
+    if (rpe <= 5) return 'bg-green-500/20 text-green-400';
+    if (rpe <= 7) return 'bg-yellow-500/20 text-yellow-400';
+    return 'bg-red-500/20 text-red-400';
+  };
+
+  return (
+    <span className={`text-[10px] px-1 py-0.5 rounded ${getColor()}`}>
+      RPE {rpe}
+    </span>
+  );
+}
+
 interface Props {
   userProgram: UserProgram;
   onStartWorkout: (week: number, workout: ScheduledWorkout | ScheduledWorkoutExtended) => void;
@@ -135,9 +160,16 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
   const weekData = program.schedule.find(w => w.week === selectedWeek);
   const currentWeek = getCurrentWeek();
 
-  // Check if a workout is completed
+  // Check if a workout is completed and get its data
   const isWorkoutCompleted = (week: number, dayOfWeek: number): boolean => {
     return userProgram.completedWorkouts.some(
+      cw => cw.week === week && cw.dayOfWeek === dayOfWeek
+    );
+  };
+
+  // Get completion data for a workout
+  const getCompletionData = (week: number, dayOfWeek: number) => {
+    return userProgram.completedWorkouts.find(
       cw => cw.week === week && cw.dayOfWeek === dayOfWeek
     );
   };
@@ -157,14 +189,17 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     return days.map((name, index) => {
       const workout = weekData?.workouts.find(w => w.dayOfWeek === index);
+      const completionData = getCompletionData(selectedWeek, index);
       return {
         name,
         index,
         workout,
         isToday: index === today && selectedWeek === currentWeek,
         isCompleted: workout ? isWorkoutCompleted(selectedWeek, index) : false,
+        completionData,
       };
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [weekData, selectedWeek, today, currentWeek, userProgram.completedWorkouts]);
 
   return (
@@ -265,7 +300,11 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
               <>
                 <div className="flex justify-center mb-1">
                   {day.isCompleted ? (
-                    <CheckmarkIcon className="w-6 h-6 sm:w-7 sm:h-7 text-[#ffed00]" />
+                    day.completionData?.completionStatus === 'partial' ? (
+                      <PartialIcon className="w-6 h-6 sm:w-7 sm:h-7 text-orange-400" />
+                    ) : (
+                      <CheckmarkIcon className="w-6 h-6 sm:w-7 sm:h-7 text-[#ffed00]" />
+                    )
                   ) : (
                     <WorkoutTypeIconSVG
                       icon={isPersonalized
@@ -276,7 +315,13 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
                     />
                   )}
                 </div>
-                <div className={`text-xs ${day.isCompleted ? 'text-[#ffed00]' : 'text-gray-400'}`}>
+                <div className={`text-xs ${
+                  day.isCompleted
+                    ? day.completionData?.completionStatus === 'partial'
+                      ? 'text-orange-400'
+                      : 'text-[#ffed00]'
+                    : 'text-gray-400'
+                }`}>
                   {day.workout.type === 'rest' ? 'Rest' : `${day.workout.estimatedMinutes}m`}
                 </div>
               </>
@@ -295,14 +340,18 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
           </h3>
           {weekData.workouts.map((workout, idx) => {
             const completed = isWorkoutCompleted(selectedWeek, workout.dayOfWeek);
+            const completionData = getCompletionData(selectedWeek, workout.dayOfWeek);
             const isRestDay = workout.type === 'rest';
+            const isPartial = completionData?.completionStatus === 'partial';
 
             return (
               <div
                 key={idx}
                 className={`p-4 rounded-lg border ${
                   completed
-                    ? 'bg-[#ffed00]/10 border-[#ffed00]/30'
+                    ? isPartial
+                      ? 'bg-orange-500/10 border-orange-500/30'
+                      : 'bg-[#ffed00]/10 border-[#ffed00]/30'
                     : isRestDay
                     ? 'bg-[#1f1f1f]/50 border-[#262626]'
                     : 'bg-[#1f1f1f] border-[#262626]'
@@ -311,7 +360,11 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     {completed ? (
-                      <CheckmarkIcon className="w-7 h-7 text-[#ffed00]" />
+                      isPartial ? (
+                        <PartialIcon className="w-7 h-7 text-orange-400" />
+                      ) : (
+                        <CheckmarkIcon className="w-7 h-7 text-[#ffed00]" />
+                      )
                     ) : (
                       <WorkoutTypeIconSVG
                         icon={isPersonalized
@@ -322,12 +375,19 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
                       />
                     )}
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-medium text-white">{workout.dayName}</span>
                         {completed && (
-                          <span className="text-xs px-1.5 py-0.5 bg-[#ffed00]/20 text-[#ffed00] rounded">
-                            Completed
+                          <span className={`text-xs px-1.5 py-0.5 rounded ${
+                            isPartial
+                              ? 'bg-orange-500/20 text-orange-400'
+                              : 'bg-[#ffed00]/20 text-[#ffed00]'
+                          }`}>
+                            {isPartial ? `${completionData?.percentComplete || 0}%` : 'Completed'}
                           </span>
+                        )}
+                        {completionData?.rpe && (
+                          <RPEBadge rpe={completionData.rpe} />
                         )}
                       </div>
                       <div className="text-sm text-gray-400">
