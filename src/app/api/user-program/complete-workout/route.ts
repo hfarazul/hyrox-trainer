@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import { analyzeRecentPerformance, suggestIntensityModifier } from '@/lib/performance-analyzer';
 
 // POST: Mark a workout as complete
 export async function POST(request: NextRequest) {
@@ -84,6 +85,43 @@ export async function POST(request: NextRequest) {
         performanceData: performanceDataJson,
       },
     });
+
+    // Auto-adjust intensity modifier based on recent performance
+    try {
+      // Fetch all completed workouts for analysis
+      const allCompletions = await prisma.completedProgramWorkout.findMany({
+        where: { userProgramId: userProgram.id },
+        orderBy: { completedAt: 'desc' },
+      });
+
+      // Transform to the format expected by the analyzer
+      const completionLogs = allCompletions.map(cw => ({
+        week: cw.week,
+        dayOfWeek: cw.dayOfWeek,
+        sessionId: cw.sessionId || '',
+        completedAt: cw.completedAt.toISOString(),
+        actualDuration: cw.actualDuration,
+        rpe: cw.rpe,
+        completionStatus: cw.completionStatus,
+        percentComplete: cw.percentComplete,
+      }));
+
+      // Analyze recent performance
+      const analysis = analyzeRecentPerformance(completionLogs);
+      const newModifier = suggestIntensityModifier(analysis);
+
+      // Update UserProgram if modifier changed significantly (±0.05)
+      const currentModifier = userProgram.intensityModifier ?? 1.0;
+      if (Math.abs(newModifier - currentModifier) >= 0.05) {
+        await prisma.userProgram.update({
+          where: { id: userProgram.id },
+          data: { intensityModifier: newModifier },
+        });
+      }
+    } catch (analysisError) {
+      // Log but don't fail the request if analysis fails
+      console.error('Error updating intensity modifier:', analysisError);
+    }
 
     return NextResponse.json({
       week: completedWorkout.week,
