@@ -12,6 +12,7 @@ import ProgramSelector from '@/components/ProgramSelector';
 import WeeklyCalendar from '@/components/WeeklyCalendar';
 import RunningWorkout, { RunningWorkoutCompletionData } from '@/components/RunningWorkout';
 import StrengthWorkout, { StrengthWorkoutCompletionData } from '@/components/StrengthWorkout';
+import PerformanceInsights from '@/components/PerformanceInsights';
 import { UserEquipment, GeneratedWorkout, RaceSimulatorConfig, UserProgram, ScheduledWorkout, ScheduledWorkoutExtended, ProgramPersonalization } from '@/lib/types';
 import { loadEquipment, loadExcludedExercises, saveExcludedExercises, loadUserProgram, saveUserProgram, clearUserProgram, generateId, addCompletedProgramWorkout, saveIncludeRuns, loadIncludeRuns } from '@/lib/storage';
 import { fetchEquipment, fetchUserProgram, startProgramAPI, quitProgramAPI, completeWorkoutAPI, createPersonalizedProgramAPI } from '@/lib/api';
@@ -877,12 +878,15 @@ export default function Home() {
             {/* Main Programs Content */}
             {!activeRunWorkout && !activeStrengthWorkout && (
               userProgram ? (
-                <WeeklyCalendar
-                  userProgram={userProgram}
-                  onStartWorkout={handleStartProgramWorkout}
-                  onQuitProgram={handleQuitProgram}
-                  programData={programData || undefined}
-                />
+                <div className="space-y-6">
+                  <WeeklyCalendar
+                    userProgram={userProgram}
+                    onStartWorkout={handleStartProgramWorkout}
+                    onQuitProgram={handleQuitProgram}
+                    programData={programData || undefined}
+                  />
+                  <PerformanceInsights />
+                </div>
               ) : (
                 <ProgramSelector
                   onStartProgram={handleStartProgram}
