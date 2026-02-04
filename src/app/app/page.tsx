@@ -10,8 +10,9 @@ import PacingCalculator from '@/components/PacingCalculator';
 import ProgressTracker from '@/components/ProgressTracker';
 import ProgramSelector from '@/components/ProgramSelector';
 import WeeklyCalendar from '@/components/WeeklyCalendar';
-import RunningWorkout from '@/components/RunningWorkout';
-import StrengthWorkout from '@/components/StrengthWorkout';
+import RunningWorkout, { RunningWorkoutCompletionData } from '@/components/RunningWorkout';
+import StrengthWorkout, { StrengthWorkoutCompletionData } from '@/components/StrengthWorkout';
+import PerformanceInsights from '@/components/PerformanceInsights';
 import { UserEquipment, GeneratedWorkout, RaceSimulatorConfig, UserProgram, ScheduledWorkout, ScheduledWorkoutExtended, ProgramPersonalization } from '@/lib/types';
 import { loadEquipment, loadExcludedExercises, saveExcludedExercises, loadUserProgram, saveUserProgram, clearUserProgram, generateId, addCompletedProgramWorkout, saveIncludeRuns, loadIncludeRuns } from '@/lib/storage';
 import { fetchEquipment, fetchUserProgram, startProgramAPI, quitProgramAPI, completeWorkoutAPI, createPersonalizedProgramAPI } from '@/lib/api';
@@ -286,13 +287,18 @@ export default function Home() {
     setActiveStrengthWorkout(workout);
   };
 
-  const handleCompleteRunWorkout = async () => {
+  const handleCompleteRunWorkout = async (data: RunningWorkoutCompletionData) => {
     if (programWorkoutContext && userProgram && session?.user) {
       try {
-        await completeWorkoutAPI(
-          programWorkoutContext.week,
-          programWorkoutContext.dayOfWeek
-        );
+        await completeWorkoutAPI({
+          week: programWorkoutContext.week,
+          dayOfWeek: programWorkoutContext.dayOfWeek,
+          actualDuration: data.actualDuration,
+          rpe: data.rpe,
+          completionStatus: data.completionStatus,
+          percentComplete: data.percentComplete,
+          performanceData: data.performanceData,
+        });
         // Reload user program
         const updated = await fetchUserProgram();
         if (updated) {
@@ -306,13 +312,18 @@ export default function Home() {
     setProgramWorkoutContext(null);
   };
 
-  const handleCompleteStrengthWorkout = async () => {
+  const handleCompleteStrengthWorkout = async (data: StrengthWorkoutCompletionData) => {
     if (programWorkoutContext && userProgram && session?.user) {
       try {
-        await completeWorkoutAPI(
-          programWorkoutContext.week,
-          programWorkoutContext.dayOfWeek
-        );
+        await completeWorkoutAPI({
+          week: programWorkoutContext.week,
+          dayOfWeek: programWorkoutContext.dayOfWeek,
+          actualDuration: data.actualDuration,
+          rpe: data.rpe,
+          completionStatus: data.completionStatus,
+          percentComplete: data.percentComplete,
+          performanceData: data.performanceData,
+        });
         // Reload user program
         const updated = await fetchUserProgram();
         if (updated) {
@@ -393,11 +404,11 @@ export default function Home() {
       if (session?.user) {
         // Authenticated: use API
         try {
-          await completeWorkoutAPI(
-            programWorkoutContext.week,
-            programWorkoutContext.dayOfWeek,
-            sessionId
-          );
+          await completeWorkoutAPI({
+            week: programWorkoutContext.week,
+            dayOfWeek: programWorkoutContext.dayOfWeek,
+            sessionId,
+          });
           // Reload user program to get updated completedWorkouts
           const updated = await fetchUserProgram();
           if (updated) {
@@ -867,12 +878,15 @@ export default function Home() {
             {/* Main Programs Content */}
             {!activeRunWorkout && !activeStrengthWorkout && (
               userProgram ? (
-                <WeeklyCalendar
-                  userProgram={userProgram}
-                  onStartWorkout={handleStartProgramWorkout}
-                  onQuitProgram={handleQuitProgram}
-                  programData={programData || undefined}
-                />
+                <div className="space-y-6">
+                  <WeeklyCalendar
+                    userProgram={userProgram}
+                    onStartWorkout={handleStartProgramWorkout}
+                    onQuitProgram={handleQuitProgram}
+                    programData={programData || undefined}
+                  />
+                  <PerformanceInsights />
+                </div>
               ) : (
                 <ProgramSelector
                   onStartProgram={handleStartProgram}

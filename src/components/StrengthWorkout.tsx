@@ -1,16 +1,33 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { StrengthExercise, UserEquipment } from '@/lib/types';
 import { HYROX_STATIONS } from '@/lib/hyrox-data';
 import { getExercisesForEquipment, StrengthExerciseDefinition } from '@/lib/strength-exercises';
+import WorkoutFeedback, { WorkoutFeedbackData } from './WorkoutFeedback';
+
+export interface StrengthWorkoutCompletionData {
+  actualDuration: number; // in minutes
+  completionStatus: 'full' | 'partial';
+  percentComplete: number;
+  rpe?: number;
+  performanceData: {
+    focus: 'lower' | 'upper' | 'full';
+    exercisesCompleted: string[];
+    exercisesTotal: number;
+    stationsCompleted: string[];
+    stationsTotal: number;
+    feeling?: 'easy' | 'just_right' | 'hard' | 'too_hard';
+    notes?: string;
+  };
+}
 
 interface StrengthWorkoutProps {
   focus: 'lower' | 'upper' | 'full';
   exercises: StrengthExercise[];
   stationWork?: string[];
   equipment?: UserEquipment[];
-  onComplete: () => void;
+  onComplete: (data: StrengthWorkoutCompletionData) => void;
   onBack?: () => void;
 }
 
@@ -143,10 +160,23 @@ export default function StrengthWorkout({
 
   const [completedExercises, setCompletedExercises] = useState<Set<string>>(new Set());
   const [completedStations, setCompletedStations] = useState<Set<string>>(new Set());
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const startTimeRef = useRef<number>(Date.now());
+
+  // Timer effect
+  useEffect(() => {
+    startTimeRef.current = Date.now();
+    const interval = setInterval(() => {
+      setElapsedSeconds(Math.floor((Date.now() - startTimeRef.current) / 1000));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const totalItems = filteredExercises.length + filteredStationWork.length;
   const completedCount = completedExercises.size + completedStations.size;
   const allComplete = completedCount === totalItems;
+  const percentComplete = totalItems > 0 ? Math.round((completedCount / totalItems) * 100) : 0;
 
   const toggleExercise = (exerciseId: string) => {
     const newSet = new Set(completedExercises);
@@ -197,46 +227,108 @@ export default function StrengthWorkout({
     );
   };
 
-  return (
-    <div className="bg-[#141414] rounded-xl p-4 sm:p-6">
-      {/* Back button */}
-      {onBack && (
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 text-gray-400 hover:text-white mb-4 transition-colors"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          Back
-        </button>
-      )}
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
-      {/* Header */}
-      <div className="flex items-start gap-4 mb-6">
-        <div className="flex-shrink-0 w-14 h-14 rounded-full bg-[#ffed00]/20 text-[#ffed00] flex items-center justify-center">
-          {getFocusIcon()}
-        </div>
-        <div className="flex-1">
-          <h2 className="text-xl sm:text-2xl font-black tracking-wide uppercase text-white">
-            {getFocusLabel()}
-          </h2>
-          <p className="text-gray-400 text-sm mt-1">
-            Strength + Station Work
-          </p>
-          <div className="flex items-center gap-2 mt-2">
-            <div className="flex-1 h-2 bg-[#262626] rounded-full overflow-hidden">
-              <div
-                className="h-full bg-[#ffed00] transition-all duration-300"
-                style={{ width: `${(completedCount / totalItems) * 100}%` }}
-              />
+  const handleCompleteClick = () => {
+    setShowFeedback(true);
+  };
+
+  const handleFeedbackSubmit = (feedback: WorkoutFeedbackData) => {
+    const actualDuration = Math.ceil(elapsedSeconds / 60);
+    const completionData: StrengthWorkoutCompletionData = {
+      actualDuration,
+      completionStatus: allComplete ? 'full' : 'partial',
+      percentComplete,
+      rpe: feedback.rpe,
+      performanceData: {
+        focus,
+        exercisesCompleted: Array.from(completedExercises),
+        exercisesTotal: filteredExercises.length,
+        stationsCompleted: Array.from(completedStations),
+        stationsTotal: filteredStationWork.length,
+        feeling: feedback.feeling,
+        notes: feedback.notes,
+      },
+    };
+    setShowFeedback(false);
+    onComplete(completionData);
+  };
+
+  const handleFeedbackSkip = () => {
+    const actualDuration = Math.ceil(elapsedSeconds / 60);
+    const completionData: StrengthWorkoutCompletionData = {
+      actualDuration,
+      completionStatus: allComplete ? 'full' : 'partial',
+      percentComplete,
+      performanceData: {
+        focus,
+        exercisesCompleted: Array.from(completedExercises),
+        exercisesTotal: filteredExercises.length,
+        stationsCompleted: Array.from(completedStations),
+        stationsTotal: filteredStationWork.length,
+      },
+    };
+    setShowFeedback(false);
+    onComplete(completionData);
+  };
+
+  return (
+    <>
+      {showFeedback && (
+        <WorkoutFeedback
+          workoutType="strength"
+          onSubmit={handleFeedbackSubmit}
+          onSkip={handleFeedbackSkip}
+        />
+      )}
+      <div className="bg-[#141414] rounded-xl p-4 sm:p-6">
+        {/* Back button */}
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="flex items-center gap-2 text-gray-400 hover:text-white mb-4 transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back
+          </button>
+        )}
+
+        {/* Header */}
+        <div className="flex items-start gap-4 mb-6">
+          <div className="flex-shrink-0 w-14 h-14 rounded-full bg-[#ffed00]/20 text-[#ffed00] flex items-center justify-center">
+            {getFocusIcon()}
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl sm:text-2xl font-black tracking-wide uppercase text-white">
+                {getFocusLabel()}
+              </h2>
+              <span className="text-[#ffed00] font-mono text-lg">
+                {formatTime(elapsedSeconds)}
+              </span>
             </div>
-            <span className="text-gray-400 text-sm">
-              {completedCount}/{totalItems}
-            </span>
+            <p className="text-gray-400 text-sm mt-1">
+              Strength + Station Work
+            </p>
+            <div className="flex items-center gap-2 mt-2">
+              <div className="flex-1 h-2 bg-[#262626] rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-[#ffed00] transition-all duration-300"
+                  style={{ width: `${(completedCount / totalItems) * 100}%` }}
+                />
+              </div>
+              <span className="text-gray-400 text-sm">
+                {completedCount}/{totalItems}
+              </span>
+            </div>
           </div>
         </div>
-      </div>
 
       {/* Exercises Section */}
       <div className="mb-6">
@@ -359,17 +451,18 @@ export default function StrengthWorkout({
         </div>
       )}
 
-      {/* Complete Button */}
-      <button
-        onClick={onComplete}
-        className={`w-full py-4 rounded-xl font-black text-lg uppercase tracking-wide transition-colors ${
-          allComplete
-            ? 'bg-green-600 hover:bg-green-700 text-white'
-            : 'bg-[#ffed00] hover:bg-[#e6d600] text-black'
-        }`}
-      >
-        {allComplete ? 'Complete Workout' : `Complete Workout (${completedCount}/${totalItems})`}
-      </button>
-    </div>
+        {/* Complete Button */}
+        <button
+          onClick={handleCompleteClick}
+          className={`w-full py-4 rounded-xl font-black text-lg uppercase tracking-wide transition-colors ${
+            allComplete
+              ? 'bg-green-600 hover:bg-green-700 text-white'
+              : 'bg-[#ffed00] hover:bg-[#e6d600] text-black'
+          }`}
+        >
+          {allComplete ? 'Complete Workout' : `Complete Workout (${completedCount}/${totalItems})`}
+        </button>
+      </div>
+    </>
   );
 }

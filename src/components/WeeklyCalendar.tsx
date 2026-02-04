@@ -1,10 +1,14 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { UserProgram, ScheduledWorkout, ScheduledWorkoutExtended } from '@/lib/types';
 import { getProgramById, getWorkoutTypeIcon, getWorkoutTypeLabel, WorkoutTypeIconName } from '@/lib/training-programs';
 import { getExtendedWorkoutTypeIcon, getExtendedWorkoutTypeLabel, ExtendedWorkoutTypeIconName } from '@/lib/program-templates';
 import { GeneratedProgram } from '@/lib/program-generator';
+import MissedWorkoutHandler, { MissedWorkoutData } from './MissedWorkoutHandler';
+import { completeWorkoutAPI } from '@/lib/api';
+import { generateMakeupWorkout } from '@/lib/program-adapter';
+import { MissedWorkout } from '@/lib/missed-workout-detector';
 
 // SVG icon component for workout types
 type AllIconNames = WorkoutTypeIconName | ExtendedWorkoutTypeIconName;
@@ -74,17 +78,48 @@ function CheckmarkIcon({ className = "w-5 h-5" }: { className?: string }) {
   );
 }
 
+// Partial completion icon
+function PartialIcon({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+      <circle cx="12" cy="12" r="10" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2" />
+    </svg>
+  );
+}
+
+// RPE Badge component
+function RPEBadge({ rpe }: { rpe: number }) {
+  const getColor = () => {
+    if (rpe <= 5) return 'bg-green-500/20 text-green-400';
+    if (rpe <= 7) return 'bg-yellow-500/20 text-yellow-400';
+    return 'bg-red-500/20 text-red-400';
+  };
+
+  return (
+    <span className={`text-[10px] px-1 py-0.5 rounded ${getColor()}`}>
+      RPE {rpe}
+    </span>
+  );
+}
+
 interface Props {
   userProgram: UserProgram;
   onStartWorkout: (week: number, workout: ScheduledWorkout | ScheduledWorkoutExtended) => void;
   onQuitProgram: () => void;
   programData?: GeneratedProgram | null;
+  onProgramUpdated?: () => void; // Callback to refresh program data after changes
 }
 
-export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProgram, programData }: Props) {
+export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProgram, programData, onProgramUpdated }: Props) {
   // Use personalized program data if available, otherwise fall back to template
   const templateProgram = getProgramById(userProgram.programId);
   const isPersonalized = !!programData;
+
+  // Missed workout handling state
+  const [missedWorkouts, setMissedWorkouts] = useState<MissedWorkoutData[]>([]);
+  const [showMissedHandler, setShowMissedHandler] = useState(false);
+  const [totalMissedImpact, setTotalMissedImpact] = useState(0);
 
   // Create a unified program interface
   const program = programData ? {
@@ -115,6 +150,97 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
   const [selectedWeek, setSelectedWeek] = useState(getCurrentWeek);
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
 
+  // Fetch missed workouts on mount
+  useEffect(() => {
+    async function fetchMissedWorkouts() {
+      try {
+        const response = await fetch('/api/user-program/missed-workouts');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.missedWorkouts && data.missedWorkouts.length > 0) {
+            setMissedWorkouts(data.missedWorkouts);
+            setTotalMissedImpact(data.readinessImpact);
+            // Check localStorage for dismissed state
+            const lastDismissed = localStorage.getItem('missedWorkoutsDismissed');
+            const lastDismissedTime = lastDismissed ? parseInt(lastDismissed) : 0;
+            const hoursSinceDismissed = (Date.now() - lastDismissedTime) / (1000 * 60 * 60);
+            // Show modal if not dismissed in last 24 hours
+            if (hoursSinceDismissed > 24) {
+              setShowMissedHandler(true);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching missed workouts:', error);
+      }
+    }
+
+    if (isPersonalized) {
+      fetchMissedWorkouts();
+    }
+  }, [isPersonalized, userProgram.completedWorkouts.length]);
+
+  // Handle skip missed workout
+  const handleSkipMissedWorkout = useCallback(async (week: number, dayOfWeek: number) => {
+    try {
+      await completeWorkoutAPI({
+        week,
+        dayOfWeek,
+        completionStatus: 'skipped',
+        percentComplete: 0,
+      });
+      // Remove from local state
+      setMissedWorkouts(prev => prev.filter(m => !(m.week === week && m.dayOfWeek === dayOfWeek)));
+      // Refresh program data
+      onProgramUpdated?.();
+    } catch (error) {
+      console.error('Error skipping workout:', error);
+    }
+  }, [onProgramUpdated]);
+
+  // Handle do condensed makeup workout
+  const handleDoCondensed = useCallback((workout: MissedWorkoutData) => {
+    // Convert MissedWorkoutData to MissedWorkout format for generateMakeupWorkout
+    const missedWorkout: MissedWorkout = {
+      week: workout.week,
+      dayOfWeek: workout.dayOfWeek,
+      dayName: workout.dayName,
+      workout: {
+        dayOfWeek: workout.dayOfWeek,
+        dayName: workout.dayName,
+        type: workout.workoutType as ScheduledWorkoutExtended['type'],
+        estimatedMinutes: workout.estimatedMinutes,
+        params: workout.workoutParams as ScheduledWorkoutExtended['params'],
+      },
+      daysSinceMissed: workout.daysSinceMissed,
+      importance: workout.importance,
+      suggestedAction: workout.suggestedAction,
+      impactOnReadiness: workout.impactOnReadiness,
+    };
+    const condensedWorkout = generateMakeupWorkout(missedWorkout, workout.daysSinceMissed);
+    setShowMissedHandler(false);
+    onStartWorkout(workout.week, condensedWorkout);
+  }, [onStartWorkout]);
+
+  // Handle do full makeup workout
+  const handleDoFull = useCallback((workout: MissedWorkoutData) => {
+    const fullWorkout: ScheduledWorkoutExtended = {
+      dayOfWeek: workout.dayOfWeek,
+      dayName: workout.dayName,
+      type: workout.workoutType as ScheduledWorkoutExtended['type'],
+      estimatedMinutes: workout.estimatedMinutes,
+      params: workout.workoutParams as ScheduledWorkoutExtended['params'],
+    };
+    setShowMissedHandler(false);
+    onStartWorkout(workout.week, fullWorkout);
+  }, [onStartWorkout]);
+
+  // Handle dismiss missed workout handler
+  const handleDismissMissedHandler = useCallback(() => {
+    localStorage.setItem('missedWorkoutsDismissed', Date.now().toString());
+    setShowMissedHandler(false);
+  }, []);
+
   // Calculate days until race (if race date is set)
   const daysUntilRace = useMemo(() => {
     if (!programData?.personalization?.raceDate) return null;
@@ -135,9 +261,16 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
   const weekData = program.schedule.find(w => w.week === selectedWeek);
   const currentWeek = getCurrentWeek();
 
-  // Check if a workout is completed
+  // Check if a workout is completed and get its data
   const isWorkoutCompleted = (week: number, dayOfWeek: number): boolean => {
     return userProgram.completedWorkouts.some(
+      cw => cw.week === week && cw.dayOfWeek === dayOfWeek
+    );
+  };
+
+  // Get completion data for a workout
+  const getCompletionData = (week: number, dayOfWeek: number) => {
+    return userProgram.completedWorkouts.find(
       cw => cw.week === week && cw.dayOfWeek === dayOfWeek
     );
   };
@@ -157,14 +290,17 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     return days.map((name, index) => {
       const workout = weekData?.workouts.find(w => w.dayOfWeek === index);
+      const completionData = getCompletionData(selectedWeek, index);
       return {
         name,
         index,
         workout,
         isToday: index === today && selectedWeek === currentWeek,
         isCompleted: workout ? isWorkoutCompleted(selectedWeek, index) : false,
+        completionData,
       };
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [weekData, selectedWeek, today, currentWeek, userProgram.completedWorkouts]);
 
   return (
@@ -265,7 +401,11 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
               <>
                 <div className="flex justify-center mb-1">
                   {day.isCompleted ? (
-                    <CheckmarkIcon className="w-6 h-6 sm:w-7 sm:h-7 text-[#ffed00]" />
+                    day.completionData?.completionStatus === 'partial' ? (
+                      <PartialIcon className="w-6 h-6 sm:w-7 sm:h-7 text-orange-400" />
+                    ) : (
+                      <CheckmarkIcon className="w-6 h-6 sm:w-7 sm:h-7 text-[#ffed00]" />
+                    )
                   ) : (
                     <WorkoutTypeIconSVG
                       icon={isPersonalized
@@ -276,7 +416,13 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
                     />
                   )}
                 </div>
-                <div className={`text-xs ${day.isCompleted ? 'text-[#ffed00]' : 'text-gray-400'}`}>
+                <div className={`text-xs ${
+                  day.isCompleted
+                    ? day.completionData?.completionStatus === 'partial'
+                      ? 'text-orange-400'
+                      : 'text-[#ffed00]'
+                    : 'text-gray-400'
+                }`}>
                   {day.workout.type === 'rest' ? 'Rest' : `${day.workout.estimatedMinutes}m`}
                 </div>
               </>
@@ -295,14 +441,18 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
           </h3>
           {weekData.workouts.map((workout, idx) => {
             const completed = isWorkoutCompleted(selectedWeek, workout.dayOfWeek);
+            const completionData = getCompletionData(selectedWeek, workout.dayOfWeek);
             const isRestDay = workout.type === 'rest';
+            const isPartial = completionData?.completionStatus === 'partial';
 
             return (
               <div
                 key={idx}
                 className={`p-4 rounded-lg border ${
                   completed
-                    ? 'bg-[#ffed00]/10 border-[#ffed00]/30'
+                    ? isPartial
+                      ? 'bg-orange-500/10 border-orange-500/30'
+                      : 'bg-[#ffed00]/10 border-[#ffed00]/30'
                     : isRestDay
                     ? 'bg-[#1f1f1f]/50 border-[#262626]'
                     : 'bg-[#1f1f1f] border-[#262626]'
@@ -311,7 +461,11 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     {completed ? (
-                      <CheckmarkIcon className="w-7 h-7 text-[#ffed00]" />
+                      isPartial ? (
+                        <PartialIcon className="w-7 h-7 text-orange-400" />
+                      ) : (
+                        <CheckmarkIcon className="w-7 h-7 text-[#ffed00]" />
+                      )
                     ) : (
                       <WorkoutTypeIconSVG
                         icon={isPersonalized
@@ -322,12 +476,19 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
                       />
                     )}
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-medium text-white">{workout.dayName}</span>
                         {completed && (
-                          <span className="text-xs px-1.5 py-0.5 bg-[#ffed00]/20 text-[#ffed00] rounded">
-                            Completed
+                          <span className={`text-xs px-1.5 py-0.5 rounded ${
+                            isPartial
+                              ? 'bg-orange-500/20 text-orange-400'
+                              : 'bg-[#ffed00]/20 text-[#ffed00]'
+                          }`}>
+                            {isPartial ? `${completionData?.percentComplete || 0}%` : 'Completed'}
                           </span>
+                        )}
+                        {completionData?.rpe && (
+                          <RPEBadge rpe={completionData.rpe} />
                         )}
                       </div>
                       <div className="text-sm text-gray-400">
@@ -382,6 +543,31 @@ export default function WeeklyCalendar({ userProgram, onStartWorkout, onQuitProg
             );
           })}
         </div>
+      )}
+
+      {/* Missed workout handler modal */}
+      {showMissedHandler && missedWorkouts.length > 0 && (
+        <MissedWorkoutHandler
+          missedWorkouts={missedWorkouts}
+          totalImpact={totalMissedImpact}
+          onSkip={handleSkipMissedWorkout}
+          onDoCondensed={handleDoCondensed}
+          onDoFull={handleDoFull}
+          onDismiss={handleDismissMissedHandler}
+        />
+      )}
+
+      {/* Missed workouts indicator badge */}
+      {missedWorkouts.length > 0 && !showMissedHandler && (
+        <button
+          onClick={() => setShowMissedHandler(true)}
+          className="fixed bottom-20 right-4 z-40 flex items-center gap-2 px-4 py-2 bg-yellow-500/20 border border-yellow-500/50 rounded-full text-yellow-400 text-sm font-medium hover:bg-yellow-500/30 transition-colors"
+        >
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+          </svg>
+          {missedWorkouts.length} missed workout{missedWorkouts.length > 1 ? 's' : ''}
+        </button>
       )}
 
       {/* Quit confirmation modal */}
