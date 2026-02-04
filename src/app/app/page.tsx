@@ -10,7 +10,7 @@ import PacingCalculator from '@/components/PacingCalculator';
 import ProgressTracker from '@/components/ProgressTracker';
 import ProgramSelector from '@/components/ProgramSelector';
 import WeeklyCalendar from '@/components/WeeklyCalendar';
-import RunningWorkout from '@/components/RunningWorkout';
+import RunningWorkout, { RunningWorkoutCompletionData } from '@/components/RunningWorkout';
 import StrengthWorkout, { StrengthWorkoutCompletionData } from '@/components/StrengthWorkout';
 import { UserEquipment, GeneratedWorkout, RaceSimulatorConfig, UserProgram, ScheduledWorkout, ScheduledWorkoutExtended, ProgramPersonalization } from '@/lib/types';
 import { loadEquipment, loadExcludedExercises, saveExcludedExercises, loadUserProgram, saveUserProgram, clearUserProgram, generateId, addCompletedProgramWorkout, saveIncludeRuns, loadIncludeRuns } from '@/lib/storage';
@@ -286,12 +286,17 @@ export default function Home() {
     setActiveStrengthWorkout(workout);
   };
 
-  const handleCompleteRunWorkout = async () => {
+  const handleCompleteRunWorkout = async (data: RunningWorkoutCompletionData) => {
     if (programWorkoutContext && userProgram && session?.user) {
       try {
         await completeWorkoutAPI({
           week: programWorkoutContext.week,
           dayOfWeek: programWorkoutContext.dayOfWeek,
+          actualDuration: data.actualDuration,
+          rpe: data.rpe,
+          completionStatus: data.completionStatus,
+          percentComplete: data.percentComplete,
+          performanceData: data.performanceData,
         });
         // Reload user program
         const updated = await fetchUserProgram();

@@ -2,6 +2,22 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { formatTime } from '@/lib/storage';
+import WorkoutFeedback, { WorkoutFeedbackData } from './WorkoutFeedback';
+
+export interface RunningWorkoutCompletionData {
+  actualDuration: number; // in minutes
+  completionStatus: 'full' | 'partial';
+  percentComplete: number;
+  rpe?: number;
+  performanceData: {
+    runType: 'zone2' | 'tempo' | 'intervals';
+    targetDuration: number;
+    targetPace?: string;
+    hrZone?: string;
+    feeling?: 'easy' | 'just_right' | 'hard' | 'too_hard';
+    notes?: string;
+  };
+}
 
 interface RunningWorkoutProps {
   runType: 'zone2' | 'tempo' | 'intervals';
@@ -14,7 +30,7 @@ interface RunningWorkoutProps {
     rest: number; // seconds
   };
   notes?: string;
-  onComplete: () => void;
+  onComplete: (data: RunningWorkoutCompletionData) => void;
   onBack?: () => void;
 }
 
@@ -30,10 +46,12 @@ export default function RunningWorkout({
 }: RunningWorkoutProps) {
   const [isRunning, setIsRunning] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [showFeedback, setShowFeedback] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const targetDurationSeconds = duration * 60;
   const progress = Math.min((elapsedSeconds / targetDurationSeconds) * 100, 100);
+  const percentComplete = Math.round(progress);
 
   const cleanup = useCallback(() => {
     if (intervalRef.current) {
@@ -104,10 +122,61 @@ export default function RunningWorkout({
     );
   };
 
+  const handleCompleteClick = () => {
+    cleanup();
+    setIsRunning(false);
+    setShowFeedback(true);
+  };
+
+  const handleFeedbackSubmit = (feedback: WorkoutFeedbackData) => {
+    const actualDuration = Math.ceil(elapsedSeconds / 60);
+    const completionData: RunningWorkoutCompletionData = {
+      actualDuration,
+      completionStatus: percentComplete >= 90 ? 'full' : 'partial',
+      percentComplete,
+      rpe: feedback.rpe,
+      performanceData: {
+        runType,
+        targetDuration: duration,
+        targetPace,
+        hrZone,
+        feeling: feedback.feeling,
+        notes: feedback.notes,
+      },
+    };
+    setShowFeedback(false);
+    onComplete(completionData);
+  };
+
+  const handleFeedbackSkip = () => {
+    const actualDuration = Math.ceil(elapsedSeconds / 60);
+    const completionData: RunningWorkoutCompletionData = {
+      actualDuration,
+      completionStatus: percentComplete >= 90 ? 'full' : 'partial',
+      percentComplete,
+      performanceData: {
+        runType,
+        targetDuration: duration,
+        targetPace,
+        hrZone,
+      },
+    };
+    setShowFeedback(false);
+    onComplete(completionData);
+  };
+
   return (
-    <div className="bg-[#141414] rounded-xl p-4 sm:p-6 min-h-[calc(100vh-12rem)]">
-      {/* Back button */}
-      {onBack && (
+    <>
+      {showFeedback && (
+        <WorkoutFeedback
+          workoutType={runType === 'zone2' ? 'zone 2 run' : runType === 'tempo' ? 'tempo run' : 'interval run'}
+          onSubmit={handleFeedbackSubmit}
+          onSkip={handleFeedbackSkip}
+        />
+      )}
+      <div className="bg-[#141414] rounded-xl p-4 sm:p-6 min-h-[calc(100vh-12rem)]">
+        {/* Back button */}
+        {onBack && (
         <button
           onClick={onBack}
           className="flex items-center gap-2 text-gray-400 hover:text-white mb-4 transition-colors"
@@ -219,13 +288,14 @@ export default function RunningWorkout({
         )}
       </div>
 
-      {/* Complete Button */}
-      <button
-        onClick={onComplete}
-        className="w-full py-4 bg-green-600 hover:bg-green-700 rounded-xl font-black text-white text-lg uppercase tracking-wide transition-colors"
-      >
-        Complete Workout
-      </button>
-    </div>
+        {/* Complete Button */}
+        <button
+          onClick={handleCompleteClick}
+          className="w-full py-4 bg-green-600 hover:bg-green-700 rounded-xl font-black text-white text-lg uppercase tracking-wide transition-colors"
+        >
+          Complete Workout
+        </button>
+      </div>
+    </>
   );
 }
