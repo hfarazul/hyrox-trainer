@@ -48,13 +48,17 @@ export const nativeAuth = {
       });
 
       if (result.provider === 'google' && result.result) {
-        const profile = result.result.profile;
-        return {
-          email: profile.email,
-          name: profile.name || profile.email,
-          picture: profile.picture,
-          idToken: result.result.idToken,
-        };
+        const googleResult = result.result;
+        // Check if it's an online response (has profile)
+        if ('profile' in googleResult && googleResult.profile) {
+          const profile = googleResult.profile;
+          return {
+            email: profile.email || '',
+            name: profile.name || profile.email || '',
+            picture: profile.imageUrl || undefined,
+            idToken: googleResult.idToken || '',
+          };
+        }
       }
       return null;
     } catch (error) {
