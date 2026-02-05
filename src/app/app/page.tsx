@@ -481,7 +481,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-black">
       {/* Header - Dark with Yellow Accents */}
-      <header className="bg-black border-b border-[#262626]">
+      <header className="bg-black border-b border-[#262626] safe-area-top">
         <div className="max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-2">
             <div className="min-w-0">
