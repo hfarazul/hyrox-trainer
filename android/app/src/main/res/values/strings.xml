@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">HYROX Trainer</string>
+    <string name="title_activity_main">HYROX Trainer</string>
+    <string name="package_name">com.hyroxtrainer.app</string>
+    <string name="custom_url_scheme">com.hyroxtrainer.app</string>
+    <string name="server_client_id">478957254664-lmk81te9npi4qqfsbb2g99bs66lnet3g.apps.googleusercontent.com</string>
+</resources>

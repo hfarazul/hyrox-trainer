@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { nativeAuth } from '@/lib/native-auth';
 
 function SignInForm() {
   const router = useRouter();
@@ -12,6 +13,19 @@ function SignInForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isNative, setIsNative] = useState(false);
+
+  // Initialize native auth and check platform
+  useEffect(() => {
+    const init = async () => {
+      const native = nativeAuth.isNative();
+      setIsNative(native);
+      if (native) {
+        await nativeAuth.initialize();
+      }
+    };
+    init();
+  }, []);
 
   // Handle OAuth errors from URL
   useEffect(() => {
@@ -25,6 +39,46 @@ function SignInForm() {
       router.replace('/auth/signin');
     }
   }, [searchParams, router]);
+
+  // Handle native Google Sign-In
+  const handleNativeGoogleSignIn = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      const user = await nativeAuth.signInWithGoogle();
+      if (user) {
+        // Send the ID token to your backend to create/login the user
+        const result = await signIn('credentials', {
+          redirect: false,
+          email: user.email,
+          googleIdToken: user.idToken,
+          isGoogleNative: 'true',
+        });
+
+        if (result?.error) {
+          // If credentials provider doesn't support Google token, try alternative
+          setError('Google sign-in successful. Please use email login or contact support.');
+        } else {
+          router.push('/app');
+          router.refresh();
+        }
+      }
+    } catch (err) {
+      console.error('Native Google Sign-In error:', err);
+      setError('Google sign-in failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle Google Sign-In (native or web)
+  const handleGoogleSignIn = () => {
+    if (isNative) {
+      handleNativeGoogleSignIn();
+    } else {
+      signIn('google', { callbackUrl: '/app' });
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,8 +121,9 @@ function SignInForm() {
           {/* Google Sign In */}
           <button
             type="button"
-            onClick={() => signIn('google', { callbackUrl: '/app' })}
-            className="w-full py-3 bg-white hover:bg-gray-100 rounded-lg font-semibold text-gray-800 flex items-center justify-center gap-3 focus:outline-none focus:ring-2 focus:ring-gray-400"
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+            className="w-full py-3 bg-white hover:bg-gray-100 disabled:opacity-50 rounded-lg font-semibold text-gray-800 flex items-center justify-center gap-3 focus:outline-none focus:ring-2 focus:ring-gray-400"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>

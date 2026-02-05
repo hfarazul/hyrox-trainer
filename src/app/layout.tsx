@@ -29,6 +29,9 @@ export const metadata: Metadata = {
   title: "HYTRAIN - Train Anywhere, Race Ready",
   description: "Equipment-adaptive HYROX training app with race simulations, pacing calculator, and progress tracking. Train for HYROX with whatever equipment you have.",
   keywords: ["HYROX", "fitness", "training", "race simulation", "workout generator", "HYTRAIN"],
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({

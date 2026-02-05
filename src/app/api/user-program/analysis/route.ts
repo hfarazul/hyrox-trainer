@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import type { CompletedProgramWorkout } from '@prisma/client';
 import {
   analyzeRecentPerformance,
   calculateRaceReadiness,
@@ -103,7 +104,7 @@ export async function GET() {
     const currentWeek = Math.min(Math.floor(daysSinceStart / 7) + 1, totalWeeks);
 
     // Transform completed workouts for analyzer
-    const completedWorkoutsData: CompletedWorkoutData[] = userProgram.completedWorkouts.map(cw => ({
+    const completedWorkoutsData: CompletedWorkoutData[] = userProgram.completedWorkouts.map((cw: CompletedProgramWorkout) => ({
       week: cw.week,
       dayOfWeek: cw.dayOfWeek,
       completedAt: cw.completedAt.toISOString(),
@@ -117,7 +118,7 @@ export async function GET() {
     // For now, estimate based on workout types if we have program data
     let keyWorkoutsCompleted = 0;
     if (programData?.weeks) {
-      userProgram.completedWorkouts.forEach(cw => {
+      userProgram.completedWorkouts.forEach((cw: CompletedProgramWorkout) => {
         const weekData = programData!.weeks![cw.week - 1];
         if (weekData?.workouts) {
           const dayWorkout = weekData.workouts.find(

@@ -4,13 +4,6 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import dynamic from 'next/dynamic';
-
-// Dynamically import Spline to avoid SSR issues
-const Spline = dynamic(() => import('@splinetool/react-spline'), {
-  ssr: false,
-  loading: () => <div className="w-full h-full bg-black" />,
-});
 
 // SVG Icons
 function TimerIcon({ className = "w-8 h-8" }: { className?: string }) {
@@ -71,13 +64,12 @@ export default function LandingPage() {
     <div className="min-h-screen bg-black">
       {/* Hero Section */}
       <section className="min-h-screen flex flex-col items-center justify-start pt-24 sm:pt-32 px-4 relative overflow-hidden">
-        {/* Spline 3D Background */}
+        {/* Gradient Background */}
         <div className="absolute inset-0 z-0">
-          <Spline scene="https://prod.spline.design/6naopzxuSaBQu3ez/scene.splinecode" />
+          <div className="absolute inset-0 bg-gradient-to-br from-black via-[#1a1a0a] to-black" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#ffed00]/10 via-transparent to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black to-transparent" />
         </div>
-
-        {/* Gradient overlay for text readability */}
-        <div className="absolute inset-0 z-[1] bg-gradient-to-t from-black via-black/50 to-transparent" />
 
         <div className="text-center max-w-3xl mx-auto relative z-10">
           {/* Logo */}
