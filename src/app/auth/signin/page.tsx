@@ -63,9 +63,10 @@ function SignInForm() {
           router.refresh();
         }
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Native Google Sign-In error:', err);
-      setError('Google sign-in failed. Please try again.');
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      setError(`Google sign-in failed: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
