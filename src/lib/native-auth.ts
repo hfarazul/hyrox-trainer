@@ -42,9 +42,7 @@ export const nativeAuth = {
     try {
       const result = await SocialLogin.login({
         provider: 'google',
-        options: {
-          scopes: ['email', 'profile'],
-        },
+        options: {},
       });
 
       if (result.provider === 'google' && result.result) {
