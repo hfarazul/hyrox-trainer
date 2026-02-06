@@ -4,7 +4,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 const RAILWAY_URL = 'https://hyrox-trainer-staging.up.railway.app';
 
 const config: CapacitorConfig = {
-  appId: 'com.hyroxtrainer.app',
+  appId: 'com.hytrain.ios',
   appName: 'HYROX Trainer',
   webDir: 'out',
 
@@ -31,6 +31,8 @@ const config: CapacitorConfig = {
     SocialLogin: {
       google: {
         webClientId: '478957254664-lmk81te9npi4qqfsbb2g99bs66lnet3g.apps.googleusercontent.com',
+        iOSClientId: '478957254664-2n5bfvht1f29lgjr50eksj084f1tcu77.apps.googleusercontent.com',
+        iOSServerClientId: '478957254664-lmk81te9npi4qqfsbb2g99bs66lnet3g.apps.googleusercontent.com',
       },
     },
     SplashScreen: {

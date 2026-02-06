@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
+import { nativeAuth } from '@/lib/native-auth';
 import EquipmentSelector from '@/components/EquipmentSelector';
 import WorkoutDisplay from '@/components/WorkoutDisplay';
 import RaceSimulator from '@/components/RaceSimulator';
@@ -512,7 +513,10 @@ export default function Home() {
                 <div className="flex items-center gap-2 sm:gap-3">
                   <span className="text-xs sm:text-sm text-gray-400 hidden sm:inline max-w-[120px] truncate">{session.user.name || session.user.email}</span>
                   <button
-                    onClick={() => signOut()}
+                    onClick={async () => {
+                      await nativeAuth.signOut();
+                      signOut({ callbackUrl: '/' });
+                    }}
                     className="px-3 sm:px-4 py-2 bg-[#ffed00] hover:bg-[#e6d600] rounded-lg text-xs sm:text-sm text-black whitespace-nowrap font-bold uppercase tracking-wide"
                   >
                     Sign Out

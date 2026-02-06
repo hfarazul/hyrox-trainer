@@ -50,11 +50,17 @@ export const nativeAuth = {
         // Check if it's an online response (has profile)
         if ('profile' in googleResult && googleResult.profile) {
           const profile = googleResult.profile;
+          const idToken = googleResult.idToken;
+
+          if (!idToken) {
+            throw new Error('No ID token received from Google Sign-In');
+          }
+
           return {
             email: profile.email || '',
             name: profile.name || profile.email || '',
             picture: profile.imageUrl || undefined,
-            idToken: googleResult.idToken || '',
+            idToken: idToken,
           };
         }
       }

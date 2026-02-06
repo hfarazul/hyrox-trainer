@@ -28,7 +28,12 @@
       "WebFetch(domain:www.hyroxtrainingplans.com)",
       "Bash(npm run test:run:*)",
       "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd 8-week and 12-week program templates\n\n- Create program-templates.ts with periodized training schedules\n- 8-week intermediate program: Specificity → Peak → Taper phases\n- 12-week beginner program: Base → Pace → Accelerate → Prime → Taper\n- Include running workouts \\(zone2, tempo, intervals\\) in templates\n- Include hybrid strength workouts with station work\n- Add deload weeks for recovery\n- Export helper functions for template selection\n- Add 26 unit tests for template validation\nEOF\n\\)\")",
-      "Bash(node -e:*)"
+      "Bash(node -e:*)",
+      "Bash(DATABASE_URL=\"postgresql://dummy:dummy@localhost:5432/dummy\" npx prisma generate:*)",
+      "Bash(open:*)",
+      "Bash(git push:*)",
+      "Bash(GIT_TERMINAL_PROMPT=0 /usr/bin/git:*)",
+      "Bash(xcodebuild:*)"
     ]
   }
 }
